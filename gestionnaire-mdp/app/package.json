@@ -8,7 +8,9 @@
     "./backend": "./src/backend.ts",
     "./styles/tokens.css": "./src/styles/tokens.css",
     "./styles/base.css": "./src/styles/base.css",
-    "./styles/components.css": "./src/styles/components.css"
+    "./styles/components.css": "./src/styles/components.css",
+    "./ui/*": "./src/ui/*.ts",
+    "./styles/ecrans.css": "./src/styles/ecrans.css"
   },
   "scripts": {
     "dev": "vite",
