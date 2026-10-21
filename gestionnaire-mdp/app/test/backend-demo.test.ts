@@ -99,3 +99,24 @@ describe('DemoBackend', () => {
     expect(vus).toEqual(['verrouille']);
   });
 });
+
+describe('changement de la clé maître (4.4e)', () => {
+  it('refuse sans le mot de passe actuel correct et ne change rien', async () => {
+    const b = new DemoBackend();
+    await b.unlock('demo');
+    await expect(b.changeMasterKey('nouveau mot de passe tres long', undefined, { password: 'faux' }))
+      .rejects.toMatchObject({ code: 'mauvais-mot-de-passe' });
+    await expect(b.changeMasterKey('nouveau mot de passe tres long')).rejects.toBeInstanceOf(VaultError);
+    await b.lock();
+    await b.unlock('demo'); // l'ancien mot de passe ouvre toujours le coffre
+  });
+
+  it('change la clé quand le mot de passe actuel est correct', async () => {
+    const b = new DemoBackend();
+    await b.unlock('demo');
+    await b.changeMasterKey('nouveau mot de passe tres long', undefined, { password: 'demo' });
+    await b.lock();
+    await expect(b.unlock('demo')).rejects.toMatchObject({ code: 'mauvais-mot-de-passe' });
+    await b.unlock('nouveau mot de passe tres long');
+  });
+});

@@ -4,7 +4,7 @@
 
 import { estimateStrength, totpNow, VaultError } from '@cadenas/core';
 import {
-  REGLAGES_PAR_DEFAUT,
+  REGLAGES_PAR_DEFAUT, type CleActuelle,
   type CustomField, type EntryDetail, type EntryInput, type EntrySummary, type GroupInfo, type HealthReport,
   type Id, type SecretKind, type Settings, type VaultBackend, type VaultState,
 } from './backend';
@@ -222,8 +222,9 @@ export class DemoBackend implements VaultBackend {
     await this.marquer();
   }
 
-  async changeMasterKey(password: string): Promise<void> {
+  async changeMasterKey(password: string, _keyFile?: Uint8Array, actuelle?: CleActuelle): Promise<void> {
     this.exigerOuvert();
+    if (actuelle?.password !== this.motDePasse) throw new VaultError('mauvais-mot-de-passe', 'Mot de passe actuel incorrect.');
     this.motDePasse = password;
     await this.marquer();
   }

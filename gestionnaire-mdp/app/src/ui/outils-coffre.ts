@@ -1,6 +1,6 @@
 // Boîtes « Changer le mot de passe maître » et « Importer » (étape 3.6b).
 
-import { estimateStrength, importCsv, type CsvFormat, type ImportedEntry } from '@cadenas/core';
+import { estimateStrength, importCsv, VaultError, type CsvFormat, type ImportedEntry } from '@cadenas/core';
 import type { GroupInfo, Id, VaultBackend } from '../backend';
 import { bouton, champMotDePasse, encart, jaugeForce, ouvrirDialogue, toast } from './components';
 import { messageErreur } from './contexte';
@@ -11,6 +11,8 @@ import { choixFichierCle, lireFichier } from './fichier-cle';
 // ---------- Mot de passe maître et fichier clé ----------
 
 export function ouvrirChangementCle(backend: VaultBackend, nomCoffre: string, surFin: () => void): void {
+  const actuel = champMotDePasse({ etiquette: 'Mot de passe maître actuel', autocomplete: 'current-password' });
+  const cleActuelle = choixFichierCle();
   const mdp = champMotDePasse({ etiquette: 'Nouveau mot de passe maître', autocomplete: 'new-password' });
   const conf = champMotDePasse({ etiquette: 'Confirmez le nouveau mot de passe', autocomplete: 'new-password' });
   const force = h('div', { 'aria-live': 'polite' });
@@ -21,28 +23,37 @@ export function ouvrirChangementCle(backend: VaultBackend, nomCoffre: string, su
     force.replaceChildren(v ? jaugeForce(estimateStrength(v).score, maitreAcceptable(v) ? 'Suffisant' : 'Trop faible') : '');
   });
   const valider = bouton({ texte: 'Changer la clé', variante: 'principal', surClic: async () => {
-    mdp.erreur(''); conf.erreur(''); erreur.textContent = '';
+    actuel.erreur(''); mdp.erreur(''); conf.erreur(''); erreur.textContent = '';
+    if (!actuel.entree.value) { actuel.erreur('Saisissez le mot de passe maître actuel.'); actuel.entree.focus(); return; }
     if (!maitreAcceptable(mdp.entree.value)) { mdp.erreur('Trop faible : utilisez une phrase de 5 mots ou plus.'); mdp.entree.focus(); return; }
     if (mdp.entree.value !== conf.entree.value) { conf.erreur('Les deux mots de passe ne sont pas identiques.'); conf.entree.focus(); return; }
     valider.disabled = true;
     try {
-      await backend.changeMasterKey(mdp.entree.value, cle.valeur());
-      mdp.entree.value = ''; conf.entree.value = '';
+      await backend.changeMasterKey(mdp.entree.value, cle.valeur(), { password: actuel.entree.value, keyFile: cleActuelle.valeur() });
+      actuel.entree.value = ''; mdp.entree.value = ''; conf.entree.value = '';
       d.fermer();
       toast('Clé du coffre changée');
       surFin();
-    } catch (e) { erreur.textContent = messageErreur(e); valider.disabled = false; }
+    } catch (e) {
+      valider.disabled = false;
+      if (e instanceof VaultError && e.code === 'mauvais-mot-de-passe') {
+        actuel.erreur('Mot de passe actuel ou fichier clé actuel incorrect. Rien n\'a été changé.');
+        actuel.entree.select(); actuel.entree.focus();
+      } else erreur.textContent = messageErreur(e);
+    }
   } });
   const d = ouvrirDialogue({
     titre: 'Changer le mot de passe maître',
     contenu: h('div', { class: 'formulaire' },
+      actuel.bloc,
+      h('details', { class: 'option' }, h('summary', null, 'Le coffre utilise aussi un fichier clé'), cleActuelle.el),
       h('div', null, mdp.bloc, force), conf.bloc, cle.el,
       encart('alerte', 'Les copies plus anciennes du coffre (sauvegardes, autres appareils) gardent l\'ancien mot de passe. Aucune récupération n\'est possible si vous oubliez le nouveau.'),
       erreur),
     pied: [bouton({ texte: 'Annuler', surClic: () => d.fermer() }), valider],
-    surFermeture: () => { mdp.entree.value = ''; conf.entree.value = ''; cle.vider(); },
+    surFermeture: () => { actuel.entree.value = ''; mdp.entree.value = ''; conf.entree.value = ''; cle.vider(); cleActuelle.vider(); },
   });
-  mdp.entree.focus();
+  actuel.entree.focus();
 }
 
 // ---------- Import CSV ----------

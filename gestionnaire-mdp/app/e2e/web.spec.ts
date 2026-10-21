@@ -64,4 +64,50 @@ test.describe('version web (WebBackend)', () => {
     expect(externes).toEqual([]);
     expect(erreurs).toEqual([]);
   });
+
+  test('changer le mot de passe maître exige le mot de passe actuel (4.4e)', async ({ page }) => {
+    test.slow();
+    const NOUVEAU = 'violon sable retard ampoule galet';
+    const erreurs = erreursConsole(page);
+    await page.goto('/index.html');
+    await page.getByRole('button', { name: /Créer un coffre/ }).click();
+    await page.getByLabel('Mot de passe maître', { exact: true }).fill(MDP);
+    await page.getByLabel('Confirmez le mot de passe maître').fill(MDP);
+    await page.getByLabel(/aucune récupération n'est possible/).check();
+    await page.getByRole('button', { name: 'Créer le coffre' }).click();
+    await expect(page.locator('.coffre')).toBeVisible({ timeout: 30_000 });
+
+    const ouvrir = async () => {
+      await action(page, 'Réglages');
+      await page.getByRole('button', { name: /Changer le mot de passe maître/ }).click();
+    };
+    const remplir = async (actuel: string) => {
+      const d = page.locator('dialog[open]');
+      await d.getByLabel('Mot de passe maître actuel').fill(actuel);
+      await d.getByLabel('Nouveau mot de passe maître').fill(NOUVEAU);
+      await d.getByLabel('Confirmez le nouveau mot de passe').fill(NOUVEAU);
+      await d.getByRole('button', { name: 'Changer la clé' }).click();
+    };
+    // Mot de passe actuel erroné : refus, rien n'est changé.
+    await ouvrir();
+    await remplir('pas le bon mot de passe');
+    await expect(page.getByText('Mot de passe actuel ou fichier clé actuel incorrect')).toBeVisible({ timeout: 30_000 });
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Control+l');
+    await page.getByPlaceholder('Mot de passe maître').fill(MDP);
+    await page.getByRole('button', { name: 'Déverrouiller' }).click();
+    await expect(page.locator('.coffre')).toBeVisible({ timeout: 30_000 });
+    // Mot de passe actuel correct : la clé change.
+    await ouvrir();
+    await remplir(MDP);
+    await expect(page.getByText('Clé du coffre changée')).toBeVisible({ timeout: 30_000 });
+    await page.keyboard.press('Control+l');
+    await page.getByPlaceholder('Mot de passe maître').fill(MDP);
+    await page.getByRole('button', { name: 'Déverrouiller' }).click();
+    await expect(page.getByText('Mot de passe maître ou fichier clé incorrect')).toBeVisible({ timeout: 30_000 });
+    await page.getByPlaceholder('Mot de passe maître').fill(NOUVEAU);
+    await page.getByRole('button', { name: 'Déverrouiller' }).click();
+    await expect(page.locator('.coffre')).toBeVisible({ timeout: 30_000 });
+    expect(erreurs).toEqual([]);
+  });
 });

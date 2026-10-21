@@ -5,7 +5,7 @@
 
 import { calibrateKdf, Vault, VaultError } from '@cadenas/core';
 import {
-  REGLAGES_PAR_DEFAUT,
+  REGLAGES_PAR_DEFAUT, type CleActuelle,
   type EntryDetail, type EntryInput, type EntrySummary, type GroupInfo, type HealthReport,
   type Id, type SecretKind, type Settings, type VaultBackend, type VaultState,
 } from './backend';
@@ -197,7 +197,14 @@ export class WebBackend implements VaultBackend {
   async addGroup(name: string, parentId: Id | null): Promise<Id> { const id = this.v().addGroup(name, parentId); await this.changer(); return id; }
   async renameGroup(id: Id, n: string): Promise<void> { this.v().renameGroup(id, n); await this.changer(); }
   async deleteGroup(id: Id): Promise<void> { this.v().deleteGroup(id); await this.changer(); }
-  async changeMasterKey(password: string, keyFile?: Uint8Array): Promise<void> { await this.v().changeMasterKey(password, keyFile); await this.changer(); }
+  async changeMasterKey(password: string, keyFile?: Uint8Array, actuelle?: CleActuelle): Promise<void> {
+    const v = this.v();
+    if (!actuelle) throw new VaultError('mauvais-mot-de-passe');
+    // Vérification de la clé en vigueur : on rouvre les octets chiffrés avec elle (Vault.open lève 'mauvais-mot-de-passe').
+    (await Vault.open(await v.save(), actuelle.password, actuelle.keyFile)).close();
+    await v.changeMasterKey(password, keyFile);
+    await this.changer();
+  }
   async health(): Promise<HealthReport> { return this.v().health(); }
 
   // ---------- Réglages et événements ----------

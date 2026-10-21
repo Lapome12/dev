@@ -22,6 +22,8 @@ export interface Settings {
 
 export const REGLAGES_PAR_DEFAUT: Settings = { autoLockMinutes: 10, clipboardSeconds: 30, theme: 'systeme' };
 
+export interface CleActuelle { password: string; keyFile?: Uint8Array }
+
 export interface VaultBackend {
   status(): Promise<VaultState>;
   create(name: string, password: string, keyFile?: Uint8Array): Promise<void>;
@@ -49,7 +51,11 @@ export interface VaultBackend {
   addGroup(name: string, parentId: Id | null): Promise<Id>;
   renameGroup(id: Id, n: string): Promise<void>;
   deleteGroup(id: Id): Promise<void>;
-  changeMasterKey(password: string, keyFile?: Uint8Array): Promise<void>;
+  /**
+   * Nouvelle clé maître. `actuelle` (mot de passe et fichier clé en vigueur) est vérifiée avant tout
+   * changement : erreur 'mauvais-mot-de-passe' si elle ne rouvre pas le coffre.
+   */
+  changeMasterKey(password: string, keyFile?: Uint8Array, actuelle?: CleActuelle): Promise<void>;
   health(): Promise<HealthReport>;
   getSettings(): Promise<Settings>;
   setSettings(s: Partial<Settings>): Promise<void>;
