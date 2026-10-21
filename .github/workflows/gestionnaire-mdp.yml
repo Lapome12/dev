@@ -47,8 +47,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
       - name: Tests unitaires (Vitest)
-        # Un workspace encore sans test (app/ au début) ne fait pas échouer la CI.
-        run: npm run test --workspaces --if-present -- --passWithNoTests
+        run: npm test
       - name: Audit des dépendances livrées
         run: npm audit --omit=dev --audit-level=high
       - name: Build
