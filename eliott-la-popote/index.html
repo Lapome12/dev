@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eliott la Popote, chef à domicile</title>
+  <meta name="description" content="Eliott la Popote, cuisinier à domicile. Une cuisine de saison, un peu gastro, servie chez vous : je viens avec les courses, je repars avec la vaisselle.">
+  <meta name="theme-color" content="#F2ECE1">
+  <meta name="color-scheme" content="light">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Eliott la Popote">
+  <meta property="og:title" content="Eliott la Popote, chef à domicile">
+  <meta property="og:description" content="Une cuisine de saison, un peu gastro, servie chez vous. Je viens avec les courses, je repars avec la vaisselle.">
+  <!-- [À COMPLÉTER : og:url et og:image (photo 1200 × 630) une fois le site en ligne] -->
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/sections-recit.css">
+  <link rel="stylesheet" href="css/sections-service.css">
+
+  <script src="js/main.js" defer></script>
+</head>
+<body id="haut">
+
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
+  <!-- ============ En-tête (Dev 1) ============ -->
+  <header class="entete" id="entete">
+    <div class="entete__barre">
+      <a class="entete__monogramme lien-image" href="#haut" aria-label="Eliott la Popote, retour en haut de page">
+        <img src="assets/monogramme.svg" alt="" width="74" height="41">
+      </a>
+
+      <button class="entete__menu" type="button" aria-expanded="false" aria-controls="nav-principale">
+        <span class="entete__menu-ouvrir">Menu</span>
+        <span class="entete__menu-fermer">Fermer</span>
+      </button>
+
+      <nav class="nav" id="nav-principale" aria-label="Navigation principale">
+        <ol class="nav__liste">
+          <li><a class="nav__lien lien-nu" href="#chef"><span class="nav__numero">I.</span> Le chef</a></li>
+          <li><a class="nav__lien lien-nu" href="#table"><span class="nav__numero">II.</span> La table</a></li>
+          <li><a class="nav__lien lien-nu" href="#menus"><span class="nav__numero">III.</span> Menus</a></li>
+          <li><a class="nav__lien lien-nu" href="#deroule"><span class="nav__numero">IV.</span> Déroulé</a></li>
+          <li><a class="nav__lien lien-nu" href="#galerie"><span class="nav__numero">V.</span> Assiettes</a></li>
+          <li><a class="nav__lien lien-nu" href="#avis"><span class="nav__numero">VI.</span> Avis</a></li>
+          <li><a class="nav__lien lien-nu" href="#faq"><span class="nav__numero">VII.</span> Questions</a></li>
+        </ol>
+        <a class="bouton bouton--plein nav__reserver" href="#reserver">Réserver une date</a>
+        <p class="nav__pied discret">Cuisinier à domicile · <span class="placeholder">[À COMPLÉTER : zone desservie]</span></p>
+      </nav>
+
+      <a class="bouton entete__reserver" href="#reserver">Réserver une date</a>
+    </div>
+  </header>
+
+  <main id="contenu">
+
+    <!-- ============ Ouverture (Dev 1) ============ -->
+    <section class="ouverture" id="ouverture" aria-labelledby="ouverture-titre">
+      <div class="grille ouverture__grille">
+
+        <p class="ouverture__folio capitales">
+          <span>Carnet de cuisine</span>
+          <span class="ouverture__saison"><em>Carte d'automne, d'octobre à décembre</em></span>
+        </p>
+
+        <h1 class="ouverture__titre" id="ouverture-titre">Eliott <em>la&nbsp;Popote</em></h1>
+
+        <div class="ouverture__texte">
+          <p class="chapeau">Cuisinier à domicile. Je viens avec les courses, je repars avec la vaisselle.</p>
+          <div class="ouverture__actions">
+            <a class="bouton bouton--plein" href="#reserver">Réserver une date <span class="bouton__fleche" aria-hidden="true">→</span></a>
+            <a class="ouverture__lien" href="#menus">Voir le menu de saison</a>
+          </div>
+        </div>
+
+        <figure class="figure ouverture__photo">
+          <div class="photo-a-venir" style="--ratio: 4 / 5" role="img" aria-label="Photo à venir : table dressée chez un client, bougies, assiettes en cours de service">
+            <span class="photo-a-venir__mention">Photo à venir</span>
+            <span class="photo-a-venir__sujet">Table dressée chez un client, bougies, assiettes en cours de service</span>
+            <span class="photo-a-venir__format">4:5 · vertical</span>
+          </div>
+          <figcaption class="legende">Chez vous, à l'heure du service.</figcaption>
+        </figure>
+
+      </div>
+    </section>
+
+    <!-- PARTIAL: chef -->
+
+    <!-- PARTIAL: table -->
+
+    <!-- PARTIAL: menus -->
+
+    <!-- PARTIAL: deroule -->
+
+    <!-- PARTIAL: galerie -->
+
+    <!-- PARTIAL: avis -->
+
+    <!-- PARTIAL: faq -->
+
+    <!-- PARTIAL: reserver -->
+
+  </main>
+
+  <!-- ============ Pied de page (Dev 1) ============ -->
+  <footer class="pied" id="pied">
+    <div class="grille pied__grille">
+
+      <p class="pied__signature" aria-hidden="true">la <em>Popote</em></p>
+      <p class="pied__phrase">Cuisinier à domicile, cuisine de saison.</p>
+
+      <div class="pied__bloc pied__bloc--zone">
+        <p class="etiquette">Zone desservie</p>
+        <p><span class="placeholder">[À COMPLÉTER : ville et rayon, ex. « Lyon et 40 km autour »]</span></p>
+      </div>
+
+      <div class="pied__bloc pied__bloc--contact">
+        <p class="etiquette">Écrire, appeler</p>
+        <p><span class="placeholder">[À COMPLÉTER : e-mail]</span><br>
+           <span class="placeholder">[À COMPLÉTER : téléphone]</span></p>
+      </div>
+
+      <div class="pied__bloc pied__bloc--reseaux">
+        <p class="etiquette">Ailleurs</p>
+        <p><span class="placeholder">[À COMPLÉTER : lien Instagram]</span></p>
+      </div>
+
+      <div class="pied__bas">
+        <p class="pied__mention">© <span class="chiffres">2026</span> Eliott la Popote · Cuisinier à domicile</p>
+        <p class="pied__mention"><a href="mentions-legales.html">Mentions légales</a> · <a href="#reserver">Réserver une date</a></p>
+        <p class="pied__mention"><a class="lien-nu" href="#haut">Remonter <span aria-hidden="true">↑</span></a></p>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>

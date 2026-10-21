@@ -1,0 +1,421 @@
+/* ==========================================================================
+   Eliott la Popote : mise en page générale
+   Propriétaire : Dev 1.
+   Sommaire :
+     1. En-tête collant
+     2. Navigation (bureau, puis plein écran sur mobile)
+     3. Ouverture
+     4. Pied de page
+   Contrat avec js/main.js (Dev 3) :
+     - <html class="js"> posé par le script ;
+     - bouton .entete__menu : aria-expanded="true|false" ;
+     - nav #nav-principale : classe .nav--ouverte quand le menu mobile est ouvert ;
+     - en-tête #entete : classe .entete--defile dès que la page a défilé.
+   ========================================================================== */
+
+
+/* 1. En-tête collant ------------------------------------------------------ */
+
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-entete);
+  background: var(--papier);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duree-apparition) var(--courbe);
+}
+
+.entete--defile {
+  border-bottom-color: var(--encre);
+}
+
+.entete__barre {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-5);
+  max-width: var(--largeur-max);
+  min-height: var(--hauteur-entete);
+  margin-inline: auto;
+  padding-inline: var(--marge);
+}
+
+.entete__monogramme {
+  flex: none;
+  display: block;
+  padding-block: var(--esp-2);
+}
+
+.entete__monogramme img {
+  width: auto;
+  height: 2.25rem;
+}
+
+.entete__reserver {
+  flex: none;
+  min-height: 2.6rem;
+}
+
+/* Bouton Menu / Fermer (mobile uniquement, et seulement avec JS) */
+.entete__menu {
+  display: none;
+  margin-left: auto;
+  padding: var(--esp-2) 0;
+  border: 0;
+  background: none;
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  line-height: 1;
+  border-bottom: 1px solid var(--encre);
+}
+
+.entete__menu-fermer,
+.entete__menu[aria-expanded="true"] .entete__menu-ouvrir {
+  display: none;
+}
+
+.entete__menu[aria-expanded="true"] .entete__menu-fermer {
+  display: inline;
+}
+
+
+/* 2. Navigation ------------------------------------------------------------ */
+
+.nav {
+  margin-left: auto;
+}
+
+.nav__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1) clamp(var(--esp-3), 2vw, var(--esp-5));
+}
+
+.nav__lien {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  white-space: nowrap;
+}
+
+.nav__numero,
+.nav__reserver,
+.nav__pied {
+  display: none;
+}
+
+/* Bureau large : tout tient sur une ligne */
+@media (min-width: 1000px) {
+  .nav__liste {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Mobile et tablette : menu plein écran, ouvert par le bouton */
+@media (max-width: 999.98px) {
+  .js .entete__menu {
+    display: block;
+  }
+
+  .js .nav {
+    position: fixed;
+    inset: var(--hauteur-entete) 0 0 0;
+    z-index: var(--z-nav);
+    display: none;
+    flex-direction: column;
+    gap: var(--esp-5);
+    margin: 0;
+    padding: var(--esp-5) var(--marge) var(--esp-5);
+    overflow-y: auto;
+    background: var(--papier);
+    border-top: var(--filet);
+  }
+
+  .js .nav.nav--ouverte {
+    display: flex;
+  }
+
+  .js .nav__liste {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .js .nav__liste li {
+    border-bottom: var(--filet-doux);
+  }
+
+  .js .nav__lien {
+    display: flex;
+    align-items: baseline;
+    gap: var(--esp-3);
+    padding-block: var(--esp-3);
+    font-size: var(--taille-l);
+    font-style: italic;
+    font-weight: var(--graisse-fine);
+    font-variant-caps: normal;
+    letter-spacing: -0.01em;
+    white-space: normal;
+  }
+
+  .js .nav__numero {
+    display: inline-block;
+    min-width: 2.6em;
+    font-size: var(--taille-s);
+    font-style: normal;
+    font-weight: var(--graisse-moyenne);
+    font-variant-caps: all-small-caps;
+    letter-spacing: var(--espacement-capitales);
+    color: var(--encre-douce);
+  }
+
+  .js .nav__reserver {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
+  .js .nav__pied {
+    display: block;
+    margin-top: auto;
+    font-size: var(--taille-s);
+  }
+
+  html:has(.nav--ouverte) {
+    overflow: hidden;
+  }
+
+  /* Sans JS : la navigation reste lisible sous le monogramme */
+  html:not(.js) .entete__barre {
+    flex-wrap: wrap;
+    padding-block: var(--esp-2);
+  }
+
+  html:not(.js) .nav {
+    order: 3;
+    flex-basis: 100%;
+    margin: 0;
+  }
+}
+
+@media (max-width: 559.98px) {
+  .js .entete__reserver {
+    display: none;
+  }
+}
+
+
+/* 3. Ouverture ------------------------------------------------------------
+   Asymétrique : le titre déborde sur la photo, le texte est décalé
+   d'une colonne, la photo sort jusqu'au bord droit de l'écran.
+   ------------------------------------------------------------------------- */
+
+.ouverture {
+  padding-top: clamp(var(--esp-4), 4vw, var(--esp-6));
+  padding-bottom: var(--esp-section);
+}
+
+.ouverture__grille {
+  row-gap: var(--esp-4);
+}
+
+.ouverture__folio {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-4);
+  padding-bottom: var(--esp-2);
+  border-bottom: var(--filet);
+}
+
+.ouverture__saison {
+  color: var(--encre-douce);
+  font-size: var(--taille-texte);
+  font-weight: var(--graisse-fine);
+  font-variant-caps: normal;
+  letter-spacing: 0;
+}
+
+.ouverture__titre {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--esp-5);
+  font-size: var(--taille-xxl);
+  font-weight: var(--graisse-fine);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-wrap: wrap;
+}
+
+.ouverture__titre em {
+  display: block;
+  padding-left: 0.9em;
+  white-space: nowrap;
+}
+
+.ouverture__texte .chapeau {
+  max-width: 26ch;
+}
+
+.ouverture__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-5);
+  margin-top: var(--esp-5);
+}
+
+.ouverture__lien {
+  font-style: italic;
+}
+
+.ouverture__photo {
+  margin-top: var(--esp-4);
+}
+
+@media (min-width: 800px) {
+  .ouverture__grille {
+    row-gap: 0;
+  }
+
+  .ouverture__folio {
+    grid-column: 1 / 7;
+    grid-row: 1;
+    flex-direction: column;
+    border-bottom: 0;
+    border-top: var(--filet);
+    padding-top: var(--esp-2);
+  }
+
+  .ouverture__titre {
+    grid-column: 1 / 12;
+    grid-row: 2;
+    margin-top: var(--esp-7);
+  }
+
+  .ouverture__texte {
+    grid-column: 2 / 7;
+    grid-row: 3;
+    margin-top: var(--esp-6);
+  }
+
+  .ouverture__photo {
+    grid-column: 8 / -1;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    margin-right: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+  }
+
+  .ouverture__photo figcaption {
+    padding-right: var(--marge);
+  }
+}
+
+/* 4. Pied de page --------------------------------------------------------- */
+
+.pied {
+  padding-top: var(--esp-7);
+  padding-bottom: var(--esp-5);
+  border-top: var(--filet);
+}
+
+.pied__grille {
+  row-gap: var(--esp-5);
+}
+
+.pied__signature {
+  max-width: none;
+  margin-bottom: var(--esp-4);
+  font-size: clamp(4.5rem, 17vw, 16rem);
+  font-weight: var(--graisse-fine);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: var(--brique);
+  white-space: nowrap;
+}
+
+.pied__signature em {
+  font-style: italic;
+}
+
+.pied__phrase {
+  margin-top: calc(-1 * var(--esp-3));
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+}
+
+.pied__bloc p + p {
+  margin-top: var(--esp-2);
+}
+
+.pied__bloc .etiquette {
+  margin-bottom: var(--esp-2);
+}
+
+.pied__bas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-5);
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}
+
+.pied__mention {
+  margin: 0;
+  font-size: var(--taille-s);
+  color: var(--encre-douce);
+}
+
+@media (min-width: 800px) {
+  .pied__bloc--zone    { grid-column: 1 / 5; }
+  .pied__bloc--contact { grid-column: 5 / 9; }
+  .pied__bloc--reseaux { grid-column: 9 / -1; }
+}
+
+/* Page secondaire (mentions légales) ------------------------------------- */
+
+.entete__retour {
+  margin-left: auto;
+}
+
+.page-simple {
+  padding-block: var(--esp-6) var(--esp-section);
+}
+
+.page-simple h1 {
+  font-size: var(--taille-xl);
+  margin-bottom: var(--esp-6);
+}
+
+.page-simple h2 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  margin-top: var(--esp-6);
+  margin-bottom: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}
+
+.page-simple dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr;
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.page-simple dt {
+  color: var(--encre-douce);
+}
+
+@media (max-width: 559.98px) {
+  .page-simple dl {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .page-simple dd {
+    margin-bottom: var(--esp-3);
+  }
+}
