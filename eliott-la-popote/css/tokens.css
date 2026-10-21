@@ -17,6 +17,7 @@
   --brique: #A63A24;        /* seul accent, moins de 5 % de l'écran */
   --nuit: #171512;          /* fond de la section Menus */
   --papier-nuit: #E9E1D3;   /* texte sur fond nuit */
+  --nuit-2: #24211D;        /* zones teintées sur fond nuit (emplacements photo) */
   --papier-nuit-doux: #A89E8F; /* légendes sur fond nuit (AA sur --nuit) */
   --brique-pale: #F0D9CF;   /* fond des placeholders */
 
