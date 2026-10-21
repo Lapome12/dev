@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Cadenas",
+  "short_name": "Cadenas",
+  "version": "0.1.0",
+  "description": "Gestionnaire de mots de passe local, compatible KeePass (KDBX 4). Aucun serveur.",
+  "minimum_chrome_version": "116",
+  "permissions": ["activeTab", "scripting", "storage", "offscreen", "idle", "alarms", "clipboardWrite"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Cadenas",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icones/cadenas-16.png",
+      "32": "icones/cadenas-32.png"
+    }
+  },
+  "icons": {
+    "16": "icones/cadenas-16.png",
+    "32": "icones/cadenas-32.png",
+    "48": "icones/cadenas-48.png",
+    "128": "icones/cadenas-128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": { "default": "Ctrl+Shift+U", "mac": "Command+Shift+U" },
+      "description": "Ouvrir Cadenas"
+    },
+    "remplir": {
+      "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
+      "description": "Remplir l'identifiant de ce site"
+    }
+  },
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; img-src 'self' data:; style-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+  }
+}
