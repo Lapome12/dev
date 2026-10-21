@@ -78,7 +78,8 @@ jobs:
   construire-pages:
     name: Construire la version web (GitHub Pages)
     needs: verifier
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    # Rien à publier tant que app/ (Dev 2) n'existe pas.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && hashFiles('gestionnaire-mdp/app/package.json') != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
