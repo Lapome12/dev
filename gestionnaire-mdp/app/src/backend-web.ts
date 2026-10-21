@@ -175,7 +175,7 @@ export class WebBackend implements VaultBackend {
     const valeur = await this.getSecret(id, kind);
     await navigator.clipboard.writeText(valeur);
     window.clearTimeout(this.minuteriePressePapiers);
-    this.minuteriePressePapiers = window.setTimeout(() => { void effacerPressePapiers(); }, this.reglages.clipboardSeconds * 1000);
+    this.minuteriePressePapiers = window.setTimeout(() => { void effacerPressePapiers(valeur); }, this.reglages.clipboardSeconds * 1000);
   }
 
   // ---------- Écriture ----------
@@ -299,7 +299,15 @@ function choisirFichier(accept: string): Promise<File> {
   });
 }
 
-/** Efface le presse-papiers. On ne le relit pas : readText() déclencherait une demande d'autorisation. */
-async function effacerPressePapiers(): Promise<void> {
-  try { await navigator.clipboard.writeText(''); } catch { /* page en arrière-plan : effacé au prochain retour */ }
+/**
+ * Efface le presse-papiers, sauf si l'utilisateur y a copié autre chose entre-temps.
+ * On ne relit le presse-papiers que si la lecture est déjà autorisée (sinon readText()
+ * ouvrirait une demande d'autorisation) ; à défaut, on efface sans vérifier.
+ */
+async function effacerPressePapiers(secret: string): Promise<void> {
+  try {
+    const p = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
+    if (p.state === 'granted' && (await navigator.clipboard.readText()) !== secret) return;
+  } catch { /* permission inconnue de ce navigateur : on efface */ }
+  try { await navigator.clipboard.writeText(''); } catch { /* page en arrière-plan */ }
 }
