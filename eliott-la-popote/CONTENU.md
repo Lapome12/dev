@@ -87,7 +87,7 @@ Légende : *fig. 1 — Le chef, à son poste du soir.*
 | *Bouillon de cèpes, noisettes torréfiées, huile de livèche* | Cèpes selon la cueillette, noisettes du Lot-et-Garonne |
 | *Saint-Jacques snackées, chou-fleur en deux façons, beurre noisette* | Saint-Jacques de la baie de Saint-Brieuc, ouverture de la pêche en octobre |
 | *Pintade fermière rôtie, jus au vin jaune, céleri cuit en croûte de sel* | Pintade Label Rouge, vin jaune du Jura |
-| *Comté, chutney de coings et pain de campagne grillé* | Fromager affineur, [À COMPLÉTER : nom du fromager] |
+| *Saint-Nectaire fermier, chutney de coings et pain de campagne grillé* | Fromager affineur, [À COMPLÉTER : nom du fromager] |
 | *Poire pochée au vin chaud, sablé breton, crème crue* | Poires Williams, [À COMPLÉTER : producteur] |
 
 Prix : **[À COMPLÉTER : prix] € par personne**, à partir de 4 convives.
@@ -102,7 +102,7 @@ Prix : **[À COMPLÉTER : prix] € par personne**, à partir de 4 convives.
 
 Prix : **[À COMPLÉTER : prix] € par personne**
 
-**Note allergies :** Allergies, intolérances, régimes végétarien ou sans gluten : dites-le-moi dès la première prise de contact, je compose le menu en conséquence. Aucune substitution de dernière minute ne vaut un menu pensé pour vous.
+**Note allergies :** Allergies, intolérances, régime végétarien ou sans gluten : dites-le-moi dès la première prise de contact, je compose le menu en conséquence. Aucune substitution de dernière minute ne vaut un menu pensé pour vous.
 
 **Mention vin :** Accords mets et vins sur demande, [À COMPLÉTER : avec ou sans fourniture du vin].
 
