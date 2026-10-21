@@ -74,8 +74,12 @@ export class WebBackend implements VaultBackend {
     this.vault?.close();
     this.vault = v;
     const fichier = `${nomFichier(name)}.kdbx`;
-    this.memo = { nom: v.name, fichier, octets: await v.save(), surDisque: false };
-    this.modifie = true; // pas encore écrit sur disque : « Enregistrer » demandera où
+    const octets = await v.save();
+    this.memo = { nom: v.name, fichier, octets, surDisque: false };
+    // Avec File System Access, « Enregistrer » demandera où écrire le fichier ; sans (téléphone),
+    // le coffre est enregistré tout de suite sur l'appareil.
+    if (!fsa().showSaveFilePicker) this.memo.surDisque = await ecrireOpfs(fichier, octets);
+    this.modifie = !this.memo.surDisque;
     await this.memoriser();
     this.reporterVerrou();
     await this.notifier();
@@ -151,6 +155,13 @@ export class WebBackend implements VaultBackend {
     const memo = this.memo;
     if (!memo) throw new VaultError('introuvable', 'Aucun coffre ouvert.');
     const octets = this.vault ? await this.vault.save() : memo.octets;
+    // Téléphone : feuille de partage (vers KeePassDX, KeePassium, Fichiers, Drive…), sinon téléchargement.
+    const fichier = new File([octets], memo.fichier, { type: 'application/octet-stream' });
+    if (navigator.canShare?.({ files: [fichier] })) {
+      try { await navigator.share({ files: [fichier], title: memo.nom }); return; } catch (e) {
+        if (e instanceof DOMException && e.name === 'AbortError') throw e;
+      }
+    }
     telecharger(octets, memo.fichier);
   }
 
@@ -237,9 +248,11 @@ export class WebBackend implements VaultBackend {
       await w.write(octets);
       await w.close();
       memo.surDisque = true;
-    } else if (demander && !fsa().showSaveFilePicker) {
-      telecharger(octets, memo.fichier); // navigateur sans File System Access : on télécharge
-      memo.surDisque = true;
+    } else if (!fsa().showSaveFilePicker) {
+      // Sans File System Access (téléphone, Firefox, Safari) : le coffre est enregistré sur
+      // l'appareil (OPFS), à chaque modification. Une copie se partage par exportFile().
+      memo.surDisque = await ecrireOpfs(memo.fichier, octets);
+      if (!memo.surDisque && demander) { telecharger(octets, memo.fichier); memo.surDisque = true; }
     }
     await this.memoriser();
     if (memo.surDisque) { this.modifie = false; this.derniereSauvegarde = Date.now(); }
@@ -270,6 +283,23 @@ export class WebBackend implements VaultBackend {
       this.minuterieVerrou = window.setTimeout(() => { void this.lock(); }, this.reglages.autoLockMinutes * 60_000);
     }
   }
+}
+
+/**
+ * Copie chiffrée dans l'espace privé de l'appli (Origin Private File System), et demande
+ * au navigateur de ne pas l'effacer en cas de manque de place. Renvoie false si indisponible.
+ */
+async function ecrireOpfs(nom: string, octets: ArrayBuffer): Promise<boolean> {
+  try {
+    if (!navigator.storage?.getDirectory) return false;
+    const dossier = await navigator.storage.getDirectory();
+    const f = await dossier.getFileHandle(nom.replace(/[\\/]/g, '_'), { create: true });
+    const w = await f.createWritable();
+    await w.write(octets);
+    await w.close();
+    void navigator.storage.persist?.();
+    return true;
+  } catch { return false; }
 }
 
 function nomFichier(nom: string): string {
