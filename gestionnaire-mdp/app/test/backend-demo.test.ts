@@ -46,7 +46,7 @@ describe('DemoBackend', () => {
     expect(d.fields[0]?.value).toBe('');
     expect(await b.getSecret('e16', { field: 'Clé API' })).toMatch(/^demo_/);
     expect(await b.getSecret('e01', 'password')).toBe('Vq7#tL2!mR9pZx4&');
-    expect(await b.getSecret('e01', 'totp')).toMatch(/^\d{6}$/);
+    expect(await b.getSecret('e01', 'totp')).toMatch(/^otpauth:\/\/totp\//);
   });
 
   it('ajoute, modifie, met à la corbeille puis supprime définitivement', async () => {

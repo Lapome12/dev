@@ -147,8 +147,9 @@ export class DemoBackend implements VaultBackend {
     const e = this.entree(id);
     if (kind === 'password') return e.password;
     if (kind === 'totp') {
+      // Comme core : l'URI otpauth://, que l'interface passe à totpNow pour le code et l'anneau.
       if (!e.totpUri) throw new VaultError('introuvable', 'Pas de code 2FA pour cette entrée.');
-      return totpNow(e.totpUri, this.maintenant()).code;
+      return e.totpUri;
     }
     const champ = e.fields.find(f => f.key === kind.field);
     if (!champ) throw new VaultError('introuvable', `Champ « ${kind.field} » introuvable.`);
@@ -156,7 +157,9 @@ export class DemoBackend implements VaultBackend {
   }
 
   async copySecret(id: Id, kind: SecretKind): Promise<void> {
-    const valeur = await this.getSecret(id, kind);
+    const secret = await this.getSecret(id, kind);
+    // Pour la 2FA on copie le code du moment, pas l'URI qui contient la graine.
+    const valeur = kind === 'totp' ? (await totpNow(secret, this.maintenant())).code : secret;
     await ecrirePressePapiers(valeur);
     clearTimeout(this.minuteriePressePapiers);
     this.minuteriePressePapiers = setTimeout(() => { void ecrirePressePapiers(''); }, this.reglages.clipboardSeconds * 1000);
