@@ -1,0 +1,477 @@
+/* ==========================================================================
+   Eliott la Popote : sections du récit
+   Propriétaire : Dev 2. Utilise uniquement les jetons de tokens.css.
+   Sommaire :
+     I.   Le chef            (.chef__*)
+     II.  La table           (.table__*)
+     III. Menus de saison    (.menus__*)
+     IV.  Comment ça se passe (.deroule__*)
+     VII. Questions          (.faq__*)
+   ========================================================================== */
+
+
+/* I. Le chef -------------------------------------------------------------- */
+
+.chef__titre {
+  margin-bottom: var(--esp-5);
+}
+
+.chef__portrait {
+  margin-top: var(--esp-6);
+}
+
+.chef__citation {
+  margin-top: var(--esp-6);
+  max-width: none;
+}
+
+.chef__citation p {
+  max-width: 30ch;
+}
+
+.chef__signature {
+  margin-top: var(--esp-4);
+  font-size: var(--taille-xl);
+  line-height: 1;
+}
+
+@media (min-width: 800px) {
+  /* le texte descend un peu sous le haut du portrait : composition décalée */
+  .chef__texte {
+    padding-top: var(--esp-7);
+  }
+
+  .chef__portrait {
+    margin-top: 0;
+  }
+
+  .chef__citation {
+    margin-top: var(--esp-7);
+  }
+}
+
+
+/* II. La table -------------------------------------------------------------
+   Liste typographique : nom en grand italique à gauche, détails à droite,
+   un filet entre chaque formule. Pas de cartes.
+   ------------------------------------------------------------------------- */
+
+.table__titre {
+  margin-bottom: var(--esp-4);
+}
+
+.table__intro {
+  align-self: end;
+}
+
+.table__liste {
+  margin-top: var(--esp-5);
+  border-bottom: var(--filet);
+  counter-reset: formule;
+}
+
+.table__formule {
+  display: grid;
+  gap: var(--esp-3);
+  max-width: none;
+  padding-block: var(--esp-5);
+  border-top: var(--filet);
+  counter-increment: formule;
+}
+
+.table__nom {
+  font-size: var(--taille-xl);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.table__nom::before {
+  content: counter(formule, lower-roman) ".";
+  display: block;
+  margin-bottom: var(--esp-2);
+  font-size: var(--taille-s);
+  font-style: normal;
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--encre-douce);
+}
+
+.table__couverts {
+  margin-bottom: var(--esp-2);
+}
+
+.table__description {
+  max-width: 46ch;
+}
+
+.table__prix {
+  margin-top: var(--esp-3);
+  font-size: var(--taille-s);
+}
+
+.table__prix-libelle {
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  margin-right: var(--esp-2);
+}
+
+.table__note {
+  font-size: var(--taille-s);
+  font-style: italic;
+}
+
+@media (min-width: 800px) {
+  .table__formule {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+    column-gap: var(--gouttiere);
+    align-items: start;
+  }
+
+  .table__details {
+    padding-top: var(--esp-4);
+  }
+}
+
+
+/* III. Menus de saison -----------------------------------------------------
+   La pièce maîtresse : une carte imprimée sur fond nuit.
+   Cadre à double filet, titres centrés, plats en italique,
+   provenance en petit, points de conduite jusqu'au prix.
+   ------------------------------------------------------------------------- */
+
+.menus__carte {
+  position: relative;
+  padding: clamp(var(--esp-5), 6vw, var(--esp-7)) clamp(var(--esp-3), 5vw, var(--esp-7));
+  border: 1px solid var(--papier-nuit-doux);
+  outline: 1px solid var(--papier-nuit-doux);
+  outline-offset: -8px;
+  text-align: center;
+}
+
+.menus__carte p,
+.menus__carte li {
+  margin-inline: auto;
+}
+
+.menus__entete {
+  margin-bottom: var(--esp-6);
+}
+
+.menus__surtitre,
+.menus__nom-menu,
+.menus__note-titre,
+.menus__prix-libelle {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+}
+
+.menus__surtitre {
+  color: var(--papier-nuit-doux);
+}
+
+.menus__titre {
+  margin-block: var(--esp-3);
+  font-size: var(--taille-xxl);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+
+.menus__soustitre {
+  max-width: 36ch;
+  font-style: italic;
+  color: var(--papier-nuit-doux);
+}
+
+.menus__bloc {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.menus__nom-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+  line-height: 1.3;
+}
+
+/* filets de part et d'autre du nom du menu */
+.menus__nom-menu::before,
+.menus__nom-menu::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--papier-nuit-doux);
+}
+
+.menus__temps {
+  color: var(--papier-nuit-doux);
+}
+
+.menus__temps::before {
+  content: "· ";
+}
+
+.menus__plat + .menus__plat {
+  margin-top: var(--esp-4);
+}
+
+.menus__intitule {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.3;
+  max-width: 30ch;
+  text-wrap: balance;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+.menus__provenance {
+  margin-top: var(--esp-1);
+  font-size: var(--taille-xs);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--papier-nuit-doux);
+}
+
+/* Prix au bout d'une ligne de points de conduite */
+.menus__prix {
+  display: flex;
+  align-items: baseline;
+  gap: var(--esp-2);
+  max-width: none;
+  margin-top: var(--esp-5);
+  text-align: left;
+}
+
+.menus__points {
+  flex: 1;
+  min-width: var(--esp-5);
+  border-bottom: 1px dotted var(--papier-nuit-doux);
+  transform: translateY(-0.25em);
+}
+
+.menus__prix-libelle {
+  white-space: nowrap;
+}
+
+.menus__prix-valeur {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.menus__ornement {
+  margin-block: var(--esp-6);
+  font-size: var(--taille-m);
+  line-height: 1;
+  color: var(--brique);
+}
+
+.menus__notes {
+  max-width: 40rem;
+  margin: var(--esp-6) auto 0;
+  padding-top: var(--esp-4);
+  border-top: 1px dotted var(--papier-nuit-doux);
+  font-size: var(--taille-s);
+  color: var(--papier-nuit-doux);
+  text-align: left;
+}
+
+.menus__notes p {
+  max-width: none;
+}
+
+.menus__note-titre {
+  margin-right: var(--esp-1);
+  color: var(--papier-nuit);
+}
+
+@media (max-width: 799px) {
+  .menus__carte {
+    outline-offset: -6px;
+  }
+
+  .menus__prix {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .menus__points {
+    display: none;
+  }
+
+  .menus__prix-libelle {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+}
+
+
+/* IV. Comment ça se passe --------------------------------------------------
+   Chronologie verticale : un filet continu, l'heure en grand à gauche,
+   le récit à droite. Pas de cartes 1-2-3.
+   ------------------------------------------------------------------------- */
+
+.deroule__intro {
+  margin-top: var(--esp-4);
+  font-style: italic;
+}
+
+.deroule__ligne {
+  position: relative;
+  border-left: var(--filet);
+}
+
+.deroule__moment {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: var(--esp-3);
+  max-width: none;
+  padding: 0 0 var(--esp-6) var(--esp-4);
+}
+
+.deroule__moment:last-child {
+  padding-bottom: 0;
+}
+
+/* repère sur la ligne */
+.deroule__moment::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--papier);
+  border: var(--filet);
+}
+
+.deroule__moment--service::before {
+  background: var(--brique);
+  border-color: var(--brique);
+}
+
+.deroule__heure {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.2;
+  font-variant-numeric: oldstyle-nums;
+  white-space: nowrap;
+}
+
+.deroule__etape {
+  margin-bottom: var(--esp-2);
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  line-height: 1.2;
+}
+
+@media (min-width: 800px) {
+  .deroule__entete {
+    position: sticky;
+    top: calc(var(--hauteur-entete) + var(--esp-5));
+  }
+
+  .deroule__moment {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    padding-left: var(--esp-5);
+  }
+
+  .deroule__heure {
+    font-size: var(--taille-l);
+    line-height: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .deroule__moment {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--esp-1);
+  }
+}
+
+
+/* VII. Questions -----------------------------------------------------------
+   <details> natifs, un « + » qui devient « − » à l'ouverture.
+   ------------------------------------------------------------------------- */
+
+.faq__liste {
+  border-bottom: var(--filet);
+}
+
+.faq__item {
+  border-top: var(--filet);
+}
+
+.faq__question {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  padding-block: var(--esp-4);
+  font-size: var(--taille-m);
+  line-height: 1.3;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq__question:hover .faq__intitule {
+  color: var(--brique);
+}
+
+.faq__intitule {
+  transition: color var(--duree-rapide) var(--courbe);
+}
+
+/* « + » dessiné en deux traits : la barre verticale tourne et se couche */
+.faq__signe {
+  position: relative;
+  flex: 0 0 0.75em;
+  height: 0.75em;
+}
+
+.faq__signe::before,
+.faq__signe::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid currentColor;
+  transition: transform var(--duree-rapide) var(--courbe);
+}
+
+.faq__signe::after {
+  transform: rotate(90deg);
+}
+
+.faq__item[open] .faq__signe::after {
+  transform: rotate(0deg);
+}
+
+.faq__reponse {
+  padding-bottom: var(--esp-5);
+  padding-right: var(--esp-5);
+}
+
+@media (min-width: 800px) {
+  .faq__titre {
+    position: sticky;
+    top: calc(var(--hauteur-entete) + var(--esp-5));
+  }
+}
