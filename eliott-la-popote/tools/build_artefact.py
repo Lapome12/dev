@@ -6,7 +6,8 @@
 
 Ce que fait le script, dans l'ordre :
   1. lit index.html ;
-  2. remplace les marqueurs <!-- PARTIAL: nom --> encore présents par partials/nom.html ;
+  2. remplace les marqueurs <!-- PARTIAL: nom --> restés seuls par partials/nom.html
+     (une section déjà assemblée, fermée par <!-- /PARTIAL: nom -->, est laissée telle quelle) ;
   3. remplace chaque <link rel="stylesheet"> local par un <style> (avec les @import
      locaux résolus) ; les @import distants (Google Fonts) deviennent des <link> ;
   4. convertit en data URI les fichiers locaux cités dans le CSS (url(...)) et dans
@@ -96,7 +97,17 @@ def inserer_partials(html):
         print("  · partial « %s » inséré depuis partials/%s.html" % (nom, nom))
         return fichier.read_text(encoding="utf-8").strip()
 
-    return re.sub(r"<!--\s*PARTIAL:\s*([\w-]+)\s*-->", remplacer, html)
+    # Section déjà assemblée par Dev 1 (<!-- PARTIAL: x --> … <!-- /PARTIAL: x -->) :
+    # index.html fait foi, on n'y touche pas. Seuls les marqueurs seuls sont remplis.
+    blocs = re.compile(r"<!--\s*PARTIAL:\s*([\w-]+)\s*-->.*?<!--\s*/PARTIAL:\s*\1\s*-->", re.S)
+    morceaux = []
+    debut = 0
+    for m in blocs.finditer(html):
+        morceaux.append(re.sub(r"<!--\s*PARTIAL:\s*([\w-]+)\s*-->", remplacer, html[debut:m.start()]))
+        morceaux.append(m.group(0))
+        debut = m.end()
+    morceaux.append(re.sub(r"<!--\s*PARTIAL:\s*([\w-]+)\s*-->", remplacer, html[debut:]))
+    return "".join(morceaux)
 
 
 # --- CSS ----------------------------------------------------------------------
