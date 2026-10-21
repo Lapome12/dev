@@ -1,0 +1,82 @@
+/* ==========================================================================
+   Eliott la Popote : jetons de design
+   Propriétaire : Dev 1. Lecture seule pour les autres fichiers.
+   Toute couleur, police, taille ou durée du site passe par ces variables.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap");
+
+:root {
+  color-scheme: light;
+
+  /* ---- Couleurs ------------------------------------------------------- */
+  --papier: #F2ECE1;        /* fond général */
+  --papier-2: #E7DDCC;      /* zones teintées, emplacements photo */
+  --encre: #1E1B18;         /* texte, filets */
+  --encre-douce: #5E564D;   /* légendes, provenances */
+  --brique: #A63A24;        /* seul accent, moins de 5 % de l'écran */
+  --nuit: #171512;          /* fond de la section Menus */
+  --papier-nuit: #E9E1D3;   /* texte sur fond nuit */
+  --papier-nuit-doux: #A89E8F; /* légendes sur fond nuit (AA sur --nuit) */
+  --brique-pale: #F0D9CF;   /* fond des placeholders */
+
+  /* ---- Typographie ---------------------------------------------------- */
+  --police: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  --graisse-fine: 300;
+  --graisse-texte: 400;
+  --graisse-moyenne: 500;
+  --graisse-forte: 600;
+
+  /* Échelle fluide : de 375 px à 1440 px */
+  --taille-xs: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);   /* 13 → 14 px : mentions */
+  --taille-s: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);     /* 15 → 17 px : légendes, étiquettes */
+  --taille-texte: clamp(1.1875rem, 1.15rem + 0.15vw, 1.25rem); /* 19 → 20 px : texte courant */
+  --taille-m: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem);        /* 22 → 28 px : chapeaux */
+  --taille-l: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem);         /* 28 → 44 px : h3, citations */
+  --taille-xl: clamp(2.25rem, 1.6rem + 3vw, 4.25rem);          /* 36 → 68 px : h2 */
+  --taille-xxl: clamp(3rem, 9vw, 8.5rem);                      /* 48 → 136 px : h1 d'ouverture */
+
+  --interligne: 1.55;
+  --interligne-serre: 1.05;
+  --interligne-titre: 1.15;
+  --espacement-capitales: 0.08em;
+
+  --mesure: 64ch;            /* colonne de lecture (60 à 68 caractères) */
+
+  /* ---- Espacements ---------------------------------------------------- */
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 1rem;
+  --esp-4: 1.5rem;
+  --esp-5: 2.5rem;
+  --esp-6: 4rem;
+  --esp-7: 6rem;
+  --esp-8: 9rem;
+  --esp-section: clamp(5rem, 3rem + 7vw, 10rem); /* respiration entre chapitres */
+
+  /* ---- Grille --------------------------------------------------------- */
+  --largeur-max: 1440px;
+  --marge: clamp(20px, 5vw, 72px);       /* marge latérale de page */
+  --gouttiere: clamp(16px, 2.4vw, 40px); /* gouttière entre colonnes */
+
+  /* ---- Traits et formes ----------------------------------------------- */
+  --filet: 1px solid var(--encre);
+  --filet-doux: 1px solid rgba(30, 27, 24, 0.25);
+  --filet-pointille: 1px dotted var(--encre-douce);
+  --rayon-champ: 2px;        /* seul arrondi autorisé : champs de formulaire */
+  --focus: 2px solid var(--brique);
+
+  /* ---- Mouvement ------------------------------------------------------ */
+  --duree-apparition: 600ms;
+  --duree-lien: 350ms;
+  --duree-rapide: 200ms;
+  --montee-apparition: 12px;
+  --courbe: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out */
+
+  /* ---- Plans ---------------------------------------------------------- */
+  --z-entete: 50;
+  --z-nav: 60;
+
+  --hauteur-entete: 4.5rem;
+}

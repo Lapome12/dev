@@ -1,0 +1,717 @@
+/* ==========================================================================
+   Eliott la Popote : base
+   Propriétaire : Dev 1. Lecture seule pour les autres fichiers.
+   Sommaire :
+     1. Reset léger
+     2. Page et texte courant
+     3. Grille de 12 colonnes
+     4. Titres et styles typographiques
+     5. Liens
+     6. Boutons
+     7. Sections et chapitres
+     8. Figures, légendes, emplacements photo
+     9. Placeholders [À COMPLÉTER]
+    10. Champs de formulaire (base commune)
+    11. Apparitions, focus, accessibilité
+   ========================================================================== */
+
+
+/* 1. Reset léger ---------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1, h2, h3, h4,
+p, blockquote, figure, figcaption,
+ul, ol, dl, dd {
+  margin: 0;
+}
+
+ul[class],
+ol[class] {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+/* 2. Page et texte courant ------------------------------------------------ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--hauteur-entete) + var(--esp-4));
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--police);
+  font-size: var(--taille-texte);
+  font-weight: var(--graisse-texte);
+  font-optical-sizing: auto;
+  line-height: var(--interligne);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--encre);
+  color: var(--papier);
+}
+
+p,
+li,
+dd,
+blockquote {
+  max-width: var(--mesure);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+p + p {
+  margin-top: 1em;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+strong,
+b {
+  font-weight: var(--graisse-forte);
+}
+
+hr,
+.filet {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--filet);
+}
+
+/* Chiffres alignés pour les tableaux et les colonnes de prix */
+table,
+.chiffres-alignes {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.chiffres {
+  font-variant-numeric: oldstyle-nums;
+}
+
+
+/* 3. Grille de 12 colonnes -------------------------------------------------
+   Exemple : <div class="grille"><div class="col-6 debut-2">…</div></div>
+   .col-N    : occupe N colonnes (1 à 12)
+   .debut-N  : commence à la colonne N (1 à 12)
+   .deborde-droite / .deborde-gauche : l'élément sort jusqu'au bord de l'écran
+   .grille--serree : sans gouttière verticale entre les lignes
+   Sous 800 px, toutes les colonnes passent en pleine largeur.
+   ------------------------------------------------------------------------- */
+
+.conteneur,
+.grille {
+  width: 100%;
+  max-width: var(--largeur-max);
+  margin-inline: auto;
+  padding-inline: var(--marge);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gouttiere);
+  row-gap: var(--esp-5);
+  align-items: start;
+}
+
+.grille--serree {
+  row-gap: 0;
+}
+
+.grille > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+@media (min-width: 800px) {
+  .col-1  { grid-column: auto / span 1; }
+  .col-2  { grid-column: auto / span 2; }
+  .col-3  { grid-column: auto / span 3; }
+  .col-4  { grid-column: auto / span 4; }
+  .col-5  { grid-column: auto / span 5; }
+  .col-6  { grid-column: auto / span 6; }
+  .col-7  { grid-column: auto / span 7; }
+  .col-8  { grid-column: auto / span 8; }
+  .col-9  { grid-column: auto / span 9; }
+  .col-10 { grid-column: auto / span 10; }
+  .col-11 { grid-column: auto / span 11; }
+  .col-12 { grid-column: auto / span 12; }
+
+  .debut-1  { grid-column-start: 1; }
+  .debut-2  { grid-column-start: 2; }
+  .debut-3  { grid-column-start: 3; }
+  .debut-4  { grid-column-start: 4; }
+  .debut-5  { grid-column-start: 5; }
+  .debut-6  { grid-column-start: 6; }
+  .debut-7  { grid-column-start: 7; }
+  .debut-8  { grid-column-start: 8; }
+  .debut-9  { grid-column-start: 9; }
+  .debut-10 { grid-column-start: 10; }
+  .debut-11 { grid-column-start: 11; }
+  .debut-12 { grid-column-start: 12; }
+}
+
+/* Débordement jusqu'au bord de la fenêtre, y compris au-delà de --largeur-max */
+.deborde-droite {
+  margin-right: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+}
+
+.deborde-gauche {
+  margin-left: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+}
+
+.pleine-largeur {
+  margin-inline: calc(-1 * var(--marge));
+}
+
+
+/* 4. Titres et styles typographiques -------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--graisse-fine);
+  line-height: var(--interligne-titre);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 em,
+h2 em,
+h3 em {
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+}
+
+h1,
+.titre-geant {
+  font-size: var(--taille-xxl);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+}
+
+h2,
+.titre-section {
+  font-size: var(--taille-xl);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: var(--taille-l);
+}
+
+h4 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+}
+
+.chapeau {
+  font-size: var(--taille-m);
+  line-height: 1.4;
+  max-width: 34ch;
+}
+
+/* Petites capitales : étiquettes, navigation, mentions */
+.capitales,
+.chapitre,
+.etiquette {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  font-variant-numeric: lining-nums;
+  line-height: 1.3;
+}
+
+.etiquette {
+  color: var(--encre-douce);
+}
+
+.legende,
+figcaption {
+  font-size: var(--taille-s);
+  line-height: 1.4;
+  color: var(--encre-douce);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.citation {
+  font-size: var(--taille-l);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.25;
+  max-width: 28ch;
+  text-wrap: balance;
+}
+
+.citation cite,
+.citation__auteur {
+  display: block;
+  margin-top: var(--esp-4);
+  font-size: var(--taille-s);
+  font-style: normal;
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--encre-douce);
+}
+
+.signature {
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  color: var(--brique);
+}
+
+.discret {
+  color: var(--encre-douce);
+}
+
+
+/* 5. Liens ---------------------------------------------------------------
+   Soulignement fin qui se redessine de gauche à droite au survol.
+   (Le linear-gradient sert juste à tracer un trait plein de 1 px, pas un dégradé.)
+   .lien-nu : lien sans soulignement au repos (navigation, monogramme).
+   ------------------------------------------------------------------------- */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition:
+    background-size var(--duree-lien) var(--courbe),
+    color var(--duree-rapide) var(--courbe);
+}
+
+a:hover {
+  color: var(--brique);
+  animation: lien-redessine var(--duree-lien) var(--courbe);
+}
+
+@keyframes lien-redessine {
+  from { background-size: 0 1px; }
+  to   { background-size: 100% 1px; }
+}
+
+.lien-nu {
+  background-size: 0 1px;
+}
+
+.lien-nu:hover {
+  animation: none;
+  background-size: 100% 1px;
+}
+
+.lien-image,
+.lien-image:hover {
+  background: none;
+  animation: none;
+}
+
+
+/* 6. Boutons ---------------------------------------------------------------
+   Rectangulaire, encre sur papier, brique au survol. Aucun arrondi, aucune ombre.
+   .bouton--plein : fond encre (variante pour l'appel principal)
+   ------------------------------------------------------------------------- */
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 3rem;
+  padding: 0.55em 1.4em 0.65em;
+  border: 1px solid var(--encre);
+  border-radius: 0;
+  background: transparent;
+  color: var(--encre);
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  line-height: 1;
+  text-decoration: none;
+  background-image: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--duree-rapide) var(--courbe),
+    border-color var(--duree-rapide) var(--courbe),
+    color var(--duree-rapide) var(--courbe);
+}
+
+.bouton:hover {
+  animation: none;
+  border-color: var(--brique);
+  background-color: var(--brique);
+  color: var(--papier);
+}
+
+.bouton--plein {
+  background-color: var(--encre);
+  color: var(--papier);
+}
+
+.bouton__fleche {
+  font-variant-caps: normal;
+  transition: transform var(--duree-rapide) var(--courbe);
+}
+
+.bouton:hover .bouton__fleche {
+  transform: translateX(3px);
+}
+
+
+/* 7. Sections et chapitres -------------------------------------------------
+   Chaque partial : <section id="…" class="section"> avec
+   <p class="chapitre">III. Menus de saison</p> en tête.
+   .section--nuit : fond nuit, texte papier (section Menus).
+   ------------------------------------------------------------------------- */
+
+.section {
+  position: relative;
+  padding-block: var(--esp-section);
+  border-top: var(--filet);
+}
+
+.section--sans-filet {
+  border-top: 0;
+}
+
+.chapitre {
+  display: flex;
+  align-items: baseline;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+  color: var(--encre);
+}
+
+.chapitre::after {
+  content: "";
+  flex: 0 0 3rem;
+  height: 0;
+  border-top: var(--filet);
+  transform: translateY(-0.3em);
+}
+
+.section--nuit {
+  background: var(--nuit);
+  color: var(--papier-nuit);
+  border-top-color: var(--nuit);
+}
+
+.section--nuit .chapitre,
+.section--nuit .bouton {
+  color: var(--papier-nuit);
+}
+
+.section--nuit .chapitre::after,
+.section--nuit hr,
+.section--nuit .filet {
+  border-top-color: var(--papier-nuit);
+}
+
+.section--nuit .bouton {
+  border-color: var(--papier-nuit);
+}
+
+.section--nuit .etiquette,
+.section--nuit .legende,
+.section--nuit figcaption,
+.section--nuit .discret {
+  color: var(--papier-nuit-doux);
+}
+
+.section--nuit ::selection {
+  background: var(--papier-nuit);
+  color: var(--nuit);
+}
+
+
+/* 8. Figures, légendes, emplacements photo ---------------------------------
+   <figure class="figure">
+     <div class="photo-a-venir" style="--ratio: 4 / 5" role="img"
+          aria-label="Photo à venir : mains du chef dressant une assiette">
+       <span class="photo-a-venir__mention">Photo à venir</span>
+       <span class="photo-a-venir__sujet">Mains du chef dressant une assiette</span>
+       <span class="photo-a-venir__format">4:5</span>
+     </div>
+     <figcaption class="legende">fig. 3 — Saint-Jacques, beurre noisette</figcaption>
+   </figure>
+   ------------------------------------------------------------------------- */
+
+.figure figcaption,
+.figure .legende {
+  margin-top: var(--esp-3);
+  max-width: 44ch;
+}
+
+.photo-a-venir {
+  --ratio: 4 / 5;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  width: 100%;
+  aspect-ratio: var(--ratio);
+  padding: clamp(var(--esp-3), 3vw, var(--esp-5));
+  background: var(--papier-2);
+  border: var(--filet);
+  color: var(--encre-douce);
+  overflow: hidden;
+}
+
+/* Fin trait de coupe en diagonale, façon épreuve d'imprimerie */
+.photo-a-venir::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cline x1='0' y1='100' x2='100' y2='0' stroke='%231E1B18' stroke-opacity='.14' stroke-width='1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  pointer-events: none;
+}
+
+.photo-a-venir > * {
+  position: relative;
+}
+
+.photo-a-venir__mention {
+  font-size: var(--taille-xs);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  color: var(--encre);
+}
+
+.photo-a-venir__sujet {
+  max-width: 24ch;
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.25;
+  color: var(--encre);
+}
+
+.photo-a-venir__format {
+  align-self: flex-end;
+  font-size: var(--taille-xs);
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0.06em;
+}
+
+.section--nuit .photo-a-venir {
+  background: #24211D;
+  border-color: var(--papier-nuit-doux);
+  color: var(--papier-nuit-doux);
+}
+
+.section--nuit .photo-a-venir__mention,
+.section--nuit .photo-a-venir__sujet {
+  color: var(--papier-nuit);
+}
+
+
+/* 9. Placeholders [À COMPLÉTER : …] ----------------------------------------
+   <span class="placeholder">[À COMPLÉTER : prix par personne]</span>
+   Volontairement visibles : on ne doit pas pouvoir les manquer.
+   ------------------------------------------------------------------------- */
+
+.placeholder {
+  padding: 0 0.2em;
+  background: var(--brique-pale);
+  color: var(--brique);
+  font-style: normal;
+  font-variant-caps: normal;
+  text-decoration: underline dotted var(--brique);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.section--nuit .placeholder {
+  background: rgba(166, 58, 36, 0.28);
+  color: var(--papier-nuit);
+  text-decoration-color: var(--papier-nuit);
+}
+
+
+/* 10. Champs de formulaire (base commune) ---------------------------------
+   La mise en page du formulaire revient à Dev 3 (sections-service.css).
+   ------------------------------------------------------------------------- */
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+}
+
+.champ label,
+.champ__libelle {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+select,
+textarea {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.6em 0.75em;
+  border: 1px solid var(--encre);
+  border-radius: var(--rayon-champ);
+  background: transparent;
+  color: var(--encre);
+  font-size: var(--taille-texte);
+  line-height: 1.4;
+  font-variant-numeric: lining-nums;
+}
+
+textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+::placeholder {
+  color: var(--encre-douce);
+  opacity: 1;
+  font-style: italic;
+}
+
+.champ__erreur {
+  font-size: var(--taille-s);
+  font-style: italic;
+  color: var(--brique);
+}
+
+[aria-invalid="true"] {
+  border-color: var(--brique) !important;
+}
+
+
+/* 11. Apparitions, focus, accessibilité ----------------------------------
+   Le JS (Dev 3) ajoute .apparait aux blocs à animer, puis .est-visible.
+   Sans JS, rien n'est masqué : la classe .js est posée sur <html> par le script.
+   ------------------------------------------------------------------------- */
+
+.js .apparait {
+  opacity: 0;
+  transform: translateY(var(--montee-apparition));
+  transition:
+    opacity var(--duree-apparition) var(--courbe),
+    transform var(--duree-apparition) var(--courbe);
+}
+
+.js .apparait.est-visible {
+  opacity: 1;
+  transform: none;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus);
+  outline-offset: 3px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+}
+
+.visuellement-cache {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.lien-evitement {
+  position: absolute;
+  top: var(--esp-2);
+  left: var(--esp-2);
+  z-index: 100;
+  padding: var(--esp-2) var(--esp-3);
+  background: var(--encre);
+  color: var(--papier);
+  transform: translateY(-200%);
+}
+
+.lien-evitement:focus-visible {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .js .apparait {
+    opacity: 1;
+    transform: none;
+  }
+}
