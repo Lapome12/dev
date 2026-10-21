@@ -44,6 +44,7 @@ describe('formes des messages', () => {
     expect(estRequete({ type: 'vault/inexistant', args: [] })).toBe(false);
     expect(estRequete({ type: 'vault/status' })).toBe(false);
     expect(estRequete(null)).toBe(false);
+    expect(estRequete({ cible: 'gardien', type: 'vault/status', args: [] })).toBe(false);
   });
 
   it('distingue les messages destinés au gardien', () => {

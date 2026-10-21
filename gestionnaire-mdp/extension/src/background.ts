@@ -1,6 +1,10 @@
 // Service worker de Cadenas. Il ne garde jamais le coffre (il est arrêté après
 // ~30 s d'inactivité) : il contrôle les expéditeurs, réveille le gardien
 // offscreen et lui relaie les demandes.
+//
+// Les réponses du gardien (y compris celles de getSecret) transitent par ici :
+// le service worker ne les journalise JAMAIS, ne les met jamais en cache et ne
+// les écrit nulle part. Il les remet telles quelles à la page qui a demandé.
 import {
   echec,
   estRequete,

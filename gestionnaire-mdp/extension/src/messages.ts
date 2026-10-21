@@ -86,7 +86,8 @@ export interface EvenementEtat {
 export function estRequete(m: unknown): m is Requete {
   if (typeof m !== 'object' || m === null) return false;
   const r = m as Record<string, unknown>;
-  if (!Array.isArray(r.args) || typeof r.type !== 'string') return false;
+  // Un message destiné au gardien n'est jamais une requête de page : le service worker l'ignore.
+  if ('cible' in r || !Array.isArray(r.args) || typeof r.type !== 'string') return false;
   if (r.type === 'fill/candidates' || r.type === 'fill/run') return true;
   return r.type.startsWith('vault/') && (METHODES_VAULT as readonly string[]).includes(r.type.slice(6));
 }
