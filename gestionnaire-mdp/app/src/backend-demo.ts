@@ -185,7 +185,11 @@ export class DemoBackend implements VaultBackend {
   async updateEntry(id: Id, i: EntryInput): Promise<void> {
     const e = this.entree(id);
     this.exigerGroupe(i.groupId);
-    Object.assign(e, depuisSaisie(i), { modified: this.maintenant(), historyCount: e.historyCount + 1 });
+    const n = depuisSaisie(i);
+    // Conventions de core : totpUri absent = inchangé, '' = supprimé ; champ protégé renvoyé vide = conservé.
+    n.totpUri = i.totpUri === undefined ? e.totpUri : i.totpUri || undefined;
+    n.fields = n.fields.map(f => (f.protected && !f.value ? { ...f, value: e.fields.find(x => x.key === f.key)?.value ?? '' } : f));
+    Object.assign(e, n, { modified: this.maintenant(), historyCount: e.historyCount + 1 });
     await this.marquer();
   }
 

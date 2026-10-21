@@ -61,8 +61,14 @@ describe('DemoBackend', () => {
     const g = await b.addGroup('Voyages', racine.id);
     const id = await b.addEntry(saisie(g, 'Train'));
     expect((await b.status())).toMatchObject({ state: 'deverrouille', dirty: true });
-    await b.updateEntry(id, saisie(g, 'Train (modifié)'));
+    await b.updateEntry(id, { ...saisie(g, 'Train (modifié)'), totpUri: 'otpauth://totp/x?secret=JBSWY3DPEHPK3PXP', fields: [{ key: 'PIN', value: '1234', protected: true }] });
     expect((await b.getEntry(id)).historyCount).toBe(1);
+    // Conventions de core : totpUri absent = inchangé, champ protégé vide = conservé, '' = 2FA supprimée.
+    await b.updateEntry(id, { ...saisie(g, 'Train'), fields: [{ key: 'PIN', value: '', protected: true }] });
+    expect((await b.getEntry(id)).hasTotp).toBe(true);
+    expect(await b.getSecret(id, { field: 'PIN' })).toBe('1234');
+    await b.updateEntry(id, { ...saisie(g, 'Train'), totpUri: '' });
+    expect((await b.getEntry(id)).hasTotp).toBe(false);
     await b.deleteEntry(id);
     expect(await b.listEntries()).toHaveLength(0);
     expect(await b.listEntries(corbeille.id)).toHaveLength(1);
