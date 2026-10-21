@@ -1,0 +1,2 @@
+# Build de test (manifest avec accès aux sites *.test), jamais livré
+dist-e2e/

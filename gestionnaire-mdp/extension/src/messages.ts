@@ -20,6 +20,7 @@ export const METHODES_VAULT = [
   'search',
   'getEntry',
   'getSecret',
+  'getTotp',
   'copySecret',
   'addEntry',
   'updateEntry',
@@ -36,6 +37,21 @@ export type MethodeVault = (typeof METHODES_VAULT)[number];
 
 /** Méthodes qui renvoient un secret en clair : réservées à vault.html et popup.html. */
 export const METHODES_SECRETES: readonly MethodeVault[] = ['getSecret'];
+
+/**
+ * Un secret peut-il être remis à cette page ? La graine 2FA (champ `otp`,
+ * l'URI otpauth://) ne sort que vers vault.html (écran d'édition). `'totp'`
+ * désigne le code du moment, calculé par le gardien : le popup peut l'obtenir.
+ */
+export function secretAutorise(page: PageExtension | undefined, kind: unknown): boolean {
+  if (page === 'vault') return true;
+  if (page !== 'popup') return false;
+  if (kind === 'password' || kind === 'totp') return true;
+  if (typeof kind === 'object' && kind !== null && typeof (kind as { field?: unknown }).field === 'string') {
+    return (kind as { field: string }).field.toLowerCase() !== 'otp';
+  }
+  return false;
+}
 
 /** Réglages : tenus par le service worker dans chrome.storage, pas par le gardien. */
 export const METHODES_REGLAGES: readonly MethodeVault[] = ['getSettings', 'setSettings'];
@@ -81,6 +97,15 @@ export interface MessageGardien {
 export interface EvenementEtat {
   evenement: 'etat';
   etat: unknown;
+}
+
+/** Envoyé une fois par le gardien quand il écoute. */
+export interface EvenementGardienPret {
+  evenement: 'gardien-pret';
+}
+
+export function estGardienPret(m: unknown): m is EvenementGardienPret {
+  return typeof m === 'object' && m !== null && (m as Record<string, unknown>).evenement === 'gardien-pret';
 }
 
 export function estRequete(m: unknown): m is Requete {
