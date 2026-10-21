@@ -1,0 +1,272 @@
+/* ==========================================================================
+   Eliott la Popote : sections de service
+   Propriétaire : Dev 3. Sections V (Assiettes), VI (Avis), VIII (Réserver).
+   S'appuie sur tokens.css et base.css (grille, .figure, .photo-a-venir,
+   .champ, .citation) : aucune couleur ni police codée en dur ici.
+   ========================================================================== */
+
+
+/* V. Assiettes -------------------------------------------------------------
+   Mosaïque asymétrique : la grille de base place les figures (.col-N
+   .debut-N), on ajoute ici les décalages verticaux qui cassent les lignes.
+   ------------------------------------------------------------------------- */
+
+.galerie__chapo {
+  margin-top: var(--esp-4);
+  color: var(--encre-douce);
+}
+
+.galerie__mosaique {
+  margin-top: var(--esp-6);
+  row-gap: var(--esp-6);
+}
+
+@media (min-width: 800px) {
+  .galerie__fig--3 { margin-top: var(--esp-8); }
+  .galerie__fig--4 { margin-top: calc(-1 * var(--esp-6)); }
+  .galerie__fig--5 { margin-top: var(--esp-5); }
+  .galerie__fig--7 { margin-top: calc(-1 * var(--esp-4)); }
+  .galerie__fig--8 { margin-top: var(--esp-7); }
+
+  /* La figure qui déborde garde sa légende dans la marge de page */
+  .galerie__fig--4 figcaption { margin-left: calc(var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)); }
+}
+
+/* Sous 800 px : une colonne, avec un retrait alterné pour garder le rythme */
+@media (max-width: 799px) {
+  .galerie__mosaique {
+    row-gap: var(--esp-5);
+  }
+
+  .galerie__fig.deborde-gauche,
+  .galerie__fig.deborde-droite {
+    margin-inline: 0;
+  }
+
+  .galerie__fig--3,
+  .galerie__fig--5,
+  .galerie__fig--8 {
+    margin-left: 14%;
+  }
+
+  .galerie__fig--2,
+  .galerie__fig--7 {
+    margin-right: 14%;
+  }
+}
+
+
+/* VI. Ils sont passés à table ----------------------------------------------
+   En escalier sur grand écran, défilement manuel horizontal sur mobile.
+   ------------------------------------------------------------------------- */
+
+.avis__defile {
+  margin-top: var(--esp-6);
+}
+
+/* base.css remet à zéro le padding des listes à classe : on rend celui de .grille */
+.avis .avis__liste {
+  padding-inline: var(--marge);
+  row-gap: var(--esp-7);
+}
+
+.avis__item {
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.avis__citation {
+  max-width: 30ch;
+}
+
+.avis__citation > p::before { content: "« "; }
+.avis__citation > p::after  { content: " »"; }
+
+.avis__occasion {
+  font-variant-caps: normal;
+  font-style: italic;
+  font-weight: var(--graisse-texte);
+  letter-spacing: 0;
+}
+
+.avis__indice {
+  display: none;
+}
+
+@media (max-width: 799px) {
+  .avis__defile {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--marge);
+    scrollbar-width: none;
+  }
+
+  .avis__defile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .avis__defile:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .avis__liste {
+    display: flex;
+    gap: var(--esp-4);
+    width: max-content;
+    max-width: none;
+  }
+
+  .avis__liste > .avis__item {
+    flex: 0 0 calc(100vw - 2 * var(--marge) - var(--esp-5));
+    scroll-snap-align: start;
+  }
+
+  .avis__indice {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--esp-3);
+    margin-top: var(--esp-4);
+    font-size: var(--taille-s);
+    font-style: italic;
+  }
+
+  .avis__compteur {
+    font-style: normal;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+}
+
+
+/* VIII. Réserver une date ----------------------------------------------- */
+
+.reserver__chapeau {
+  margin-top: var(--esp-4);
+}
+
+.reserver__corps {
+  margin-top: var(--esp-6);
+}
+
+.reserver__note {
+  margin-bottom: var(--esp-5);
+  font-size: var(--taille-s);
+  font-style: italic;
+}
+
+.reserver__ligne {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--gouttiere);
+}
+
+.reserver__champ {
+  margin-bottom: var(--esp-4);
+}
+
+.reserver__requis {
+  color: var(--brique);
+}
+
+.reserver__formulaire input[type="date"] {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.reserver__envoi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-5);
+  margin-top: var(--esp-5);
+}
+
+.reserver__precision {
+  max-width: 30ch;
+  font-size: var(--taille-s);
+  line-height: 1.4;
+}
+
+.reserver__confirmation {
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.reserver__confirmation-titre {
+  font-size: var(--taille-l);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: var(--interligne-titre);
+}
+
+.reserver__confirmation-titre + p {
+  margin-top: var(--esp-3);
+}
+
+.reserver__coordonnees {
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.reserver__liste {
+  margin-top: var(--esp-3);
+}
+
+.reserver__item {
+  padding-block: var(--esp-3);
+  border-bottom: var(--filet-pointille);
+}
+
+.reserver__item dd {
+  margin-top: var(--esp-1);
+}
+
+.reserver__mot {
+  margin-top: var(--esp-4);
+  font-style: italic;
+  color: var(--encre-douce);
+}
+
+@media (max-width: 1100px) and (min-width: 800px) {
+  .reserver__formulaire  { grid-column: 1 / span 8; }
+  .reserver__coordonnees { grid-column: 9 / span 4; }
+}
+
+@media (max-width: 799px) {
+  .reserver__ligne {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reserver__bouton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .reserver__coordonnees {
+    margin-top: var(--esp-5);
+  }
+}
+
+
+/* Annexe de l'artefact ------------------------------------------------------
+   tools/build_artefact.py colle les mentions légales sous le pied de page
+   (#mentions-legales) en descendant les titres d'un niveau : on rend ici aux
+   h2 / h3 l'allure des h1 / h2 de la page légale (layout.css, .page-simple).
+   ------------------------------------------------------------------------- */
+
+.mentions-artefact.page-simple h2 {
+  font-size: var(--taille-xl);
+  font-weight: var(--graisse-fine);
+  margin: 0 0 var(--esp-6);
+  padding: 0;
+  border: 0;
+}
+
+.mentions-artefact.page-simple h3 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  margin-top: var(--esp-6);
+  margin-bottom: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}

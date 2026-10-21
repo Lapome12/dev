@@ -1,0 +1,3045 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eliott la Popote, chef à domicile</title>
+  <meta name="description" content="Eliott la Popote, cuisinier à domicile. Une cuisine de saison, un peu gastro, servie chez vous : je viens avec les courses, je repars avec la vaisselle.">
+  <meta name="theme-color" content="#F2ECE1">
+  <meta name="color-scheme" content="light">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Eliott la Popote">
+  <meta property="og:title" content="Eliott la Popote, chef à domicile">
+  <meta property="og:description" content="Une cuisine de saison, un peu gastro, servie chez vous. Je viens avec les courses, je repars avec la vaisselle.">
+  <!-- [À COMPLÉTER : og:url et og:image (photo 1200 × 630) une fois le site en ligne] -->
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23F2ECE1'/%3E%3Cg transform='translate(7 57.5) scale(0.0365)'%3E%3Cpath fill='%231E1B18' d='M693 -703Q800 -703 884.5 -732Q969 -761 1028 -815.5Q1087 -870 1117.5 -946.5Q1148 -1023 1148 -1118Q1148 -1187 1116.5 -1245Q1085 -1303 1013 -1338.5Q941 -1374 818 -1374H581L599 -1430H886Q1053 -1430 1153 -1386Q1253 -1342 1297.5 -1269Q1342 -1196 1342 -1110Q1342 -1010 1300.5 -925.5Q1259 -841 1179.5 -778.5Q1100 -716 987.5 -681.5Q875 -647 732 -647H359L378 -703ZM301 -60 463 -20 458 0H-78L-72 -20L106 -60L505 -1370L342 -1410L348 -1430H718Z'/%3E%3Cpath fill='%23A63A24' d='M1301 -258Q1355 -258 1387.5 -226.5Q1420 -195 1420 -144Q1420 -99 1398.5 -62Q1377 -25 1340 -3Q1303 19 1257 19Q1203 19 1170.5 -12.5Q1138 -44 1138 -95Q1138 -141 1159.5 -177.5Q1181 -214 1218 -236Q1255 -258 1301 -258Z'/%3E%3C/g%3E%3C/svg%3E" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&display=swap">
+<style>
+/* --- css/tokens.css --- */
+/* ==========================================================================
+   Eliott la Popote : jetons de design
+   Propriétaire : Dev 1. Lecture seule pour les autres fichiers.
+   Toute couleur, police, taille ou durée du site passe par ces variables.
+   ========================================================================== */
+
+
+
+:root {
+  color-scheme: light;
+
+  /* ---- Couleurs ------------------------------------------------------- */
+  --papier: #F2ECE1;        /* fond général */
+  --papier-2: #E7DDCC;      /* zones teintées, emplacements photo */
+  --encre: #1E1B18;         /* texte, filets */
+  --encre-douce: #5E564D;   /* légendes, provenances */
+  --brique: #A63A24;        /* seul accent, moins de 5 % de l'écran */
+  --nuit: #171512;          /* fond de la section Menus */
+  --papier-nuit: #E9E1D3;   /* texte sur fond nuit */
+  --papier-nuit-doux: #A89E8F; /* légendes sur fond nuit (AA sur --nuit) */
+  --brique-pale: #F0D9CF;   /* fond des placeholders */
+
+  /* ---- Typographie ---------------------------------------------------- */
+  --police: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  --graisse-fine: 300;
+  --graisse-texte: 400;
+  --graisse-moyenne: 500;
+  --graisse-forte: 600;
+
+  /* Échelle fluide : de 375 px à 1440 px */
+  --taille-xs: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);   /* 13 → 14 px : mentions */
+  --taille-s: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);     /* 15 → 17 px : légendes, étiquettes */
+  --taille-texte: clamp(1.1875rem, 1.15rem + 0.15vw, 1.25rem); /* 19 → 20 px : texte courant */
+  --taille-m: clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem);        /* 22 → 28 px : chapeaux */
+  --taille-l: clamp(1.75rem, 1.4rem + 1.6vw, 2.75rem);         /* 28 → 44 px : h3, citations */
+  --taille-xl: clamp(2.25rem, 1.6rem + 3vw, 4.25rem);          /* 36 → 68 px : h2 */
+  --taille-xxl: clamp(3rem, 9vw, 8.5rem);                      /* 48 → 136 px : h1 d'ouverture */
+
+  --interligne: 1.55;
+  --interligne-serre: 1.05;
+  --interligne-titre: 1.15;
+  --espacement-capitales: 0.08em;
+
+  --mesure: 64ch;            /* colonne de lecture (60 à 68 caractères) */
+
+  /* ---- Espacements ---------------------------------------------------- */
+  --esp-1: 0.25rem;
+  --esp-2: 0.5rem;
+  --esp-3: 1rem;
+  --esp-4: 1.5rem;
+  --esp-5: 2.5rem;
+  --esp-6: 4rem;
+  --esp-7: 6rem;
+  --esp-8: 9rem;
+  --esp-section: clamp(5rem, 3rem + 7vw, 10rem); /* respiration entre chapitres */
+
+  /* ---- Grille --------------------------------------------------------- */
+  --largeur-max: 1440px;
+  --marge: clamp(20px, 5vw, 72px);       /* marge latérale de page */
+  --gouttiere: clamp(16px, 2.4vw, 40px); /* gouttière entre colonnes */
+
+  /* ---- Traits et formes ----------------------------------------------- */
+  --filet: 1px solid var(--encre);
+  --filet-doux: 1px solid rgba(30, 27, 24, 0.25);
+  --filet-pointille: 1px dotted var(--encre-douce);
+  --rayon-champ: 2px;        /* seul arrondi autorisé : champs de formulaire */
+  --focus: 2px solid var(--brique);
+
+  /* ---- Mouvement ------------------------------------------------------ */
+  --duree-apparition: 600ms;
+  --duree-lien: 350ms;
+  --duree-rapide: 200ms;
+  --montee-apparition: 12px;
+  --courbe: cubic-bezier(0.22, 0.61, 0.36, 1); /* ease-out */
+
+  /* ---- Plans ---------------------------------------------------------- */
+  --z-entete: 50;
+  --z-nav: 60;
+
+  --hauteur-entete: 4.5rem;
+}
+</style>
+  <style>
+/* --- css/base.css --- */
+/* ==========================================================================
+   Eliott la Popote : base
+   Propriétaire : Dev 1. Lecture seule pour les autres fichiers.
+   Sommaire :
+     1. Reset léger
+     2. Page et texte courant
+     3. Grille de 12 colonnes
+     4. Titres et styles typographiques
+     5. Liens
+     6. Boutons
+     7. Sections et chapitres
+     8. Figures, légendes, emplacements photo
+     9. Placeholders [À COMPLÉTER]
+    10. Champs de formulaire (base commune)
+    11. Apparitions, focus, accessibilité
+   ========================================================================== */
+
+
+/* 1. Reset léger ---------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+h1, h2, h3, h4,
+p, blockquote, figure, figcaption,
+ul, ol, dl, dd {
+  margin: 0;
+}
+
+ul[class],
+ol[class] {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+/* 2. Page et texte courant ------------------------------------------------ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--hauteur-entete) + var(--esp-4));
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--police);
+  font-size: var(--taille-texte);
+  font-weight: var(--graisse-texte);
+  font-optical-sizing: auto;
+  line-height: var(--interligne);
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--encre);
+  color: var(--papier);
+}
+
+p,
+li,
+dd,
+blockquote {
+  max-width: var(--mesure);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+p + p {
+  margin-top: 1em;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+strong,
+b {
+  font-weight: var(--graisse-forte);
+}
+
+hr,
+.filet {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: var(--filet);
+}
+
+/* Chiffres alignés pour les tableaux et les colonnes de prix */
+table,
+.chiffres-alignes {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.chiffres {
+  font-variant-numeric: oldstyle-nums;
+}
+
+
+/* 3. Grille de 12 colonnes -------------------------------------------------
+   Exemple : <div class="grille"><div class="col-6 debut-2">…</div></div>
+   .col-N    : occupe N colonnes (1 à 12)
+   .debut-N  : commence à la colonne N (1 à 12)
+   .deborde-droite / .deborde-gauche : l'élément sort jusqu'au bord de l'écran
+   .grille--serree : sans gouttière verticale entre les lignes
+   Sous 800 px, toutes les colonnes passent en pleine largeur.
+   ------------------------------------------------------------------------- */
+
+.conteneur,
+.grille {
+  width: 100%;
+  max-width: var(--largeur-max);
+  margin-inline: auto;
+  padding-inline: var(--marge);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gouttiere);
+  row-gap: var(--esp-5);
+  align-items: start;
+}
+
+.grille--serree {
+  row-gap: 0;
+}
+
+.grille > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+@media (min-width: 800px) {
+  .col-1  { grid-column: auto / span 1; }
+  .col-2  { grid-column: auto / span 2; }
+  .col-3  { grid-column: auto / span 3; }
+  .col-4  { grid-column: auto / span 4; }
+  .col-5  { grid-column: auto / span 5; }
+  .col-6  { grid-column: auto / span 6; }
+  .col-7  { grid-column: auto / span 7; }
+  .col-8  { grid-column: auto / span 8; }
+  .col-9  { grid-column: auto / span 9; }
+  .col-10 { grid-column: auto / span 10; }
+  .col-11 { grid-column: auto / span 11; }
+  .col-12 { grid-column: auto / span 12; }
+
+  .debut-1  { grid-column-start: 1; }
+  .debut-2  { grid-column-start: 2; }
+  .debut-3  { grid-column-start: 3; }
+  .debut-4  { grid-column-start: 4; }
+  .debut-5  { grid-column-start: 5; }
+  .debut-6  { grid-column-start: 6; }
+  .debut-7  { grid-column-start: 7; }
+  .debut-8  { grid-column-start: 8; }
+  .debut-9  { grid-column-start: 9; }
+  .debut-10 { grid-column-start: 10; }
+  .debut-11 { grid-column-start: 11; }
+  .debut-12 { grid-column-start: 12; }
+}
+
+/* Débordement jusqu'au bord de la fenêtre, y compris au-delà de --largeur-max */
+.deborde-droite {
+  margin-right: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+}
+
+.deborde-gauche {
+  margin-left: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+}
+
+.pleine-largeur {
+  margin-inline: calc(-1 * var(--marge));
+}
+
+
+/* 4. Titres et styles typographiques -------------------------------------- */
+
+h1,
+h2,
+h3,
+h4 {
+  font-weight: var(--graisse-fine);
+  line-height: var(--interligne-titre);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 em,
+h2 em,
+h3 em {
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+}
+
+h1,
+.titre-geant {
+  font-size: var(--taille-xxl);
+  line-height: 0.92;
+  letter-spacing: -0.025em;
+}
+
+h2,
+.titre-section {
+  font-size: var(--taille-xl);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-size: var(--taille-l);
+}
+
+h4 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+}
+
+.chapeau {
+  font-size: var(--taille-m);
+  line-height: 1.4;
+  max-width: 34ch;
+}
+
+/* Petites capitales : étiquettes, navigation, mentions */
+.capitales,
+.chapitre,
+.etiquette {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  font-variant-numeric: lining-nums;
+  line-height: 1.3;
+}
+
+.etiquette {
+  color: var(--encre-douce);
+}
+
+.legende,
+figcaption {
+  font-size: var(--taille-s);
+  line-height: 1.4;
+  color: var(--encre-douce);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.citation {
+  font-size: var(--taille-l);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.25;
+  max-width: 28ch;
+  text-wrap: balance;
+}
+
+.citation cite,
+.citation__auteur {
+  display: block;
+  margin-top: var(--esp-4);
+  font-size: var(--taille-s);
+  font-style: normal;
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--encre-douce);
+}
+
+.signature {
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  color: var(--brique);
+}
+
+.discret {
+  color: var(--encre-douce);
+}
+
+
+/* 5. Liens ---------------------------------------------------------------
+   Soulignement fin qui se redessine de gauche à droite au survol.
+   (Le linear-gradient sert juste à tracer un trait plein de 1 px, pas un dégradé.)
+   .lien-nu : lien sans soulignement au repos (navigation, monogramme).
+   ------------------------------------------------------------------------- */
+
+a {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 1px;
+  transition:
+    background-size var(--duree-lien) var(--courbe),
+    color var(--duree-rapide) var(--courbe);
+}
+
+a:hover {
+  color: var(--brique);
+  animation: lien-redessine var(--duree-lien) var(--courbe);
+}
+
+@keyframes lien-redessine {
+  from { background-size: 0 1px; }
+  to   { background-size: 100% 1px; }
+}
+
+.lien-nu {
+  background-size: 0 1px;
+}
+
+.lien-nu:hover {
+  animation: none;
+  background-size: 100% 1px;
+}
+
+.lien-image,
+.lien-image:hover {
+  background: none;
+  animation: none;
+}
+
+
+/* 6. Boutons ---------------------------------------------------------------
+   Rectangulaire, encre sur papier, brique au survol. Aucun arrondi, aucune ombre.
+   .bouton--plein : fond encre (variante pour l'appel principal)
+   ------------------------------------------------------------------------- */
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  min-height: 3rem;
+  padding: 0.55em 1.4em 0.65em;
+  border: 1px solid var(--encre);
+  border-radius: 0;
+  background: transparent;
+  color: var(--encre);
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  line-height: 1;
+  text-decoration: none;
+  background-image: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--duree-rapide) var(--courbe),
+    border-color var(--duree-rapide) var(--courbe),
+    color var(--duree-rapide) var(--courbe);
+}
+
+.bouton:hover {
+  animation: none;
+  border-color: var(--brique);
+  background-color: var(--brique);
+  color: var(--papier);
+}
+
+.bouton--plein {
+  background-color: var(--encre);
+  color: var(--papier);
+}
+
+.bouton__fleche {
+  font-variant-caps: normal;
+  transition: transform var(--duree-rapide) var(--courbe);
+}
+
+.bouton:hover .bouton__fleche {
+  transform: translateX(3px);
+}
+
+
+/* 7. Sections et chapitres -------------------------------------------------
+   Chaque partial : <section id="…" class="section"> avec
+   <p class="chapitre">III. Menus de saison</p> en tête.
+   .section--nuit : fond nuit, texte papier (section Menus).
+   ------------------------------------------------------------------------- */
+
+.section {
+  position: relative;
+  padding-block: var(--esp-section);
+  border-top: var(--filet);
+}
+
+.section--sans-filet {
+  border-top: 0;
+}
+
+.chapitre {
+  display: flex;
+  align-items: baseline;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+  color: var(--encre);
+}
+
+.chapitre::after {
+  content: "";
+  flex: 0 0 3rem;
+  height: 0;
+  border-top: var(--filet);
+  transform: translateY(-0.3em);
+}
+
+.section--nuit {
+  background: var(--nuit);
+  color: var(--papier-nuit);
+  border-top-color: var(--nuit);
+}
+
+.section--nuit .chapitre,
+.section--nuit .bouton {
+  color: var(--papier-nuit);
+}
+
+.section--nuit .chapitre::after,
+.section--nuit hr,
+.section--nuit .filet {
+  border-top-color: var(--papier-nuit);
+}
+
+.section--nuit .bouton {
+  border-color: var(--papier-nuit);
+}
+
+.section--nuit .etiquette,
+.section--nuit .legende,
+.section--nuit figcaption,
+.section--nuit .discret {
+  color: var(--papier-nuit-doux);
+}
+
+.section--nuit ::selection {
+  background: var(--papier-nuit);
+  color: var(--nuit);
+}
+
+
+/* 8. Figures, légendes, emplacements photo ---------------------------------
+   <figure class="figure">
+     <div class="photo-a-venir" style="--ratio: 4 / 5" role="img"
+          aria-label="Photo à venir : mains du chef dressant une assiette">
+       <span class="photo-a-venir__mention">Photo à venir</span>
+       <span class="photo-a-venir__sujet">Mains du chef dressant une assiette</span>
+       <span class="photo-a-venir__format">4:5</span>
+     </div>
+     <figcaption class="legende">fig. 3 — Saint-Jacques, beurre noisette</figcaption>
+   </figure>
+   ------------------------------------------------------------------------- */
+
+.figure figcaption,
+.figure .legende {
+  margin-top: var(--esp-3);
+  max-width: 44ch;
+}
+
+.photo-a-venir {
+  --ratio: 4 / 5;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--esp-3);
+  width: 100%;
+  aspect-ratio: var(--ratio);
+  padding: clamp(var(--esp-3), 3vw, var(--esp-5));
+  background: var(--papier-2);
+  border: var(--filet);
+  color: var(--encre-douce);
+  overflow: hidden;
+}
+
+/* Fin trait de coupe en diagonale, façon épreuve d'imprimerie */
+.photo-a-venir::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cline x1='0' y1='100' x2='100' y2='0' stroke='%231E1B18' stroke-opacity='.14' stroke-width='1' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+  pointer-events: none;
+}
+
+.photo-a-venir > * {
+  position: relative;
+}
+
+.photo-a-venir__mention {
+  font-size: var(--taille-xs);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+  color: var(--encre);
+}
+
+.photo-a-venir__sujet {
+  max-width: 24ch;
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.25;
+  color: var(--encre);
+}
+
+.photo-a-venir__format {
+  align-self: flex-end;
+  font-size: var(--taille-xs);
+  font-variant-numeric: lining-nums;
+  letter-spacing: 0.06em;
+}
+
+.section--nuit .photo-a-venir {
+  background: #24211D;
+  border-color: var(--papier-nuit-doux);
+  color: var(--papier-nuit-doux);
+}
+
+.section--nuit .photo-a-venir__mention,
+.section--nuit .photo-a-venir__sujet {
+  color: var(--papier-nuit);
+}
+
+
+/* 9. Placeholders [À COMPLÉTER : …] ----------------------------------------
+   <span class="placeholder">[À COMPLÉTER : prix par personne]</span>
+   Volontairement visibles : on ne doit pas pouvoir les manquer.
+   ------------------------------------------------------------------------- */
+
+.placeholder {
+  padding: 0 0.2em;
+  background: var(--brique-pale);
+  color: var(--brique);
+  font-style: normal;
+  font-variant-caps: normal;
+  text-decoration: underline dotted var(--brique);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.section--nuit .placeholder {
+  background: rgba(166, 58, 36, 0.28);
+  color: var(--papier-nuit);
+  text-decoration-color: var(--papier-nuit);
+}
+
+
+/* 10. Champs de formulaire (base commune) ---------------------------------
+   La mise en page du formulaire revient à Dev 3 (sections-service.css).
+   ------------------------------------------------------------------------- */
+
+.champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--esp-2);
+}
+
+.champ label,
+.champ__libelle {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+select,
+textarea {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.6em 0.75em;
+  border: 1px solid var(--encre);
+  border-radius: var(--rayon-champ);
+  background: transparent;
+  color: var(--encre);
+  font-size: var(--taille-texte);
+  line-height: 1.4;
+  font-variant-numeric: lining-nums;
+}
+
+textarea {
+  min-height: 8rem;
+  resize: vertical;
+}
+
+::placeholder {
+  color: var(--encre-douce);
+  opacity: 1;
+  font-style: italic;
+}
+
+.champ__erreur {
+  font-size: var(--taille-s);
+  font-style: italic;
+  color: var(--brique);
+}
+
+[aria-invalid="true"] {
+  border-color: var(--brique) !important;
+}
+
+
+/* 11. Apparitions, focus, accessibilité ----------------------------------
+   Le JS (Dev 3) ajoute .apparait aux blocs à animer, puis .est-visible.
+   Sans JS, rien n'est masqué : la classe .js est posée sur <html> par le script.
+   ------------------------------------------------------------------------- */
+
+.js .apparait {
+  opacity: 0;
+  transform: translateY(var(--montee-apparition));
+  transition:
+    opacity var(--duree-apparition) var(--courbe),
+    transform var(--duree-apparition) var(--courbe);
+}
+
+.js .apparait.est-visible {
+  opacity: 1;
+  transform: none;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: var(--focus);
+  outline-offset: 3px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+}
+
+.visuellement-cache {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.lien-evitement {
+  position: absolute;
+  top: var(--esp-2);
+  left: var(--esp-2);
+  z-index: 100;
+  padding: var(--esp-2) var(--esp-3);
+  background: var(--encre);
+  color: var(--papier);
+  transform: translateY(-200%);
+}
+
+.lien-evitement:focus-visible {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .js .apparait {
+    opacity: 1;
+    transform: none;
+  }
+}
+</style>
+  <style>
+/* --- css/layout.css --- */
+/* ==========================================================================
+   Eliott la Popote : mise en page générale
+   Propriétaire : Dev 1.
+   Sommaire :
+     1. En-tête collant
+     2. Navigation (bureau, puis plein écran sur mobile)
+     3. Ouverture
+     4. Pied de page
+   Contrat avec js/main.js (Dev 3) :
+     - <html class="js"> posé par le script ;
+     - bouton .entete__menu : aria-expanded="true|false" ;
+     - nav #nav-principale : classe .nav--ouverte quand le menu mobile est ouvert ;
+     - en-tête #entete : classe .entete--defile dès que la page a défilé.
+   ========================================================================== */
+
+
+/* 1. En-tête collant ------------------------------------------------------ */
+
+.entete {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-entete);
+  background: var(--papier);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duree-apparition) var(--courbe);
+}
+
+.entete--defile {
+  border-bottom-color: var(--encre);
+}
+
+.entete__barre {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-5);
+  max-width: var(--largeur-max);
+  min-height: var(--hauteur-entete);
+  margin-inline: auto;
+  padding-inline: var(--marge);
+}
+
+.entete__monogramme {
+  flex: none;
+  display: block;
+  padding-block: var(--esp-2);
+}
+
+.entete__monogramme img {
+  width: auto;
+  height: 2.25rem;
+}
+
+.entete__reserver {
+  flex: none;
+  min-height: 2.6rem;
+}
+
+/* Bouton Menu / Fermer (mobile uniquement, et seulement avec JS) */
+.entete__menu {
+  display: none;
+  margin-left: auto;
+  padding: var(--esp-2) 0;
+  border: 0;
+  background: none;
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  line-height: 1;
+  border-bottom: 1px solid var(--encre);
+}
+
+.entete__menu-fermer,
+.entete__menu[aria-expanded="true"] .entete__menu-ouvrir {
+  display: none;
+}
+
+.entete__menu[aria-expanded="true"] .entete__menu-fermer {
+  display: inline;
+}
+
+
+/* 2. Navigation ------------------------------------------------------------ */
+
+.nav {
+  margin-left: auto;
+}
+
+.nav__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--esp-1) clamp(var(--esp-3), 2vw, var(--esp-5));
+}
+
+.nav__lien {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  white-space: nowrap;
+}
+
+.nav__numero,
+.nav__reserver,
+.nav__pied {
+  display: none;
+}
+
+/* Bureau large : tout tient sur une ligne */
+@media (min-width: 1000px) {
+  .nav__liste {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Mobile et tablette : menu plein écran, ouvert par le bouton */
+@media (max-width: 999.98px) {
+  .js .entete__menu {
+    display: block;
+  }
+
+  .js .nav {
+    position: fixed;
+    inset: var(--hauteur-entete) 0 0 0;
+    z-index: var(--z-nav);
+    display: none;
+    flex-direction: column;
+    gap: var(--esp-5);
+    margin: 0;
+    padding: var(--esp-5) var(--marge) var(--esp-5);
+    overflow-y: auto;
+    background: var(--papier);
+    border-top: var(--filet);
+  }
+
+  .js .nav.nav--ouverte {
+    display: flex;
+  }
+
+  .js .nav__liste {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .js .nav__liste li {
+    border-bottom: var(--filet-doux);
+  }
+
+  .js .nav__lien {
+    display: flex;
+    align-items: baseline;
+    gap: var(--esp-3);
+    padding-block: var(--esp-3);
+    font-size: var(--taille-l);
+    font-style: italic;
+    font-weight: var(--graisse-fine);
+    font-variant-caps: normal;
+    letter-spacing: -0.01em;
+    white-space: normal;
+  }
+
+  .js .nav__numero {
+    display: inline-block;
+    min-width: 2.6em;
+    font-size: var(--taille-s);
+    font-style: normal;
+    font-weight: var(--graisse-moyenne);
+    font-variant-caps: all-small-caps;
+    letter-spacing: var(--espacement-capitales);
+    color: var(--encre-douce);
+  }
+
+  .js .nav__reserver {
+    display: inline-flex;
+    align-self: flex-start;
+  }
+
+  .js .nav__pied {
+    display: block;
+    margin-top: auto;
+    font-size: var(--taille-s);
+  }
+
+  html:has(.nav--ouverte) {
+    overflow: hidden;
+  }
+
+  /* Sans JS : la navigation reste lisible sous le monogramme */
+  html:not(.js) .entete__barre {
+    flex-wrap: wrap;
+    padding-block: var(--esp-2);
+  }
+
+  html:not(.js) .nav {
+    order: 3;
+    flex-basis: 100%;
+    margin: 0;
+  }
+}
+
+@media (max-width: 559.98px) {
+  .js .entete__reserver {
+    display: none;
+  }
+}
+
+
+/* 3. Ouverture ------------------------------------------------------------
+   Asymétrique : le titre déborde sur la photo, le texte est décalé
+   d'une colonne, la photo sort jusqu'au bord droit de l'écran.
+   ------------------------------------------------------------------------- */
+
+.ouverture {
+  padding-top: clamp(var(--esp-4), 4vw, var(--esp-6));
+  padding-bottom: var(--esp-section);
+}
+
+.ouverture__grille {
+  row-gap: var(--esp-4);
+}
+
+.ouverture__folio {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-4);
+  padding-bottom: var(--esp-2);
+  border-bottom: var(--filet);
+}
+
+.ouverture__saison {
+  color: var(--encre-douce);
+  font-size: var(--taille-texte);
+  font-weight: var(--graisse-fine);
+  font-variant-caps: normal;
+  letter-spacing: 0;
+}
+
+.ouverture__titre {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--esp-5);
+  font-size: var(--taille-xxl);
+  font-weight: var(--graisse-fine);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-wrap: wrap;
+}
+
+.ouverture__titre em {
+  display: block;
+  padding-left: 0.9em;
+  white-space: nowrap;
+}
+
+.ouverture__texte .chapeau {
+  max-width: 26ch;
+}
+
+.ouverture__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-5);
+  margin-top: var(--esp-5);
+}
+
+.ouverture__lien {
+  font-style: italic;
+}
+
+.ouverture__photo {
+  margin-top: var(--esp-4);
+}
+
+@media (min-width: 800px) {
+  .ouverture__grille {
+    row-gap: 0;
+  }
+
+  .ouverture__folio {
+    grid-column: 1 / 7;
+    grid-row: 1;
+    flex-direction: column;
+    border-bottom: 0;
+    border-top: var(--filet);
+    padding-top: var(--esp-2);
+  }
+
+  .ouverture__titre {
+    grid-column: 1 / 12;
+    grid-row: 2;
+    margin-top: var(--esp-7);
+  }
+
+  .ouverture__texte {
+    grid-column: 2 / 7;
+    grid-row: 3;
+    margin-top: var(--esp-6);
+  }
+
+  .ouverture__photo {
+    grid-column: 8 / -1;
+    grid-row: 1 / span 3;
+    margin-top: 0;
+    margin-right: calc(-1 * (var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)));
+  }
+
+  .ouverture__photo figcaption {
+    padding-right: var(--marge);
+  }
+}
+
+/* 4. Pied de page --------------------------------------------------------- */
+
+.pied {
+  padding-top: var(--esp-7);
+  padding-bottom: var(--esp-5);
+  border-top: var(--filet);
+}
+
+.pied__grille {
+  row-gap: var(--esp-5);
+}
+
+.pied__signature {
+  max-width: none;
+  margin-bottom: var(--esp-4);
+  font-size: clamp(4.5rem, 17vw, 16rem);
+  font-weight: var(--graisse-fine);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: var(--brique);
+  white-space: nowrap;
+}
+
+.pied__signature em {
+  font-style: italic;
+}
+
+.pied__phrase {
+  margin-top: calc(-1 * var(--esp-3));
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+}
+
+.pied__bloc p + p {
+  margin-top: var(--esp-2);
+}
+
+.pied__bloc .etiquette {
+  margin-bottom: var(--esp-2);
+}
+
+.pied__bas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--esp-2) var(--esp-5);
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}
+
+.pied__mention {
+  margin: 0;
+  font-size: var(--taille-s);
+  color: var(--encre-douce);
+}
+
+@media (min-width: 800px) {
+  .pied__bloc--zone    { grid-column: 1 / 5; }
+  .pied__bloc--contact { grid-column: 5 / 9; }
+  .pied__bloc--reseaux { grid-column: 9 / -1; }
+}
+
+/* Page secondaire (mentions légales) ------------------------------------- */
+
+.entete__retour {
+  margin-left: auto;
+}
+
+.page-simple {
+  padding-block: var(--esp-6) var(--esp-section);
+}
+
+.page-simple h1 {
+  font-size: var(--taille-xl);
+  margin-bottom: var(--esp-6);
+}
+
+.page-simple h2 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  margin-top: var(--esp-6);
+  margin-bottom: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}
+
+.page-simple dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr;
+  gap: var(--esp-2) var(--esp-4);
+}
+
+.page-simple dt {
+  color: var(--encre-douce);
+}
+
+@media (max-width: 559.98px) {
+  .page-simple dl {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .page-simple dd {
+    margin-bottom: var(--esp-3);
+  }
+}
+</style>
+  <style>
+/* --- css/sections-recit.css --- */
+/* ==========================================================================
+   Eliott la Popote : sections du récit
+   Propriétaire : Dev 2. Utilise uniquement les jetons de tokens.css.
+   Sommaire :
+     I.   Le chef            (.chef__*)
+     II.  La table           (.table__*)
+     III. Menus de saison    (.menus__*)
+     IV.  Comment ça se passe (.deroule__*)
+     VII. Questions          (.faq__*)
+   ========================================================================== */
+
+
+/* I. Le chef -------------------------------------------------------------- */
+
+.chef__titre {
+  margin-bottom: var(--esp-5);
+}
+
+.chef__portrait {
+  margin-top: var(--esp-6);
+}
+
+.chef__citation {
+  margin-top: var(--esp-6);
+  max-width: none;
+}
+
+.chef__citation p {
+  max-width: 30ch;
+}
+
+.chef__signature {
+  margin-top: var(--esp-4);
+  font-size: var(--taille-xl);
+  line-height: 1;
+}
+
+@media (min-width: 800px) {
+  /* le texte descend un peu sous le haut du portrait : composition décalée */
+  .chef__texte {
+    padding-top: var(--esp-7);
+  }
+
+  .chef__portrait {
+    margin-top: 0;
+  }
+
+  .chef__citation {
+    margin-top: var(--esp-7);
+  }
+}
+
+
+/* II. La table -------------------------------------------------------------
+   Liste typographique : nom en grand italique à gauche, détails à droite,
+   un filet entre chaque formule. Pas de cartes.
+   ------------------------------------------------------------------------- */
+
+.table__titre {
+  margin-bottom: var(--esp-4);
+}
+
+.table__intro {
+  align-self: end;
+}
+
+.table__liste {
+  margin-top: var(--esp-5);
+  border-bottom: var(--filet);
+  counter-reset: formule;
+}
+
+.table__formule {
+  display: grid;
+  gap: var(--esp-3);
+  max-width: none;
+  padding-block: var(--esp-5);
+  border-top: var(--filet);
+  counter-increment: formule;
+}
+
+.table__nom {
+  font-size: var(--taille-xl);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.table__nom::before {
+  content: counter(formule, lower-roman) ".";
+  display: block;
+  margin-bottom: var(--esp-2);
+  font-size: var(--taille-s);
+  font-style: normal;
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--encre-douce);
+}
+
+.table__couverts {
+  margin-bottom: var(--esp-2);
+}
+
+.table__description {
+  max-width: 46ch;
+}
+
+.table__prix {
+  margin-top: var(--esp-3);
+  font-size: var(--taille-s);
+}
+
+.table__prix-libelle {
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  margin-right: var(--esp-2);
+}
+
+.table__note {
+  font-size: var(--taille-s);
+  font-style: italic;
+}
+
+@media (min-width: 800px) {
+  .table__formule {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 4fr);
+    column-gap: var(--gouttiere);
+    align-items: start;
+  }
+
+  .table__details {
+    padding-top: var(--esp-4);
+  }
+}
+
+
+/* III. Menus de saison -----------------------------------------------------
+   La pièce maîtresse : une carte imprimée sur fond nuit.
+   Cadre à double filet, titres centrés, plats en italique,
+   provenance en petit, points de conduite jusqu'au prix.
+   ------------------------------------------------------------------------- */
+
+.menus__carte {
+  position: relative;
+  padding: clamp(var(--esp-5), 6vw, var(--esp-7)) clamp(var(--esp-3), 5vw, var(--esp-7));
+  border: 1px solid var(--papier-nuit-doux);
+  outline: 1px solid var(--papier-nuit-doux);
+  outline-offset: -8px;
+  text-align: center;
+}
+
+.menus__carte p,
+.menus__carte li {
+  margin-inline: auto;
+}
+
+.menus__entete {
+  margin-bottom: var(--esp-6);
+}
+
+.menus__surtitre,
+.menus__nom-menu,
+.menus__note-titre,
+.menus__prix-libelle {
+  font-size: var(--taille-s);
+  font-weight: var(--graisse-moyenne);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.14em;
+}
+
+.menus__surtitre {
+  color: var(--papier-nuit-doux);
+}
+
+.menus__titre {
+  margin-block: var(--esp-3);
+  font-size: var(--taille-xxl);
+  line-height: 0.95;
+  letter-spacing: -0.025em;
+}
+
+.menus__soustitre {
+  max-width: 36ch;
+  font-style: italic;
+  color: var(--papier-nuit-doux);
+}
+
+.menus__bloc {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.menus__nom-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--esp-3);
+  margin-bottom: var(--esp-5);
+  line-height: 1.3;
+}
+
+/* filets de part et d'autre du nom du menu */
+.menus__nom-menu::before,
+.menus__nom-menu::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--papier-nuit-doux);
+}
+
+.menus__temps {
+  color: var(--papier-nuit-doux);
+}
+
+.menus__temps::before {
+  content: "· ";
+}
+
+.menus__plat + .menus__plat {
+  margin-top: var(--esp-4);
+}
+
+.menus__intitule {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.3;
+  max-width: 30ch;
+  text-wrap: balance;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+}
+
+.menus__provenance {
+  margin-top: var(--esp-1);
+  font-size: var(--taille-xs);
+  font-variant-caps: all-small-caps;
+  letter-spacing: var(--espacement-capitales);
+  color: var(--papier-nuit-doux);
+}
+
+/* Prix au bout d'une ligne de points de conduite */
+.menus__prix {
+  display: flex;
+  align-items: baseline;
+  gap: var(--esp-2);
+  max-width: none;
+  margin-top: var(--esp-5);
+  text-align: left;
+}
+
+.menus__points {
+  flex: 1;
+  min-width: var(--esp-5);
+  border-bottom: 1px dotted var(--papier-nuit-doux);
+  transform: translateY(-0.25em);
+}
+
+.menus__prix-libelle {
+  white-space: nowrap;
+}
+
+.menus__prix-valeur {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-variant-numeric: lining-nums tabular-nums;
+  white-space: nowrap;
+}
+
+.menus__ornement {
+  margin-block: var(--esp-6);
+  font-size: var(--taille-m);
+  line-height: 1;
+  color: var(--brique);
+}
+
+.menus__notes {
+  max-width: 40rem;
+  margin: var(--esp-6) auto 0;
+  padding-top: var(--esp-4);
+  border-top: 1px dotted var(--papier-nuit-doux);
+  font-size: var(--taille-s);
+  color: var(--papier-nuit-doux);
+  text-align: left;
+}
+
+.menus__notes p {
+  max-width: none;
+}
+
+.menus__note-titre {
+  margin-right: var(--esp-1);
+  color: var(--papier-nuit);
+}
+
+@media (max-width: 799px) {
+  .menus__carte {
+    outline-offset: -6px;
+  }
+
+  .menus__prix {
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .menus__points {
+    display: none;
+  }
+
+  .menus__prix-libelle {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+}
+
+
+/* IV. Comment ça se passe --------------------------------------------------
+   Chronologie verticale : un filet continu, l'heure en grand à gauche,
+   le récit à droite. Pas de cartes 1-2-3.
+   ------------------------------------------------------------------------- */
+
+.deroule__intro {
+  margin-top: var(--esp-4);
+  font-style: italic;
+}
+
+.deroule__ligne {
+  position: relative;
+  border-left: var(--filet);
+}
+
+.deroule__moment {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: var(--esp-3);
+  max-width: none;
+  padding: 0 0 var(--esp-6) var(--esp-4);
+}
+
+.deroule__moment:last-child {
+  padding-bottom: 0;
+}
+
+/* repère sur la ligne */
+.deroule__moment::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--papier);
+  border: var(--filet);
+}
+
+.deroule__moment--service::before {
+  background: var(--brique);
+  border-color: var(--brique);
+}
+
+.deroule__heure {
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: 1.2;
+  font-variant-numeric: oldstyle-nums;
+  white-space: nowrap;
+}
+
+.deroule__etape {
+  margin-bottom: var(--esp-2);
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  line-height: 1.2;
+}
+
+@media (min-width: 800px) {
+  .deroule__entete {
+    position: sticky;
+    top: calc(var(--hauteur-entete) + var(--esp-5));
+  }
+
+  .deroule__moment {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    padding-left: var(--esp-5);
+  }
+
+  .deroule__heure {
+    font-size: var(--taille-l);
+    line-height: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .deroule__moment {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--esp-1);
+  }
+}
+
+
+/* VII. Questions -----------------------------------------------------------
+   <details> natifs, un « + » qui devient « − » à l'ouverture.
+   ------------------------------------------------------------------------- */
+
+.faq__liste {
+  border-bottom: var(--filet);
+}
+
+.faq__item {
+  border-top: var(--filet);
+}
+
+.faq__question {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--esp-4);
+  padding-block: var(--esp-4);
+  font-size: var(--taille-m);
+  line-height: 1.3;
+  hyphens: manual;
+  -webkit-hyphens: manual;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.faq__question:hover .faq__intitule {
+  color: var(--brique);
+}
+
+.faq__intitule {
+  transition: color var(--duree-rapide) var(--courbe);
+}
+
+/* « + » dessiné en deux traits : la barre verticale tourne et se couche */
+.faq__signe {
+  position: relative;
+  flex: 0 0 0.75em;
+  height: 0.75em;
+}
+
+.faq__signe::before,
+.faq__signe::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid currentColor;
+  transition: transform var(--duree-rapide) var(--courbe);
+}
+
+.faq__signe::after {
+  transform: rotate(90deg);
+}
+
+.faq__item[open] .faq__signe::after {
+  transform: rotate(0deg);
+}
+
+.faq__reponse {
+  padding-bottom: var(--esp-5);
+  padding-right: var(--esp-5);
+}
+
+@media (min-width: 800px) {
+  .faq__titre {
+    position: sticky;
+    top: calc(var(--hauteur-entete) + var(--esp-5));
+  }
+}
+</style>
+  <style>
+/* --- css/sections-service.css --- */
+/* ==========================================================================
+   Eliott la Popote : sections de service
+   Propriétaire : Dev 3. Sections V (Assiettes), VI (Avis), VIII (Réserver).
+   S'appuie sur tokens.css et base.css (grille, .figure, .photo-a-venir,
+   .champ, .citation) : aucune couleur ni police codée en dur ici.
+   ========================================================================== */
+
+
+/* V. Assiettes -------------------------------------------------------------
+   Mosaïque asymétrique : la grille de base place les figures (.col-N
+   .debut-N), on ajoute ici les décalages verticaux qui cassent les lignes.
+   ------------------------------------------------------------------------- */
+
+.galerie__chapo {
+  margin-top: var(--esp-4);
+  color: var(--encre-douce);
+}
+
+.galerie__mosaique {
+  margin-top: var(--esp-6);
+  row-gap: var(--esp-6);
+}
+
+@media (min-width: 800px) {
+  .galerie__fig--3 { margin-top: var(--esp-8); }
+  .galerie__fig--4 { margin-top: calc(-1 * var(--esp-6)); }
+  .galerie__fig--5 { margin-top: var(--esp-5); }
+  .galerie__fig--7 { margin-top: calc(-1 * var(--esp-4)); }
+  .galerie__fig--8 { margin-top: var(--esp-7); }
+
+  /* La figure qui déborde garde sa légende dans la marge de page */
+  .galerie__fig--4 figcaption { margin-left: calc(var(--marge) + max(0px, (100vw - var(--largeur-max)) / 2)); }
+}
+
+/* Sous 800 px : une colonne, avec un retrait alterné pour garder le rythme */
+@media (max-width: 799px) {
+  .galerie__mosaique {
+    row-gap: var(--esp-5);
+  }
+
+  .galerie__fig.deborde-gauche,
+  .galerie__fig.deborde-droite {
+    margin-inline: 0;
+  }
+
+  .galerie__fig--3,
+  .galerie__fig--5,
+  .galerie__fig--8 {
+    margin-left: 14%;
+  }
+
+  .galerie__fig--2,
+  .galerie__fig--7 {
+    margin-right: 14%;
+  }
+}
+
+
+/* VI. Ils sont passés à table ----------------------------------------------
+   En escalier sur grand écran, défilement manuel horizontal sur mobile.
+   ------------------------------------------------------------------------- */
+
+.avis__defile {
+  margin-top: var(--esp-6);
+}
+
+/* base.css remet à zéro le padding des listes à classe : on rend celui de .grille */
+.avis .avis__liste {
+  padding-inline: var(--marge);
+  row-gap: var(--esp-7);
+}
+
+.avis__item {
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.avis__citation {
+  max-width: 30ch;
+}
+
+.avis__citation > p::before { content: "« "; }
+.avis__citation > p::after  { content: " »"; }
+
+.avis__occasion {
+  font-variant-caps: normal;
+  font-style: italic;
+  font-weight: var(--graisse-texte);
+  letter-spacing: 0;
+}
+
+.avis__indice {
+  display: none;
+}
+
+@media (max-width: 799px) {
+  .avis__defile {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--marge);
+    scrollbar-width: none;
+  }
+
+  .avis__defile::-webkit-scrollbar {
+    display: none;
+  }
+
+  .avis__defile:focus-visible {
+    outline-offset: -2px;
+  }
+
+  .avis__liste {
+    display: flex;
+    gap: var(--esp-4);
+    width: max-content;
+    max-width: none;
+  }
+
+  .avis__liste > .avis__item {
+    flex: 0 0 calc(100vw - 2 * var(--marge) - var(--esp-5));
+    scroll-snap-align: start;
+  }
+
+  .avis__indice {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--esp-3);
+    margin-top: var(--esp-4);
+    font-size: var(--taille-s);
+    font-style: italic;
+  }
+
+  .avis__compteur {
+    font-style: normal;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+}
+
+
+/* VIII. Réserver une date ----------------------------------------------- */
+
+.reserver__chapeau {
+  margin-top: var(--esp-4);
+}
+
+.reserver__corps {
+  margin-top: var(--esp-6);
+}
+
+.reserver__note {
+  margin-bottom: var(--esp-5);
+  font-size: var(--taille-s);
+  font-style: italic;
+}
+
+.reserver__ligne {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--gouttiere);
+}
+
+.reserver__champ {
+  margin-bottom: var(--esp-4);
+}
+
+.reserver__requis {
+  color: var(--brique);
+}
+
+.reserver__formulaire input[type="date"] {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.reserver__envoi {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--esp-3) var(--esp-5);
+  margin-top: var(--esp-5);
+}
+
+.reserver__precision {
+  max-width: 30ch;
+  font-size: var(--taille-s);
+  line-height: 1.4;
+}
+
+.reserver__confirmation {
+  margin-top: var(--esp-5);
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.reserver__confirmation-titre {
+  font-size: var(--taille-l);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
+  line-height: var(--interligne-titre);
+}
+
+.reserver__confirmation-titre + p {
+  margin-top: var(--esp-3);
+}
+
+.reserver__coordonnees {
+  padding-top: var(--esp-4);
+  border-top: var(--filet);
+}
+
+.reserver__liste {
+  margin-top: var(--esp-3);
+}
+
+.reserver__item {
+  padding-block: var(--esp-3);
+  border-bottom: var(--filet-pointille);
+}
+
+.reserver__item dd {
+  margin-top: var(--esp-1);
+}
+
+.reserver__mot {
+  margin-top: var(--esp-4);
+  font-style: italic;
+  color: var(--encre-douce);
+}
+
+@media (max-width: 1100px) and (min-width: 800px) {
+  .reserver__formulaire  { grid-column: 1 / span 8; }
+  .reserver__coordonnees { grid-column: 9 / span 4; }
+}
+
+@media (max-width: 799px) {
+  .reserver__ligne {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reserver__bouton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .reserver__coordonnees {
+    margin-top: var(--esp-5);
+  }
+}
+
+
+/* Annexe de l'artefact ------------------------------------------------------
+   tools/build_artefact.py colle les mentions légales sous le pied de page
+   (#mentions-legales) en descendant les titres d'un niveau : on rend ici aux
+   h2 / h3 l'allure des h1 / h2 de la page légale (layout.css, .page-simple).
+   ------------------------------------------------------------------------- */
+
+.mentions-artefact.page-simple h2 {
+  font-size: var(--taille-xl);
+  font-weight: var(--graisse-fine);
+  margin: 0 0 var(--esp-6);
+  padding: 0;
+  border: 0;
+}
+
+.mentions-artefact.page-simple h3 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  margin-top: var(--esp-6);
+  margin-bottom: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}
+</style>
+
+  </head>
+<body id="haut">
+
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
+  <!-- ============ En-tête (Dev 1) ============ -->
+  <header class="entete" id="entete">
+    <div class="entete__barre">
+      <a class="entete__monogramme lien-image" href="#haut" aria-label="Eliott la Popote, retour en haut de page">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-120 -1540 2960 1630' role='img' aria-labelledby='monogramme-titre'%3E%3Ctitle id='monogramme-titre'%3EEliott la Popote%3C/title%3E%3C!-- « ElP » : Newsreader 72pt Italic vectorisé (SIL Open Font License) --%3E%3Cpath fill='%231E1B18' d='M505 -1370 342 -1410 348 -1430H718L283 0H-78L-72 -20L106 -60ZM1251 -1394 1376 -1374H564L582 -1430H1262L1409 -1484H1416L1342 -1031H1318ZM965 54 838 0H145L163 -56H1003L822 -38L1182 -384L1202 -369L972 54ZM871 -455H850L831 -713L375 -737L382 -756L846 -784L1029 -1039H1050L928 -746Z M1532 -1303Q1514 -1315 1489.5 -1330.5Q1465 -1346 1437.5 -1364.5Q1410 -1383 1381 -1401L1382 -1407L1745 -1484H1748L1300 -87L1280 -124Q1296 -112 1336 -122Q1376 -132 1443.5 -180Q1511 -228 1607 -330L1616 -323Q1530 -202 1457.5 -126Q1385 -50 1326.5 -15Q1268 20 1224 20Q1160 20 1142 -5Q1124 -30 1144 -92Z M2213 -703Q2320 -703 2404.5 -732Q2489 -761 2548 -815.5Q2607 -870 2637.5 -946.5Q2668 -1023 2668 -1118Q2668 -1187 2636.5 -1245Q2605 -1303 2533 -1338.5Q2461 -1374 2338 -1374H2101L2119 -1430H2406Q2573 -1430 2673 -1386Q2773 -1342 2817.5 -1269Q2862 -1196 2862 -1110Q2862 -1010 2820.5 -925.5Q2779 -841 2699.5 -778.5Q2620 -716 2507.5 -681.5Q2395 -647 2252 -647H1879L1898 -703ZM1821 -60 1983 -20 1978 0H1442L1448 -20L1626 -60L2025 -1370L1862 -1410L1868 -1430H2238Z'/%3E%3C/svg%3E" alt="" width="74" height="41">
+      </a>
+
+      <button class="entete__menu" type="button" aria-expanded="false" aria-controls="nav-principale">
+        <span class="entete__menu-ouvrir">Menu</span>
+        <span class="entete__menu-fermer">Fermer</span>
+      </button>
+
+      <nav class="nav" id="nav-principale" aria-label="Navigation principale">
+        <ol class="nav__liste">
+          <li><a class="nav__lien lien-nu" href="#chef"><span class="nav__numero">I.</span> Le chef</a></li>
+          <li><a class="nav__lien lien-nu" href="#table"><span class="nav__numero">II.</span> La table</a></li>
+          <li><a class="nav__lien lien-nu" href="#menus"><span class="nav__numero">III.</span> Menus</a></li>
+          <li><a class="nav__lien lien-nu" href="#deroule"><span class="nav__numero">IV.</span> Déroulé</a></li>
+          <li><a class="nav__lien lien-nu" href="#galerie"><span class="nav__numero">V.</span> Assiettes</a></li>
+          <li><a class="nav__lien lien-nu" href="#avis"><span class="nav__numero">VI.</span> Avis</a></li>
+          <li><a class="nav__lien lien-nu" href="#faq"><span class="nav__numero">VII.</span> Questions</a></li>
+        </ol>
+        <a class="bouton bouton--plein nav__reserver" href="#reserver">Réserver une date</a>
+        <p class="nav__pied discret">Cuisinier à domicile · <span class="placeholder">[À COMPLÉTER : zone desservie]</span></p>
+      </nav>
+
+      <a class="bouton entete__reserver" href="#reserver">Réserver une date</a>
+    </div>
+  </header>
+
+  <main id="contenu">
+
+    <!-- ============ Ouverture (Dev 1) ============ -->
+    <section class="ouverture" id="ouverture" aria-labelledby="ouverture-titre">
+      <div class="grille ouverture__grille">
+
+        <p class="ouverture__folio capitales">
+          <span>Carnet de cuisine</span>
+          <span class="ouverture__saison"><em>Carte d'automne, d'octobre à décembre</em></span>
+        </p>
+
+        <h1 class="ouverture__titre" id="ouverture-titre">Eliott <em>la&nbsp;Popote</em></h1>
+
+        <div class="ouverture__texte">
+          <p class="chapeau">Cuisinier à domicile. Je viens avec les courses, je repars avec la vaisselle.</p>
+          <div class="ouverture__actions">
+            <a class="bouton bouton--plein" href="#reserver">Réserver une date <span class="bouton__fleche" aria-hidden="true">→</span></a>
+            <a class="ouverture__lien" href="#menus">Voir le menu de saison</a>
+          </div>
+        </div>
+
+        <figure class="figure ouverture__photo">
+          <div class="photo-a-venir" style="--ratio: 4 / 5" role="img" aria-label="Photo à venir : table dressée chez un client, bougies, assiettes en cours de service">
+            <span class="photo-a-venir__mention">Photo à venir</span>
+            <span class="photo-a-venir__sujet">Table dressée chez un client, bougies, assiettes en cours de service</span>
+            <span class="photo-a-venir__format">4:5 · vertical</span>
+          </div>
+          <figcaption class="legende">Chez vous, à l'heure du service.</figcaption>
+        </figure>
+
+      </div>
+    </section>
+
+    <section id="chef" class="section chef" aria-labelledby="chef-titre">
+  <div class="grille">
+    <p class="chapitre col-11 debut-2">I. Le chef</p>
+    <div class="chef__texte col-6 debut-2 apparait">
+      <h2 id="chef-titre" class="titre-section chef__titre">Je cuisine <em>chez vous</em>, pas à côté.</h2>
+      <p>Je m’appelle Eliott. J’ai appris le métier en cuisine de restaurant, là où on compte en couverts et en secondes&#8239;: <span class="placeholder">[À COMPLÉTER&#8239;: parcours, maisons, années]</span>. J’y ai gardé la rigueur, le couteau bien affûté et l’habitude de goûter tout ce qui passe.</p>
+      <p>Un jour, j’ai voulu voir les gens manger. Pas un ticket qui sort d’une imprimante&#8239;: des amis qui se resservent, une grand-mère qui demande la recette, un enfant qui trempe son pain dans la sauce. La Popote est née de là. Une cuisine de chef, oui, mais servie dans votre salle à manger, à votre rythme.</p>
+      <p>Je travaille avec ce que la saison donne et ce que les producteurs ont de mieux cette semaine-là. Le menu se décide avec vous, la sauce se monte devant vous, et à la fin, vous n’avez pas une casserole à laver.</p>
+    </div>
+    <figure class="figure chef__portrait col-4 debut-9 deborde-droite apparait">
+      <div class="photo-a-venir" style="--ratio: 4 / 5" role="img" aria-label="Photo à venir : portrait d’Eliott en tablier, dans une cuisine de particulier, lumière naturelle">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Portrait d’Eliott en tablier, dans une cuisine de particulier, lumière naturelle</span>
+        <span class="photo-a-venir__format">4:5</span>
+      </div>
+      <figcaption class="legende">fig. 1 — Le chef, à son poste du soir.</figcaption>
+    </figure>
+    <blockquote class="citation chef__citation col-8 debut-3 apparait">
+      <p>«&#8239;Un bon dîner, c’est une sauce qui nappe, un pain qui craque et personne qui regarde l’heure.&#8239;»</p>
+      <p class="signature chef__signature">Eliott</p>
+    </blockquote>
+  </div>
+</section>
+
+    <section id="table" class="section table" aria-labelledby="table-titre">
+  <div class="grille">
+    <p class="chapitre col-11 debut-2">II. La table</p>
+    <h2 id="table-titre" class="titre-section table__titre col-6 debut-2">Quatre façons de <em>mettre la table</em>.</h2>
+    <p class="table__intro col-4 debut-9">Chaque formule comprend les courses, la cuisine sur place, le service à l’assiette et le rangement. Vous fournissez la table et l’appétit.</p>
+    <ol class="table__liste col-10 debut-2">
+      <li class="table__formule apparait">
+        <h3 class="table__nom"><em>Dîner à deux</em></h3>
+        <div class="table__details">
+          <p class="table__couverts etiquette">2 couverts</p>
+          <p class="table__description">Un anniversaire, une demande en mariage, ou juste l’envie de ne rien faire un samedi soir. Je cuisine, je sers, je m’éclipse entre les plats.</p>
+          <p class="table__prix"><span class="table__prix-libelle">Prix indicatif</span> <span class="placeholder">[À COMPLÉTER&#8239;: prix par personne]</span></p>
+        </div>
+      </li>
+      <li class="table__formule apparait">
+        <h3 class="table__nom"><em>Table d’amis</em></h3>
+        <div class="table__details">
+          <p class="table__couverts etiquette">4 à 10 couverts</p>
+          <p class="table__description">La formule de la Popote. Un menu de quatre à six temps, pensé avec vous, servi à l’assiette. Vous restez à table avec vos invités, c’est le but.</p>
+          <p class="table__prix"><span class="table__prix-libelle">Prix indicatif</span> <span class="placeholder">[À COMPLÉTER&#8239;: prix par personne]</span></p>
+        </div>
+      </li>
+      <li class="table__formule apparait">
+        <h3 class="table__nom"><em>Grandes tablées et événements</em></h3>
+        <div class="table__details">
+          <p class="table__couverts etiquette">Au-delà de 10 couverts</p>
+          <p class="table__description">Fête de famille, baptême, séminaire, repas d’équipe. On adapte&#8239;: service à l’assiette, plats à partager ou buffet. Je viens avec une brigade si besoin.</p>
+          <p class="table__prix"><span class="table__prix-libelle">Prix indicatif</span> sur devis, <span class="placeholder">[À COMPLÉTER&#8239;: prix plancher éventuel]</span></p>
+        </div>
+      </li>
+      <li class="table__formule apparait">
+        <h3 class="table__nom"><em>Cours à la maison</em></h3>
+        <div class="table__details">
+          <p class="table__couverts etiquette">2 à 6 personnes, environ 3&#8239;heures</p>
+          <p class="table__description">On cuisine ensemble un menu complet, puis on le mange. Vous repartez avec les fiches recettes et quelques gestes qui changent tout&#8239;: tailler, monter une sauce, dresser une assiette.</p>
+          <p class="table__prix"><span class="table__prix-libelle">Prix indicatif</span> <span class="placeholder">[À COMPLÉTER&#8239;: prix par personne]</span></p>
+        </div>
+      </li>
+    </ol>
+    <p class="table__note discret col-5 debut-7">Les prix varient selon le menu, les produits et le nombre de convives. Le devis est envoyé sous 48&#8239;h, sans engagement.</p>
+  </div>
+</section>
+
+    <section id="menus" class="section section--nuit menus" aria-labelledby="menus-titre">
+  <div class="grille">
+    <p class="chapitre col-11 debut-2">III. Menus de saison</p>
+    <article class="menus__carte col-8 debut-3 apparait">
+      <header class="menus__entete">
+        <p class="menus__surtitre">Carte du moment</p>
+        <h2 id="menus-titre" class="menus__titre">Menu <em>d’automne</em></h2>
+        <p class="menus__soustitre">D’octobre à décembre. Il change avec le marché, parfois d’une semaine à l’autre.</p>
+      </header>
+
+      <div class="menus__bloc">
+        <h3 class="menus__nom-menu">Le dîner <span class="menus__temps">six temps</span></h3>
+        <ol class="menus__plats">
+          <li class="menus__plat">
+            <p class="menus__intitule">Gougère tiède au comté, poivre de Sarawak</p>
+            <p class="menus__provenance">Comté 24 mois, Jura</p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Bouillon de cèpes, noisettes torréfiées, huile de livèche</p>
+            <p class="menus__provenance">Cèpes selon la cueillette, noisettes du Lot-et-Garonne</p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Saint-Jacques snackées, chou-fleur en deux façons, beurre noisette</p>
+            <p class="menus__provenance">Baie de Saint-Brieuc, ouverture de la pêche en octobre</p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Pintade fermière rôtie, jus au vin jaune, céleri cuit en croûte de sel</p>
+            <p class="menus__provenance">Pintade Label Rouge, vin jaune du Jura</p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Comté, chutney de coings et pain de campagne grillé</p>
+            <p class="menus__provenance">Fromager affineur, <span class="placeholder">[À COMPLÉTER&#8239;: nom du fromager]</span></p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Poire pochée au vin chaud, sablé breton, crème crue</p>
+            <p class="menus__provenance">Poires Williams, <span class="placeholder">[À COMPLÉTER&#8239;: producteur]</span></p>
+          </li>
+        </ol>
+        <p class="menus__prix"><span class="menus__prix-libelle">Par personne, à partir de 4 convives</span><span class="menus__points" aria-hidden="true"></span><span class="menus__prix-valeur"><span class="placeholder">[À COMPLÉTER&#8239;: prix]</span>&#8239;€</span></p>
+      </div>
+
+      <p class="menus__ornement" aria-hidden="true">✻</p>
+
+      <div class="menus__bloc">
+        <h3 class="menus__nom-menu">Le déjeuner <span class="menus__temps">trois temps</span></h3>
+        <ol class="menus__plats">
+          <li class="menus__plat">
+            <p class="menus__intitule">Velouté de potimarron, graines torréfiées, crème fumée</p>
+            <p class="menus__provenance">Potimarron de saison</p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Joue de bœuf braisée sept heures, purée de céleri, carottes glacées</p>
+            <p class="menus__provenance">Bœuf de race à viande, <span class="placeholder">[À COMPLÉTER&#8239;: éleveur ou boucher]</span></p>
+          </li>
+          <li class="menus__plat">
+            <p class="menus__intitule">Tarte fine aux pommes, caramel au beurre salé</p>
+            <p class="menus__provenance">Pommes de variétés anciennes</p>
+          </li>
+        </ol>
+        <p class="menus__prix"><span class="menus__prix-libelle">Par personne</span><span class="menus__points" aria-hidden="true"></span><span class="menus__prix-valeur"><span class="placeholder">[À COMPLÉTER&#8239;: prix]</span>&#8239;€</span></p>
+      </div>
+
+      <footer class="menus__notes">
+        <p><span class="menus__note-titre">Allergies.</span> Intolérances, régimes végétarien ou sans gluten&#8239;: dites-le-moi dès la première prise de contact, je compose le menu en conséquence. Aucune substitution de dernière minute ne vaut un menu pensé pour vous.</p>
+        <p><span class="menus__note-titre">Vins.</span> Accords mets et vins sur demande, <span class="placeholder">[À COMPLÉTER&#8239;: avec ou sans fourniture du vin]</span>.</p>
+      </footer>
+    </article>
+  </div>
+</section>
+
+    <section id="deroule" class="section deroule" aria-labelledby="deroule-titre">
+  <div class="grille">
+    <p class="chapitre col-11 debut-2">IV. Comment ça se passe</p>
+    <div class="deroule__entete col-4 debut-2">
+      <h2 id="deroule-titre" class="titre-section deroule__titre">Une soirée, <em>heure par heure</em>.</h2>
+      <p class="deroule__intro discret">Du premier coup de fil à la dernière assiette rangée.</p>
+    </div>
+    <ol class="deroule__ligne col-6 debut-7">
+      <li class="deroule__moment apparait">
+        <p class="deroule__heure">J-10</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">On parle menu</h3>
+          <p>Un appel de vingt minutes. Combien vous êtes, ce que vous aimez, ce que vous ne mangez pas, l’occasion. Je vous envoie une proposition de menu et un devis.</p>
+        </div>
+      </li>
+      <li class="deroule__moment apparait">
+        <p class="deroule__heure">J-3</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">Je fais le marché</h3>
+          <p>Je confirme le menu définitif selon les arrivages. Je commande chez les producteurs et je prépare ce qui doit l’être&#8239;: fonds, sauces, pâtes.</p>
+        </div>
+      </li>
+      <li class="deroule__moment apparait">
+        <p class="deroule__heure">17&#8239;h</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">J’arrive avec les courses</h3>
+          <p>Et avec mes couteaux, mes casseroles et mon tablier. Je prends possession de votre cuisine, gentiment.</p>
+        </div>
+      </li>
+      <li class="deroule__moment apparait">
+        <p class="deroule__heure">19&#8239;h&#8239;30</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">Les premières bouchées</h3>
+          <p>Vos invités arrivent, les gougères sortent du four. Vous n’avez qu’à ouvrir la porte.</p>
+        </div>
+      </li>
+      <li class="deroule__moment deroule__moment--service apparait">
+        <p class="deroule__heure">20&#8239;h</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">Le service</h3>
+          <p>Je dresse à l’assiette et je sers à table. Je raconte chaque plat en deux phrases, pas plus&#8239;: vous êtes là pour discuter entre vous.</p>
+        </div>
+      </li>
+      <li class="deroule__moment apparait">
+        <p class="deroule__heure">23&#8239;h</p>
+        <div class="deroule__recit">
+          <h3 class="deroule__etape">La cuisine est rendue propre</h3>
+          <p>Vaisselle faite, plans essuyés, poubelles sorties. Les restes sont au frigo, étiquetés. Vous ne saurez jamais que j’étais là, sauf en ouvrant le frigo.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+    <section id="galerie" class="section galerie" aria-labelledby="galerie-titre">
+  <div class="grille galerie__tete">
+    <div class="col-7 debut-2">
+      <p class="chapitre">V. Assiettes</p>
+      <h2 id="galerie-titre" class="titre-section">Ce qui sort <em>de la cuisine</em>.</h2>
+      <p class="galerie__chapo">Quelques assiettes de la saison. Elles changent avec le marché, alors certaines ne reviendront jamais.</p>
+    </div>
+  </div>
+
+  <div class="grille galerie__mosaique">
+    <figure class="figure galerie__fig galerie__fig--2 col-4 debut-2 apparait">
+      <div class="photo-a-venir" style="--ratio: 1 / 1" role="img" aria-label="Photo à venir : assiette de Saint-Jacques vue du dessus">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Assiette de Saint-Jacques vue du dessus</span>
+        <span class="photo-a-venir__format">1:1</span>
+      </div>
+      <figcaption class="legende">fig. 2 — Saint-Jacques, beurre noisette</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--3 col-4 debut-8 apparait">
+      <div class="photo-a-venir" style="--ratio: 4 / 5" role="img" aria-label="Photo à venir : mains du chef dressant une assiette">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Mains du chef dressant une assiette</span>
+        <span class="photo-a-venir__format">4:5</span>
+      </div>
+      <figcaption class="legende">fig. 3 — Le dressage, pince en main</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--4 col-6 debut-1 deborde-gauche apparait">
+      <div class="photo-a-venir" style="--ratio: 3 / 2" role="img" aria-label="Photo à venir : bouillon versé dans une assiette creuse">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Bouillon versé dans une assiette creuse</span>
+        <span class="photo-a-venir__format">3:2</span>
+      </div>
+      <figcaption class="legende">fig. 4 — Bouillon de cèpes, versé à table</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--5 col-3 debut-9 apparait">
+      <div class="photo-a-venir" style="--ratio: 4 / 5" role="img" aria-label="Photo à venir : cagette de légumes de saison">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Cagette de légumes de saison</span>
+        <span class="photo-a-venir__format">4:5</span>
+      </div>
+      <figcaption class="legende">fig. 5 — Le marché du jeudi</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--6 col-10 debut-3 deborde-droite apparait">
+      <div class="photo-a-venir" style="--ratio: 16 / 9" role="img" aria-label="Photo à venir : convives à table, ambiance chaude">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Convives à table, ambiance chaude</span>
+        <span class="photo-a-venir__format">16:9</span>
+      </div>
+      <figcaption class="legende">fig. 6 — La table d'amis, 22 h</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--7 col-4 debut-2 apparait">
+      <div class="photo-a-venir" style="--ratio: 1 / 1" role="img" aria-label="Photo à venir : dessert à l'assiette">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Dessert à l'assiette</span>
+        <span class="photo-a-venir__format">1:1</span>
+      </div>
+      <figcaption class="legende">fig. 7 — Poire pochée, sablé breton</figcaption>
+    </figure>
+    <figure class="figure galerie__fig galerie__fig--8 col-5 debut-7 apparait">
+      <div class="photo-a-venir" style="--ratio: 3 / 2" role="img" aria-label="Photo à venir : plan de travail avec bols de préparations">
+        <span class="photo-a-venir__mention">Photo à venir</span>
+        <span class="photo-a-venir__sujet">Plan de travail avec bols de préparations</span>
+        <span class="photo-a-venir__format">3:2</span>
+      </div>
+      <figcaption class="legende">fig. 8 — Mise en place</figcaption>
+    </figure>
+  </div>
+</section>
+
+    <section id="avis" class="section avis" aria-labelledby="avis-titre">
+  <div class="grille avis__tete">
+    <div class="col-8 debut-2">
+      <p class="chapitre">VI. Ils sont passés à table</p>
+      <h2 id="avis-titre" class="titre-section">Ils sont passés <em>à table</em>.</h2>
+    </div>
+  </div>
+
+  <div class="avis__defile" tabindex="0" role="region" aria-label="Avis des convives">
+    <ol class="grille avis__liste">
+      <li class="avis__item col-7 debut-2 apparait">
+        <blockquote class="citation avis__citation">
+          <p><span class="placeholder">[À COMPLÉTER : avis client 1]</span></p>
+          <cite>
+            <span class="placeholder">[À COMPLÉTER : prénom]</span>,
+            <span class="avis__occasion"><span class="placeholder">[À COMPLÉTER : occasion, ville]</span></span>
+          </cite>
+        </blockquote>
+      </li>
+      <li class="avis__item col-7 debut-5 apparait">
+        <blockquote class="citation avis__citation">
+          <p><span class="placeholder">[À COMPLÉTER : avis client 2]</span></p>
+          <cite>
+            <span class="placeholder">[À COMPLÉTER : prénom]</span>,
+            <span class="avis__occasion"><span class="placeholder">[À COMPLÉTER : occasion, ville]</span></span>
+          </cite>
+        </blockquote>
+      </li>
+      <li class="avis__item col-7 debut-3 apparait">
+        <blockquote class="citation avis__citation">
+          <p><span class="placeholder">[À COMPLÉTER : avis client 3]</span></p>
+          <cite>
+            <span class="placeholder">[À COMPLÉTER : prénom]</span>,
+            <span class="avis__occasion"><span class="placeholder">[À COMPLÉTER : occasion, ville]</span></span>
+          </cite>
+        </blockquote>
+      </li>
+    </ol>
+  </div>
+
+  <div class="grille">
+    <p class="avis__indice discret" aria-hidden="true">Faites glisser pour lire la suite <span class="avis__compteur" data-avis-compteur>1 / 3</span></p>
+  </div>
+</section>
+
+    <section id="faq" class="section faq" aria-labelledby="faq-titre">
+  <div class="grille">
+    <p class="chapitre col-11 debut-2">VII. Questions</p>
+    <h2 id="faq-titre" class="titre-section faq__titre col-4 debut-2">Les questions <em>qu’on me pose</em>.</h2>
+    <div class="faq__liste col-6 debut-7 apparait">
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Combien ça coûte&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Cela dépend du menu, du nombre de convives et des produits. Comptez <span class="placeholder">[À COMPLÉTER&#8239;: fourchette de prix]</span> par personne, courses, service et rangement compris. Je vous envoie un devis détaillé, sans engagement, sous 48&#8239;h.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Les courses sont-elles comprises&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Oui. Je fais le marché moi-même, chez des producteurs que je connais. Le prix annoncé comprend les produits&#8239;: pas de ticket de caisse surprise en fin de soirée.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">De quel matériel avez-vous besoin&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Un four, des plaques de cuisson et un peu de place sur le plan de travail. J’apporte mes couteaux, mes casseroles et mes ustensiles. Si votre cuisine est petite, prévenez-moi, j’adapte le menu.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Vous gérez les allergies et les régimes particuliers&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Oui, et je préfère le savoir tôt. Végétarien, sans gluten, sans lactose, allergie aux fruits à coque&#8239;: je compose le menu en conséquence, pour toute la table ou pour une seule assiette.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Dans quelle zone vous déplacez-vous&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p><span class="placeholder">[À COMPLÉTER&#8239;: ville et rayon]</span>. Au-delà, c’est possible avec des frais de déplacement, <span class="placeholder">[À COMPLÉTER&#8239;: montant ou règle]</span>.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Combien de temps à l’avance faut-il réserver&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Idéalement trois semaines, et plus pour les week-ends de décembre, qui partent vite. Pour une date proche, écrivez-moi quand même&#8239;: il reste parfois un soir.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Et la vaisselle&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Je cuisine et je dresse dans votre vaisselle. Je repars en laissant la cuisine propre&#8239;: vaisselle lavée, plans essuyés. Pour une grande tablée, je peux louer assiettes et verres, <span class="placeholder">[À COMPLÉTER&#8239;: conditions]</span>.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Vous vous occupez du vin&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Je vous propose des accords avec le menu. <span class="placeholder">[À COMPLÉTER&#8239;: je fournis le vin / vous l’achetez sur mes conseils]</span>. Le service du vin à table est compris.</p></div>
+      </details>
+      <details class="faq__item">
+        <summary class="faq__question"><span class="faq__intitule">Faut-il verser un acompte&#8239;?</span><span class="faq__signe" aria-hidden="true"></span></summary>
+        <div class="faq__reponse"><p>Oui, <span class="placeholder">[À COMPLÉTER&#8239;: pourcentage]</span>&#8239;% à la réservation pour bloquer la date. Le solde se règle le soir même ou sur facture. <span class="placeholder">[À COMPLÉTER&#8239;: conditions d’annulation]</span>.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+    <section id="reserver" class="section reserver" aria-labelledby="reserver-titre">
+  <div class="grille reserver__tete">
+    <div class="col-7 debut-2">
+      <p class="chapitre">VIII. Réserver une date</p>
+      <h2 id="reserver-titre" class="titre-section">Réserver <em>une date</em>.</h2>
+      <p class="chapeau reserver__chapeau">Dites-m'en un peu, je vous réponds sous 48 h avec une proposition de menu et un devis.</p>
+    </div>
+  </div>
+
+  <div class="grille reserver__corps">
+    <form class="reserver__formulaire col-7 debut-2" id="reserver-formulaire" novalidate
+          data-destinataire="[À COMPLÉTER : e-mail]">
+      <p class="reserver__note discret">Les champs suivis d'un astérisque sont nécessaires, le reste m'aide à préparer.</p>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-nom">Nom et prénom <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-nom" name="nom" type="text" autocomplete="name" required aria-describedby="r-nom-erreur">
+          <p class="champ__erreur" id="r-nom-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-email">E-mail <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="r-email-erreur">
+          <p class="champ__erreur" id="r-email-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-telephone">Téléphone</label>
+          <input id="r-telephone" name="telephone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="r-telephone-erreur">
+          <p class="champ__erreur" id="r-telephone-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-ville">Ville <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-ville" name="ville" type="text" autocomplete="address-level2" required aria-describedby="r-ville-erreur">
+          <p class="champ__erreur" id="r-ville-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-date">Date souhaitée <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-date" name="date" type="date" required aria-describedby="r-date-erreur">
+          <p class="champ__erreur" id="r-date-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-convives">Nombre de convives <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-convives" name="convives" type="number" min="1" max="60" step="1" inputmode="numeric" required aria-describedby="r-convives-erreur">
+          <p class="champ__erreur" id="r-convives-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-occasion">Occasion</label>
+        <input id="r-occasion" name="occasion" type="text" list="r-occasions" placeholder="Anniversaire, dîner entre amis, événement…">
+        <datalist id="r-occasions">
+          <option value="Dîner à deux"></option>
+          <option value="Table d'amis"></option>
+          <option value="Anniversaire"></option>
+          <option value="Repas de famille"></option>
+          <option value="Événement ou entreprise"></option>
+          <option value="Cours à la maison"></option>
+        </datalist>
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-allergies">Allergies ou régimes particuliers</label>
+        <input id="r-allergies" name="allergies" type="text" placeholder="Sans gluten pour une personne, pas de coriandre…">
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-message">Votre message</label>
+        <textarea id="r-message" name="message" rows="5" placeholder="L'ambiance, un plat dont vous rêvez, la taille de votre cuisine…"></textarea>
+      </div>
+
+      <div class="reserver__envoi">
+        <button class="bouton bouton--plein reserver__bouton" type="submit">Envoyer ma demande <span class="bouton__fleche" aria-hidden="true">→</span></button>
+        <p class="reserver__precision discret">Le bouton ouvre votre messagerie avec la demande déjà rédigée. Il ne reste qu'à l'envoyer.</p>
+      </div>
+
+      <div class="reserver__confirmation" id="reserver-confirmation" role="status" tabindex="-1" hidden></div>
+    </form>
+
+    <aside class="reserver__coordonnees col-3 debut-10" aria-labelledby="reserver-coord-titre">
+      <p class="etiquette" id="reserver-coord-titre">Ou directement</p>
+      <dl class="reserver__liste">
+        <div class="reserver__item">
+          <dt class="etiquette">Téléphone</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : téléphone]</span></dd>
+        </div>
+        <div class="reserver__item">
+          <dt class="etiquette">E-mail</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : e-mail]</span></dd>
+        </div>
+        <div class="reserver__item">
+          <dt class="etiquette">Zone</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : ville et rayon]</span></dd>
+        </div>
+      </dl>
+      <p class="reserver__mot">Je réponds en général le soir, après le service.</p>
+    </aside>
+  </div>
+</section>
+
+  </main>
+
+  <!-- ============ Pied de page (Dev 1) ============ -->
+  <footer class="pied" id="pied">
+    <div class="grille pied__grille">
+
+      <p class="pied__signature" aria-hidden="true">la <em>Popote</em></p>
+      <p class="pied__phrase">Cuisinier à domicile, cuisine de saison.</p>
+
+      <div class="pied__bloc pied__bloc--zone">
+        <p class="etiquette">Zone desservie</p>
+        <p><span class="placeholder">[À COMPLÉTER : ville et rayon, ex. « Lyon et 40 km autour »]</span></p>
+      </div>
+
+      <div class="pied__bloc pied__bloc--contact">
+        <p class="etiquette">Écrire, appeler</p>
+        <p><span class="placeholder">[À COMPLÉTER : e-mail]</span><br>
+           <span class="placeholder">[À COMPLÉTER : téléphone]</span></p>
+      </div>
+
+      <div class="pied__bloc pied__bloc--reseaux">
+        <p class="etiquette">Ailleurs</p>
+        <p><span class="placeholder">[À COMPLÉTER : lien Instagram]</span></p>
+      </div>
+
+      <div class="pied__bas">
+        <p class="pied__mention">© <span class="chiffres">2026</span> Eliott la Popote · Cuisinier à domicile</p>
+        <p class="pied__mention"><a href="#mentions-legales">Mentions légales</a> · <a href="#reserver">Réserver une date</a></p>
+        <p class="pied__mention"><a class="lien-nu" href="#haut">Remonter <span aria-hidden="true">↑</span></a></p>
+      </div>
+
+    </div>
+  </footer>
+
+
+<section id="mentions-legales" class="section mentions-artefact page-simple" aria-label="Mentions légales">
+<div class="grille">
+      <div class="col-8 debut-2">
+
+        <p class="chapitre">Annexe</p>
+        <h2>Mentions <em>légales</em></h2>
+
+        <h3>Éditeur du site</h3>
+        <dl>
+          <dt>Nom ou raison sociale</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : nom, prénom ou raison sociale]</span></dd>
+          <dt>Statut</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : micro-entreprise, SASU…]</span></dd>
+          <dt>SIRET</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : numéro SIRET]</span></dd>
+          <dt>Adresse</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : adresse postale]</span></dd>
+          <dt>Contact</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : e-mail]</span> · <span class="placeholder">[À COMPLÉTER : téléphone]</span></dd>
+          <dt>Directeur de la publication</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : nom]</span></dd>
+        </dl>
+
+        <h3>Hébergement</h3>
+        <dl>
+          <dt>Hébergeur</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : nom de l'hébergeur]</span></dd>
+          <dt>Adresse</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : adresse de l'hébergeur]</span></dd>
+        </dl>
+
+        <h3>Données personnelles</h3>
+        <p>Le formulaire de réservation ne stocke rien sur ce site : il prépare un e-mail que vous envoyez vous-même depuis votre messagerie. Les informations reçues (nom, coordonnées, date, allergies) servent uniquement à préparer votre repas et ne sont jamais transmises à des tiers.</p>
+        <p>Vous pouvez demander à tout moment l'accès à vos données ou leur suppression en écrivant à <span class="placeholder">[À COMPLÉTER : e-mail]</span>.</p>
+
+        <h3>Cookies</h3>
+        <p>Ce site ne dépose aucun cookie de mesure d'audience ni de publicité. Seule la police de caractères est chargée depuis Google Fonts.</p>
+
+        <h3>Crédits</h3>
+        <p>Caractères : Newsreader, de Production Type (licence SIL Open Font). Photographies : <span class="placeholder">[À COMPLÉTER : nom du photographe]</span>.</p>
+
+      </div>
+    </div>
+</section>
+<script>
+/* --- js/main.js --- */
+/* ==========================================================================
+   Eliott la Popote : script principal
+   Propriétaire : Dev 3.
+   Sommaire :
+     1. Démarrage
+     2. Menu mobile (ouverture, Échap, piège de focus)
+     3. Filet de l'en-tête au défilement
+     4. Apparitions au défilement
+     5. Avis : compteur du défilement mobile
+     6. Formulaire de réservation (validation, mailto:, confirmation)
+   Chaque bloc vérifie que ses éléments existent : une section absente
+   ne fait jamais planter le reste.
+   ========================================================================== */
+
+(function () {
+  "use strict";
+
+  var racine = document.documentElement;
+  racine.classList.add("js");
+
+  var mouvementReduit = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : { matches: false };
+
+
+  /* 2. Menu mobile -----------------------------------------------------------
+     Contrat avec layout.css (Dev 1) : bouton .entete__menu avec
+     aria-expanded et aria-controls="nav-principale".
+     Ouvert : .nav--ouverte sur la nav, .menu-ouvert sur <html>.
+     ------------------------------------------------------------------------- */
+
+  function initialiserMenu() {
+    var bouton = document.querySelector(".entete__menu, [data-nav-bouton]");
+    if (!bouton) return;
+
+    var idNav = bouton.getAttribute("aria-controls");
+    var nav = (idNav && document.getElementById(idNav)) || document.querySelector(".nav");
+    if (!nav) return;
+
+    var libelle = bouton.querySelector("[data-nav-libelle]") || null;
+    var dernierFocus = null;
+
+    function focusables() {
+      var liste = nav.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      return [bouton].concat(Array.prototype.filter.call(liste, function (el) {
+        return el.offsetParent !== null || el === document.activeElement;
+      }));
+    }
+
+    function ouvrir() {
+      dernierFocus = document.activeElement;
+      nav.classList.add("nav--ouverte");
+      racine.classList.add("menu-ouvert");
+      bouton.setAttribute("aria-expanded", "true");
+      if (libelle) libelle.textContent = "Fermer";
+      var premier = nav.querySelector("a[href], button");
+      if (premier) premier.focus();
+      document.addEventListener("keydown", gererClavier);
+    }
+
+    function fermer(rendreFocus) {
+      nav.classList.remove("nav--ouverte");
+      racine.classList.remove("menu-ouvert");
+      bouton.setAttribute("aria-expanded", "false");
+      if (libelle) libelle.textContent = "Menu";
+      document.removeEventListener("keydown", gererClavier);
+      if (rendreFocus !== false) (dernierFocus && dernierFocus.focus ? dernierFocus : bouton).focus();
+    }
+
+    function estOuvert() {
+      return bouton.getAttribute("aria-expanded") === "true";
+    }
+
+    function gererClavier(e) {
+      if (e.key === "Escape" || e.key === "Esc") {
+        e.preventDefault();
+        fermer();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      var liste = focusables();
+      if (!liste.length) return;
+      var premier = liste[0];
+      var dernier = liste[liste.length - 1];
+      if (e.shiftKey && document.activeElement === premier) {
+        e.preventDefault();
+        dernier.focus();
+      } else if (!e.shiftKey && document.activeElement === dernier) {
+        e.preventDefault();
+        premier.focus();
+      }
+    }
+
+    bouton.addEventListener("click", function () {
+      if (estOuvert()) fermer();
+      else ouvrir();
+    });
+
+    // Un lien d'ancre choisi dans le menu referme le menu
+    nav.addEventListener("click", function (e) {
+      var lien = e.target.closest ? e.target.closest("a[href]") : null;
+      if (lien && estOuvert()) fermer(false);
+    });
+
+    // Retour sur grand écran : on ne laisse pas un menu ouvert en plan
+    window.addEventListener("resize", function () {
+      if (estOuvert() && window.getComputedStyle(bouton).display === "none") fermer(false);
+    });
+  }
+
+
+  /* 3. Filet de l'en-tête -----------------------------------------------------
+     Ajoute .entete--defile sur #entete dès qu'on quitte le haut de page.
+     ------------------------------------------------------------------------- */
+
+  function initialiserEntete() {
+    var entete = document.getElementById("entete") || document.querySelector(".entete");
+    if (!entete) return;
+
+    var enAttente = false;
+    function mettreAJour() {
+      enAttente = false;
+      entete.classList.toggle("entete--defile", window.scrollY > 8);
+    }
+    window.addEventListener("scroll", function () {
+      if (!enAttente) {
+        enAttente = true;
+        window.requestAnimationFrame(mettreAJour);
+      }
+    }, { passive: true });
+    mettreAJour();
+  }
+
+
+  /* 4. Apparitions ------------------------------------------------------------
+     base.css masque .apparait dès que <html> porte .js : ce bloc doit donc
+     toujours finir par rendre les éléments visibles.
+     ------------------------------------------------------------------------- */
+
+  function initialiserApparitions() {
+    var blocs = document.querySelectorAll(".apparait");
+    if (!blocs.length) return;
+
+    function toutAfficher() {
+      Array.prototype.forEach.call(blocs, function (el) {
+        el.classList.add("est-visible");
+      });
+    }
+
+    if (mouvementReduit.matches || !("IntersectionObserver" in window)) {
+      toutAfficher();
+      return;
+    }
+
+    var observateur = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (entree) {
+        if (entree.isIntersecting) {
+          entree.target.classList.add("est-visible");
+          observateur.unobserve(entree.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+
+    Array.prototype.forEach.call(blocs, function (el) {
+      observateur.observe(el);
+    });
+
+    // Arrivée directe sur une ancre ou impression : tout s'affiche
+    window.addEventListener("beforeprint", toutAfficher);
+  }
+
+
+  /* 5. Avis : compteur « 1 / 3 » du défilement mobile ----------------------- */
+
+  function initialiserAvis() {
+    var defile = document.querySelector(".avis__defile");
+    var compteur = document.querySelector("[data-avis-compteur]");
+    if (!defile || !compteur) return;
+
+    var items = defile.querySelectorAll(".avis__item");
+    if (!items.length) return;
+
+    function mettreAJour() {
+      var gauche = defile.getBoundingClientRect().left;
+      var actif = 0;
+      var meilleur = Infinity;
+      Array.prototype.forEach.call(items, function (item, i) {
+        var ecart = Math.abs(item.getBoundingClientRect().left - gauche);
+        if (ecart < meilleur) {
+          meilleur = ecart;
+          actif = i;
+        }
+      });
+      compteur.textContent = (actif + 1) + " / " + items.length;
+    }
+
+    defile.addEventListener("scroll", function () {
+      window.requestAnimationFrame(mettreAJour);
+    }, { passive: true });
+    mettreAJour();
+  }
+
+
+  /* 6. Formulaire de réservation --------------------------------------------
+     Textes : CONTENU.md, section VIII.
+     ------------------------------------------------------------------------- */
+
+  var MESSAGES = {
+    vide: "Ce champ m'aide à préparer votre devis, merci de le remplir.",
+    email: "Cette adresse e-mail ne semble pas complète.",
+    datePassee: "Cette date est déjà passée, choisissez-en une à venir.",
+    dateInvalide: "Cette date ne semble pas valide.",
+    convives: "Indiquez un nombre de convives entre 1 et 60.",
+    telephone: "Ce numéro ne semble pas complet."
+  };
+
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function aujourdhuiISO() {
+    var d = new Date();
+    var mois = String(d.getMonth() + 1).padStart(2, "0");
+    var jour = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + mois + "-" + jour;
+  }
+
+  function dateLisible(iso) {
+    var morceaux = iso.split("-");
+    if (morceaux.length !== 3) return iso;
+    var d = new Date(Number(morceaux[0]), Number(morceaux[1]) - 1, Number(morceaux[2]));
+    try {
+      return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    } catch (e) {
+      return morceaux[2] + "/" + morceaux[1] + "/" + morceaux[0];
+    }
+  }
+
+  function initialiserFormulaire() {
+    var form = document.getElementById("reserver-formulaire");
+    if (!form) return;
+
+    var confirmation = document.getElementById("reserver-confirmation");
+    var champDate = form.elements.namedItem("date");
+    if (champDate) champDate.setAttribute("min", aujourdhuiISO());
+
+    function erreurDe(champ) {
+      return document.getElementById(champ.id + "-erreur");
+    }
+
+    function afficherErreur(champ, message) {
+      var zone = erreurDe(champ);
+      if (message) {
+        champ.setAttribute("aria-invalid", "true");
+        if (zone) {
+          zone.textContent = message;
+          zone.hidden = false;
+        }
+      } else {
+        champ.removeAttribute("aria-invalid");
+        if (zone) {
+          zone.textContent = "";
+          zone.hidden = true;
+        }
+      }
+    }
+
+    function verifier(champ) {
+      var valeur = (champ.value || "").trim();
+      var nom = champ.name;
+
+      if (champ.required && !valeur) return MESSAGES.vide;
+      if (!valeur) return "";
+
+      if (nom === "email" && !RE_EMAIL.test(valeur)) return MESSAGES.email;
+
+      if (nom === "telephone") {
+        var chiffres = valeur.replace(/[^\d]/g, "");
+        if (chiffres.length < 9 || /[^\d\s.+()-]/.test(valeur)) return MESSAGES.telephone;
+      }
+
+      if (nom === "date") {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(valeur)) return MESSAGES.dateInvalide;
+        if (valeur < aujourdhuiISO()) return MESSAGES.datePassee;
+      }
+
+      if (nom === "convives") {
+        var n = Number(valeur);
+        if (!Number.isInteger(n) || n < 1 || n > 60) return MESSAGES.convives;
+      }
+
+      return "";
+    }
+
+    var aVerifier = Array.prototype.filter.call(form.elements, function (el) {
+      return el.name && erreurDe(el);
+    });
+
+    aVerifier.forEach(function (champ) {
+      // On attend que la personne quitte le champ avant de la reprendre,
+      // puis on corrige en direct une fois l'erreur affichée.
+      champ.addEventListener("blur", function () {
+        if (champ.value.trim() || champ.getAttribute("aria-invalid") === "true") {
+          afficherErreur(champ, verifier(champ));
+        }
+      });
+      champ.addEventListener("input", function () {
+        if (champ.getAttribute("aria-invalid") === "true") afficherErreur(champ, verifier(champ));
+      });
+    });
+
+    function valeur(nom) {
+      var el = form.elements.namedItem(nom);
+      return el ? (el.value || "").trim() : "";
+    }
+
+    function construireMailto() {
+      var destinataire = (form.getAttribute("data-destinataire") || "").trim();
+      if (!RE_EMAIL.test(destinataire)) destinataire = "";
+
+      var date = valeur("date");
+      var convives = valeur("convives");
+      var sujet = "Demande de date : " + dateLisible(date) + ", " + convives +
+        (Number(convives) > 1 ? " convives" : " convive");
+
+      var lignes = [
+        "Bonjour Eliott,",
+        "",
+        "Je souhaite réserver une date avec la Popote.",
+        "",
+        "Nom : " + valeur("nom"),
+        "E-mail : " + valeur("email"),
+        "Téléphone : " + (valeur("telephone") || "non précisé"),
+        "Date souhaitée : " + dateLisible(date),
+        "Nombre de convives : " + convives,
+        "Ville : " + valeur("ville"),
+        "Occasion : " + (valeur("occasion") || "non précisée"),
+        "Allergies ou régimes : " + (valeur("allergies") || "aucun signalé")
+      ];
+      if (valeur("message")) lignes.push("", valeur("message"));
+      lignes.push("", "À bientôt,", valeur("nom"));
+
+      return {
+        destinataire: destinataire,
+        url: "mailto:" + encodeURIComponent(destinataire).replace(/%40/g, "@") +
+          "?subject=" + encodeURIComponent(sujet) +
+          "&body=" + encodeURIComponent(lignes.join("\r\n"))
+      };
+    }
+
+    function afficherConfirmation(destinataire) {
+      if (!confirmation) return;
+      var adresse = destinataire || "[À COMPLÉTER : e-mail]";
+      confirmation.innerHTML = "";
+
+      var titre = document.createElement("p");
+      titre.className = "reserver__confirmation-titre";
+      titre.textContent = "Merci !";
+
+      var texte = document.createElement("p");
+      texte.appendChild(document.createTextNode(
+        "Votre messagerie va s'ouvrir avec la demande prête à partir. Si rien ne s'ouvre, écrivez-moi directement à "
+      ));
+      var lien;
+      if (destinataire) {
+        lien = document.createElement("a");
+        lien.href = "mailto:" + destinataire;
+        lien.textContent = adresse;
+      } else {
+        lien = document.createElement("span");
+        lien.className = "placeholder";
+        lien.textContent = adresse;
+      }
+      texte.appendChild(lien);
+      texte.appendChild(document.createTextNode("."));
+
+      confirmation.appendChild(titre);
+      confirmation.appendChild(texte);
+      confirmation.hidden = false;
+      confirmation.focus({ preventScroll: true });
+      confirmation.scrollIntoView({ behavior: mouvementReduit.matches ? "auto" : "smooth", block: "center" });
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var premierEnErreur = null;
+      aVerifier.forEach(function (champ) {
+        var message = verifier(champ);
+        afficherErreur(champ, message);
+        if (message && !premierEnErreur) premierEnErreur = champ;
+      });
+
+      if (premierEnErreur) {
+        if (confirmation) confirmation.hidden = true;
+        premierEnErreur.focus();
+        return;
+      }
+
+      var envoi = construireMailto();
+      form.setAttribute("data-dernier-mailto", envoi.url);
+      afficherConfirmation(envoi.destinataire);
+      window.location.href = envoi.url;
+    });
+  }
+
+
+  /* 1. Démarrage ---------------------------------------------------------- */
+
+  function demarrer() {
+    [initialiserMenu, initialiserEntete, initialiserApparitions, initialiserAvis, initialiserFormulaire]
+      .forEach(function (init) {
+        try {
+          init();
+        } catch (erreur) {
+          if (window.console) console.error("[la Popote]", init.name, erreur);
+          // Jamais de contenu laissé masqué par une erreur
+          Array.prototype.forEach.call(document.querySelectorAll(".apparait"), function (el) {
+            el.classList.add("est-visible");
+          });
+        }
+      });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", demarrer);
+  } else {
+    demarrer();
+  }
+})();
+</script>
+</body>
+</html>
