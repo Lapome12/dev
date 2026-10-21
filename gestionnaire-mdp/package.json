@@ -1,0 +1,27 @@
+{
+  "name": "cadenas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cadenas : gestionnaire de mots de passe compatible KeePass (KDBX 4), extension Opera/Chromium",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "core",
+    "app",
+    "extension"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3",
+    "vite": "5.4.21",
+    "vitest": "2.1.9"
+  }
+}
