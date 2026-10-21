@@ -39,6 +39,14 @@ import {
 /** Taille maximale d'un fichier accepté à l'ouverture (un coffre KeePass dépasse rarement quelques Mio). */
 const MAX_FILE_BYTES = 256 * 1024 * 1024;
 
+/**
+ * Nouveau fichier clé au format KeePass XML v2 (.keyx), 32 octets aléatoires avec somme
+ * de contrôle : lisible par KeePassXC, KeePass 2, KeePassDX et KeePassium.
+ */
+export async function generateKeyFile(): Promise<Uint8Array> {
+  return kdbxweb.KdbxCredentials.createRandomKeyFile(2);
+}
+
 function credentials(password: string, keyFile?: Uint8Array): kdbxweb.KdbxCredentials {
   return new kdbxweb.KdbxCredentials(kdbxweb.ProtectedValue.fromString(password), keyFile ?? null);
 }
