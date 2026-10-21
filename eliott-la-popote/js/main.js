@@ -4,7 +4,7 @@
    Sommaire :
      1. Démarrage
      2. Menu mobile (ouverture, Échap, piège de focus)
-     3. Filet de l'en-tête au défilement
+     3. Filet de l’en-tête au défilement
      4. Apparitions au défilement
      5. Avis : compteur du défilement mobile
      6. Formulaire de réservation (validation, mailto:, confirmation)
@@ -98,7 +98,7 @@
       else ouvrir();
     });
 
-    // Un lien d'ancre choisi dans le menu referme le menu
+    // Un lien d’ancre choisi dans le menu referme le menu
     nav.addEventListener("click", function (e) {
       var lien = e.target.closest ? e.target.closest("a[href]") : null;
       if (lien && estOuvert()) fermer(false);
@@ -111,8 +111,8 @@
   }
 
 
-  /* 3. Filet de l'en-tête -----------------------------------------------------
-     Ajoute .entete--defile sur #entete dès qu'on quitte le haut de page.
+  /* 3. Filet de l’en-tête -----------------------------------------------------
+     Ajoute .entete--defile sur #entete dès qu’on quitte le haut de page.
      ------------------------------------------------------------------------- */
 
   function initialiserEntete() {
@@ -167,7 +167,7 @@
       observateur.observe(el);
     });
 
-    // Arrivée directe sur une ancre ou impression : tout s'affiche
+    // Arrivée directe sur une ancre ou impression : tout s’affiche
     window.addEventListener("beforeprint", toutAfficher);
   }
 
@@ -208,7 +208,7 @@
      ------------------------------------------------------------------------- */
 
   var MESSAGES = {
-    vide: "Ce champ m'aide à préparer votre devis, merci de le remplir.",
+    vide: "Ce champ m’aide à préparer votre devis, merci de le remplir.",
     email: "Cette adresse e-mail ne semble pas complète.",
     datePassee: "Cette date est déjà passée, choisissez-en une à venir.",
     dateInvalide: "Cette date ne semble pas valide.",
@@ -298,7 +298,7 @@
 
     aVerifier.forEach(function (champ) {
       // On attend que la personne quitte le champ avant de la reprendre,
-      // puis on corrige en direct une fois l'erreur affichée.
+      // puis on corrige en direct une fois l’erreur affichée.
       champ.addEventListener("blur", function () {
         if (champ.value.trim() || champ.getAttribute("aria-invalid") === "true") {
           afficherErreur(champ, verifier(champ));
@@ -359,7 +359,7 @@
 
       var texte = document.createElement("p");
       texte.appendChild(document.createTextNode(
-        "Votre messagerie va s'ouvrir avec la demande prête à partir. Si rien ne s'ouvre, écrivez-moi directement à "
+        "Votre messagerie va s’ouvrir avec la demande prête à partir. Si rien ne s’ouvre, écrivez-moi directement à "
       ));
       var lien;
       if (destinataire) {

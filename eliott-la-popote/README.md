@@ -83,4 +83,5 @@ Liste à fournir :
 - **Conditions** : location de vaisselle, acompte (pourcentage), annulation.
 - **Coordonnées** : téléphone, e-mail (aussi dans `data-destinataire` du formulaire), lien Instagram.
 - **Avis** : trois avis clients avec prénom, occasion et ville.
-- **Mentions légales** : éditeur, SIRET, hébergeur.
+- **Mentions légales** : éditeur, statut, SIRET, adresse postale, directeur de la publication, hébergeur, nom du photographe (crédits).
+- **Partage** : `og:url` et `og:image` (photo 1200 × 630) dans le `<head>` d’`index.html`, une fois le site en ligne.
