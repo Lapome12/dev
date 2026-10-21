@@ -1,0 +1,14 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+playwright-report/
+test-results/
+*.zip
+# Jamais de vrai coffre dans le dépôt : seuls les coffres de test sont autorisés
+*.kdbx
+!core/test/fixtures/*.kdbx
+*.keyx
+!core/test/fixtures/*.keyx
+.env
