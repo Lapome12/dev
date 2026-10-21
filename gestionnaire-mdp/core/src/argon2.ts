@@ -40,8 +40,8 @@ export function installArgon2(): void {
       throw new VaultError('format-non-supporte', 'Paramètres Argon2 hors limites (coffre trop coûteux à ouvrir).');
     }
     const options = {
-      password: new Uint8Array(password),
-      salt: new Uint8Array(salt),
+      password: new Uint8Array(password.slice(0)), // copie : on l'efface après usage sans toucher au tampon de kdbxweb
+      salt: new Uint8Array(salt.slice(0)),
       memorySize: memory,
       iterations,
       parallelism,

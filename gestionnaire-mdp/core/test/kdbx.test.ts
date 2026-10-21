@@ -101,6 +101,19 @@ describe('Interopérabilité KeePassXC → Cadenas (fixtures créées par keepas
     await expectCode(Vault.open(readFixture('keepassxc.kdbx'), 'faux'), 'mauvais-mot-de-passe');
   });
 
+  it('ouvre → enregistre → rouvre → enregistre un coffre KeePassXC sans perte', async () => {
+    let file = readFixture('keepassxc.kdbx');
+    for (let i = 0; i < 2; i++) {
+      const vault = await Vault.open(file, MDP_FIXTURE);
+      file = await vault.save();
+    }
+    const vault = await Vault.open(file, MDP_FIXTURE);
+    const entries = [...raw(vault).groups[0]!.allEntries()];
+    const exemple = entries.find((e) => e.fields.get('Title') === 'Exemple')!;
+    expect((exemple.fields.get('Password') as kdbxweb.ProtectedValue).getText()).toBe('Mdp-Exemple-42!');
+    expect(await vault.save()).toBeInstanceOf(ArrayBuffer);
+  });
+
   it('ouvre un coffre KeePassXC protégé par fichier clé XML v2', async () => {
     const key = new Uint8Array(readFileSync(join(FIXTURES, 'keepassxc-clefichier.keyx')));
     const vault = await Vault.open(readFixture('keepassxc-clefichier.kdbx'), MDP_FIXTURE, key);
@@ -109,7 +122,8 @@ describe('Interopérabilité KeePassXC → Cadenas (fixtures créées par keepas
   });
 });
 
-describe.skipIf(!hasKeepassxc)('Interopérabilité Cadenas → KeePassXC (keepassxc-cli)', () => {
+// En CI, keepassxc-cli est obligatoire : sans lui ces tests échouent au lieu d'être sautés.
+describe.skipIf(!hasKeepassxc && !process.env.CI)('Interopérabilité Cadenas → KeePassXC (keepassxc-cli)', () => {
   it('keepassxc-cli ouvre un coffre créé et enregistré par Cadenas', async () => {
     const vault = await Vault.create('Coffre Cadenas', MDP);
     const db = raw(vault);
