@@ -40,7 +40,7 @@ jobs:
       - name: keepassxc-cli (tests d'interopérabilité KDBX)
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq keepassxc
+          sudo apt-get install -y -qq --no-install-recommends keepassxc
           keepassxc-cli --version
 
       - run: npm ci
