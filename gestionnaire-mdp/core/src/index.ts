@@ -8,3 +8,5 @@ export { estimateStrength } from './strength';
 export type { Strength } from './strength';
 export { totpNow, parseOtpUri } from './totp';
 export type { TotpCode, TotpParams } from './totp';
+export { originMatches } from './url-match';
+export type { MatchMode } from './url-match';

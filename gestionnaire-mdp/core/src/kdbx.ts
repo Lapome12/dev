@@ -2,6 +2,28 @@
 // Chiffrement AES-256, dérivation Argon2id (hash-wasm), aucun algorithme écrit à la main.
 import * as kdbxweb from 'kdbxweb';
 import { applyKdf, assertKdfOptions, installArgon2, KDF_MIN } from './argon2';
+import { healthReport } from './health';
+import {
+  allGroups,
+  detail,
+  entryUrls,
+  fieldText,
+  findEntry,
+  findGroup,
+  groupInfo,
+  hasTotp,
+  isInRecycleBin,
+  liveEntries,
+  matchesQuery,
+  OTP_FIELD,
+  recycleBinId,
+  root,
+  summarize,
+  totpUri,
+  writeEntry,
+} from './model';
+import { totpNow, type TotpCode } from './totp';
+import { originMatches } from './url-match';
 import {
   VaultError,
   type EntryDetail,
@@ -46,8 +68,16 @@ function wipe(value: kdbxweb.ProtectedValue | undefined): void {
   value.salt.fill(0);
 }
 
-function pending(step: string): never {
-  throw new Error(`Non disponible avant l'étape ${step} de core.`);
+function requireName(name: string): string {
+  const n = name.trim();
+  if (!n) throw new RangeError('Le nom ne peut pas être vide.');
+  return n;
+}
+
+/** Applique les limites d'historique du coffre (10 versions par défaut, comme KeePass). */
+function trimHistory(db: kdbxweb.Kdbx, entry: kdbxweb.KdbxEntry): void {
+  const max = db.meta.historyMaxItems ?? 10;
+  if (max >= 0 && entry.history.length > max) entry.removeHistory(0, entry.history.length - max);
 }
 
 export class Vault {
@@ -133,18 +163,111 @@ export class Vault {
     this.#db = null;
   }
 
-  // Modèle (étape 2.1), santé (2.4), correspondance d'URL (2.3).
-  listGroups(): GroupInfo[] { return pending('2.1'); }
-  listEntries(_groupId?: Id): EntrySummary[] { return pending('2.1'); }
-  search(_query: string): EntrySummary[] { return pending('2.1'); }
-  getEntry(_id: Id): EntryDetail { return pending('2.1'); }
-  getSecret(_id: Id, _kind: SecretKind): string { return pending('2.1'); }
-  addEntry(_input: EntryInput): Id { return pending('2.1'); }
-  updateEntry(_id: Id, _input: EntryInput): void { pending('2.1'); }
-  deleteEntry(_id: Id): void { pending('2.1'); }
-  addGroup(_name: string, _parentId: Id | null): Id { return pending('2.1'); }
-  renameGroup(_id: Id, _name: string): void { pending('2.1'); }
-  deleteGroup(_id: Id): void { pending('2.1'); }
-  findForUrl(_pageUrl: string): EntrySummary[] { return pending('2.3'); }
-  health(): HealthReport { return pending('2.4'); }
+  // ——— Groupes ———
+
+  listGroups(): GroupInfo[] {
+    return [...allGroups(this.db)].map((g) => groupInfo(this.db, g));
+  }
+
+  /** `parentId` null : directement sous la racine. */
+  addGroup(name: string, parentId: Id | null): Id {
+    const parent = parentId === null ? root(this.db) : findGroup(this.db, parentId);
+    return this.db.createGroup(parent, requireName(name)).uuid.id;
+  }
+
+  renameGroup(id: Id, name: string): void {
+    const g = findGroup(this.db, id);
+    g.name = requireName(name);
+    g.times.update();
+  }
+
+  /** Vers la corbeille, ou définitivement si le groupe y est déjà. La racine et la corbeille ne se suppriment pas. */
+  deleteGroup(id: Id): void {
+    const g = findGroup(this.db, id);
+    if (g === root(this.db) || id === recycleBinId(this.db)) {
+      throw new RangeError('Ce groupe ne peut pas être supprimé.');
+    }
+    if (isInRecycleBin(this.db, g)) this.db.move(g, null);
+    else this.db.remove(g);
+  }
+
+  // ——— Entrées ———
+
+  /** Entrées d'un groupe (sans ses sous-groupes) ; sans argument, toutes les entrées hors corbeille. */
+  listEntries(groupId?: Id): EntrySummary[] {
+    if (groupId === undefined) return [...liveEntries(this.db)].map(summarize);
+    return findGroup(this.db, groupId).entries.map(summarize);
+  }
+
+  /** Titre, identifiant, URL et tags ; insensible à la casse et aux accents ; corbeille exclue. */
+  search(query: string): EntrySummary[] {
+    return [...liveEntries(this.db)].filter((e) => matchesQuery(e, query)).map(summarize);
+  }
+
+  getEntry(id: Id): EntryDetail {
+    return detail(findEntry(this.db, id));
+  }
+
+  /**
+   * Seul moyen d'obtenir un secret. `'totp'` est refusé (calcul asynchrone) : utiliser `getTotp`.
+   * `{ field: 'otp' }` renvoie la graine otpauth:// (écran d'édition uniquement).
+   */
+  getSecret(id: Id, kind: SecretKind): string {
+    const entry = findEntry(this.db, id);
+    if (kind === 'password') return fieldText(entry, 'Password');
+    if (kind === 'totp') throw new TypeError('Utiliser getTotp() pour le code TOTP.');
+    if (kind.field === OTP_FIELD) return hasTotp(entry) ? totpUri(entry) : '';
+    if (!entry.fields.has(kind.field)) throw new VaultError('introuvable', 'Champ introuvable.');
+    return fieldText(entry, kind.field);
+  }
+
+  /** Code TOTP courant, calculé dans le coffre : la graine n'en sort pas. */
+  async getTotp(id: Id, now: number = Date.now()): Promise<TotpCode> {
+    return totpNow(totpUri(findEntry(this.db, id)), now);
+  }
+
+  addEntry(input: EntryInput): Id {
+    const group = findGroup(this.db, input.groupId);
+    const entry = this.db.createEntry(group);
+    try {
+      writeEntry(entry, input);
+    } catch (err) {
+      this.db.move(entry, null);
+      throw err;
+    }
+    return entry.uuid.id;
+  }
+
+  /** Conserve la version précédente dans l'historique KDBX (limité par les réglages du coffre). */
+  updateEntry(id: Id, input: EntryInput): void {
+    const entry = findEntry(this.db, id);
+    const target = findGroup(this.db, input.groupId);
+    entry.pushHistory();
+    try {
+      writeEntry(entry, input);
+    } catch (err) {
+      entry.removeHistory(entry.history.length - 1);
+      throw err;
+    }
+    if (entry.parentGroup !== target) this.db.move(entry, target);
+    trimHistory(this.db, entry);
+  }
+
+  /** Vers la corbeille ; définitif si l'entrée y est déjà. */
+  deleteEntry(id: Id): void {
+    const entry = findEntry(this.db, id);
+    if (isInRecycleBin(this.db, entry)) this.db.move(entry, null);
+    else this.db.remove(entry);
+  }
+
+  /** Entrées remplissables sur cette page : origine exacte, URL principale ou KP2A_URL*. */
+  findForUrl(pageUrl: string): EntrySummary[] {
+    return [...liveEntries(this.db)]
+      .filter((e) => entryUrls(e).some((u) => originMatches(u, pageUrl, 'strict')))
+      .map(summarize);
+  }
+
+  health(now?: number): HealthReport {
+    return healthReport(this.db, now);
+  }
 }
