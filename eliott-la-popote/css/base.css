@@ -547,7 +547,7 @@ a:hover {
 }
 
 .section--nuit .photo-a-venir {
-  background: #24211D;
+  background: var(--nuit-2);
   border-color: var(--papier-nuit-doux);
   color: var(--papier-nuit-doux);
 }
