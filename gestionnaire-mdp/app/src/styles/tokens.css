@@ -1,0 +1,82 @@
+/* Cadenas : jetons de couleur, de typographie et de forme (PLAN §F).
+   Le thème suit le système ; data-theme="clair" ou "sombre" sur <html> (ou sur un bloc) force un choix.
+   Importé tel quel par le popup de l'extension (Dev 3) : ne pas renommer un jeton sans prévenir. */
+
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 500; font-display: swap; src: url("../fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-weight: 600; font-display: swap; src: url("../fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); }
+
+:root, [data-theme="clair"] {
+  --fond: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface-2: #ECEAE4;
+  --filet: #DCD9D1;
+  --texte: #1A1C1E;
+  --texte-doux: #5D6167;
+  --accent: #2F6B4F;
+  --sur-accent: #FFFFFF;
+  --accent-pale: #E1ECE5;
+  --danger: #B3261E;
+  --alerte: #8A5A00;
+  --chiffre: #2456C9;
+  --symbole: #A1367F;
+  --voile: rgba(10, 12, 11, .35);
+  --ombre: 0 8px 28px rgba(20, 24, 22, .14);
+
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --taille: 15px;
+  --interligne: 1.45;
+  --r: 8px;
+  --r-champ: 6px;
+  --duree: 150ms;
+  --gouttiere: 16px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="clair"]) {
+    --fond: #111315;
+    --surface: #191C1F;
+    --surface-2: #22262A;
+    --filet: #2E3338;
+    --texte: #E9E7E2;
+    --texte-doux: #9CA1A7;
+    --accent: #6DBE94;
+    --sur-accent: #0D1A13;
+    --accent-pale: #1E3329;
+    --danger: #F28B82;
+    --alerte: #E6B85C;
+    --chiffre: #8AB4FF;
+    --symbole: #E39BD3;
+    --voile: rgba(0, 0, 0, .55);
+    --ombre: 0 8px 28px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+
+[data-theme="sombre"] {
+  --fond: #111315;
+  --surface: #191C1F;
+  --surface-2: #22262A;
+  --filet: #2E3338;
+  --texte: #E9E7E2;
+  --texte-doux: #9CA1A7;
+  --accent: #6DBE94;
+  --sur-accent: #0D1A13;
+  --accent-pale: #1E3329;
+  --danger: #F28B82;
+  --alerte: #E6B85C;
+  --chiffre: #8AB4FF;
+  --symbole: #E39BD3;
+  --voile: rgba(0, 0, 0, .55);
+  --ombre: 0 8px 28px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duree: 0ms; }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@cadenas/app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/mount.ts",
+    "./backend": "./src/backend.ts",
+    "./styles/tokens.css": "./src/styles/tokens.css",
+    "./styles/base.css": "./src/styles/base.css",
+    "./styles/components.css": "./src/styles/components.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@cadenas/core": "0.1.0"
+  }
+}
