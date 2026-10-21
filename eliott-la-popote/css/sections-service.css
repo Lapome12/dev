@@ -246,3 +246,27 @@
     margin-top: var(--esp-5);
   }
 }
+
+
+/* Annexe de l'artefact ------------------------------------------------------
+   tools/build_artefact.py colle les mentions légales sous le pied de page
+   (#mentions-legales) en descendant les titres d'un niveau : on rend ici aux
+   h2 / h3 l'allure des h1 / h2 de la page légale (layout.css, .page-simple).
+   ------------------------------------------------------------------------- */
+
+.mentions-artefact.page-simple h2 {
+  font-size: var(--taille-xl);
+  font-weight: var(--graisse-fine);
+  margin: 0 0 var(--esp-6);
+  padding: 0;
+  border: 0;
+}
+
+.mentions-artefact.page-simple h3 {
+  font-size: var(--taille-m);
+  font-weight: var(--graisse-texte);
+  margin-top: var(--esp-6);
+  margin-bottom: var(--esp-3);
+  padding-top: var(--esp-3);
+  border-top: var(--filet);
+}

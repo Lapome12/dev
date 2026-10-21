@@ -24,13 +24,13 @@
 
 
   /* 2. Menu mobile -----------------------------------------------------------
-     Bouton attendu : <button aria-controls="id-de-la-nav" aria-expanded="false">
-     avec la classe .nav__bouton ou l'attribut data-nav-bouton.
+     Contrat avec layout.css (Dev 1) : bouton .entete__menu avec
+     aria-expanded et aria-controls="nav-principale".
      Ouvert : .nav--ouverte sur la nav, .menu-ouvert sur <html>.
      ------------------------------------------------------------------------- */
 
   function initialiserMenu() {
-    var bouton = document.querySelector("[data-nav-bouton], .nav__bouton");
+    var bouton = document.querySelector(".entete__menu, [data-nav-bouton]");
     if (!bouton) return;
 
     var idNav = bouton.getAttribute("aria-controls");
@@ -112,17 +112,17 @@
 
 
   /* 3. Filet de l'en-tête -----------------------------------------------------
-     Ajoute .est-defile sur l'en-tête dès qu'on quitte le haut de page.
+     Ajoute .entete--defile sur #entete dès qu'on quitte le haut de page.
      ------------------------------------------------------------------------- */
 
   function initialiserEntete() {
-    var entete = document.querySelector(".entete, .en-tete, body > header");
+    var entete = document.getElementById("entete") || document.querySelector(".entete");
     if (!entete) return;
 
     var enAttente = false;
     function mettreAJour() {
       enAttente = false;
-      entete.classList.toggle("est-defile", window.scrollY > 8);
+      entete.classList.toggle("entete--defile", window.scrollY > 8);
     }
     window.addEventListener("scroll", function () {
       if (!enAttente) {

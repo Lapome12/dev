@@ -12,8 +12,8 @@ Ce que fait le script, dans l'ordre :
   4. convertit en data URI les fichiers locaux cités dans le CSS (url(...)) et dans
      les attributs src / href (favicon, monogramme, images) ;
   5. met le JavaScript local en ligne, en fin de <body> (équivalent de defer) ;
-  6. ajoute le contenu de mentions-legales.html en fin de page, sous l'ancre
-     #mentions-legales, et réécrit les liens entre les deux pages ;
+  6. ajoute le contenu de mentions-legales.html après le pied de page, sous
+     l'ancre #mentions-legales (titres descendus d'un niveau), et réécrit les liens entre les deux pages ;
   7. signale toute référence locale qui n'a pas pu être incluse.
 
 Python standard uniquement, aucune dépendance.
@@ -231,12 +231,16 @@ def integrer_mentions(html):
         return html
 
     legale = fichier.read_text(encoding="utf-8")
-    m = re.search(r"<main\b[^>]*>(.*?)</main>", legale, re.S | re.I)
+    m = re.search(r"<main\b([^>]*)>(.*?)</main>", legale, re.S | re.I)
     if not m:
         avertir("%s n'a pas de <main> : page légale non intégrée" % PAGE_LEGALE)
         return html
 
-    contenu = m.group(1).strip()
+    classe = re.search(r"""class=["']([^"']*)["']""", m.group(1))
+    classe = (" " + classe.group(1)) if classe else ""
+    contenu = m.group(2).strip()
+    # Une seule h1 par page : les titres de l'annexe descendent d'un niveau
+    contenu = re.sub(r"<(/?)h([1-5])\b", lambda t: "<%sh%d" % (t.group(1), int(t.group(2)) + 1), contenu)
     contenu = re.sub(r"""href=(["'])(?:\./)?index\.html#""", r"href=\1#", contenu)
     contenu = re.sub(r"""href=(["'])(?:\./)?index\.html\1""", r"href=\1#haut\1", contenu)
     # Les id de la page légale ne doivent pas entrer en collision avec ceux de l'accueil
@@ -248,13 +252,11 @@ def integrer_mentions(html):
         html,
     )
     section = (
-        '\n<section id="%s" class="section mentions-artefact" aria-label="Mentions légales">\n'
-        "%s\n</section>\n" % (ANCRE_LEGALE, contenu)
+        '\n<section id="%s" class="section mentions-artefact%s" aria-label="Mentions légales">\n'
+        "%s\n</section>\n" % (ANCRE_LEGALE, classe, contenu)
     )
-    if "</main>" in html:
-        html = html.replace("</main>", section + "</main>", 1)
-    else:
-        html = html.replace("</body>", section + "</body>", 1)
+    # Placée après le pied de page, comme une annexe
+    html = html.replace("</body>", section + "</body>", 1)
     print("  · %s intégrée sous #%s" % (PAGE_LEGALE, ANCRE_LEGALE))
     return html
 

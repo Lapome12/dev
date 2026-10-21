@@ -25,7 +25,7 @@ Le script (Python 3.9 ou plus, bibliothèque standard uniquement) :
 1. lit `index.html` et insère les `partials/*.html` dont le marqueur `<!-- PARTIAL: nom -->` serait encore présent ;
 2. met en ligne tous les CSS locaux (dans l'ordre des `<link>`) et le JavaScript (en fin de `<body>`) ;
 3. convertit les SVG et images de `assets/` en data URI ;
-4. ajoute les mentions légales en bas de page sous l'ancre `#mentions-legales` et réécrit les liens entre les deux pages ;
+4. ajoute les mentions légales après le pied de page, sous l'ancre `#mentions-legales` et réécrit les liens entre les deux pages ;
 5. signale toute référence locale oubliée et compte les `[À COMPLÉTER]` restants.
 
 Le fichier obtenu s'ouvre seul, hors ligne. Seule la police Newsreader vient de Google Fonts ; sans réseau, le site retombe sur un serif proche (Iowan, Palatino, Georgia).
@@ -56,8 +56,8 @@ Les partials restent la source de chaque section : on corrige le partial **et** 
 
 `js/main.js` pose la classe `.js` sur `<html>` puis, chaque bloc étant indépendant (une section absente ne casse rien) :
 
-- **Menu mobile** : bouton `.nav__bouton` (ou `[data-nav-bouton]`) avec `aria-controls` vers la nav et `aria-expanded`. Ouvert : `.nav--ouverte` sur la nav et `.menu-ouvert` sur `<html>`. Échap ferme, le focus reste piégé dans le menu, un clic sur un lien referme. Un élément `[data-nav-libelle]` dans le bouton passe de « Menu » à « Fermer ».
-- **En-tête** : `.est-defile` sur `.entete` dès qu'on quitte le haut de page (pour faire apparaître le filet).
+- **Menu mobile** : bouton `.entete__menu` avec `aria-controls="nav-principale"` et `aria-expanded`. Ouvert : `.nav--ouverte` sur la nav et `.menu-ouvert` sur `<html>`. Échap ferme, le focus reste piégé dans le menu, un clic sur un lien referme.
+- **En-tête** : `.entete--defile` sur `#entete` dès qu'on quitte le haut de page (pour faire apparaître le filet).
 - **Apparitions** : les blocs `.apparait` reçoivent `.est-visible` en entrant à l'écran. Avec `prefers-reduced-motion`, sans `IntersectionObserver` ou en cas d'erreur, tout est affiché immédiatement.
 - **Avis** : compteur « 1 / 3 » du défilement horizontal sur mobile.
 - **Formulaire** : validation en français (messages de `CONTENU.md`), `aria-invalid` et message sous le champ, focus sur le premier champ en erreur. Si tout est bon, le script ouvre la messagerie (`mailto:`) avec l'objet et le corps préremplis, et affiche la confirmation.
