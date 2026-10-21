@@ -31,3 +31,13 @@ test('une page web ne peut pas parler au gardien', async ({ contexte, idExtensio
   }, idExtension);
   expect(accessible).toBe(false);
 });
+
+test('le gardien refuse un message qui ne vient pas du service worker', async ({ contexte, idExtension }) => {
+  const page = await contexte.newPage();
+  await page.goto(`chrome-extension://${idExtension}/popup.html`);
+  await expect(page.locator('#popup')).toContainText('aucun-coffre'); // le gardien existe
+  const reponse = await page.evaluate(() =>
+    chrome.runtime.sendMessage({ cible: 'gardien', type: 'vault/status', args: [], page: 'vault' }),
+  );
+  expect(reponse).toEqual({ ok: false, code: 'refuse', message: 'Expéditeur non autorisé.' });
+});

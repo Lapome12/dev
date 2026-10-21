@@ -11,7 +11,8 @@ export const test = base.extend<{ contexte: BrowserContext; idExtension: string;
   contexte: async ({}, use) => {
     const profil = mkdtempSync(join(tmpdir(), 'cadenas-e2e-'));
     const contexte = await chromium.launchPersistentContext(profil, {
-      ...(process.env.CADENAS_CHROMIUM ? { executablePath: process.env.CADENAS_CHROMIUM } : {}),
+      // Le shell headless de Playwright ne charge pas les extensions : on prend le Chromium complet.
+      ...(process.env.CADENAS_CHROMIUM ? { executablePath: process.env.CADENAS_CHROMIUM } : { channel: 'chromium' }),
       headless: true,
       args: [`--disable-extensions-except=${DIST}`, `--load-extension=${DIST}`],
     });

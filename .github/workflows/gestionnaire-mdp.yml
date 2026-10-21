@@ -1,0 +1,125 @@
+# CI de Cadenas (gestionnaire-mdp/) : vérifications à chaque PR, et publication
+# de la version web/PWA (app/dist) sur GitHub Pages depuis main.
+# Actions épinglées par SHA (chaîne d'approvisionnement, §E du PLAN.md).
+name: Cadenas
+
+on:
+  pull_request:
+    paths: ['gestionnaire-mdp/**', '.github/workflows/gestionnaire-mdp.yml', '.github/scripts/**']
+  push:
+    branches: [main]
+    paths: ['gestionnaire-mdp/**', '.github/workflows/gestionnaire-mdp.yml', '.github/scripts/**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cadenas-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: gestionnaire-mdp
+
+jobs:
+  verifier:
+    name: Typecheck, tests, audit, extension
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: gestionnaire-mdp/package-lock.json
+
+      - name: keepassxc-cli (tests d'interopérabilité KDBX)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends keepassxc
+          keepassxc-cli --version
+
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests unitaires (Vitest)
+        run: npm test
+      - name: Audit des dépendances livrées
+        run: npm audit --omit=dev --audit-level=high
+      - name: Build
+        run: npm run build
+
+      - name: Chromium pour Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Tests de bout en bout de l'extension
+        if: hashFiles('gestionnaire-mdp/extension/e2e/**') != ''
+        run: npm run e2e -w extension
+        env:
+          CI: 'true'
+      - name: Tests de bout en bout de l'interface
+        if: hashFiles('gestionnaire-mdp/app/e2e/**') != ''
+        run: npm run e2e -w app --if-present
+        env:
+          CI: 'true'
+      - name: Rapports Playwright en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: rapports-playwright
+          path: |
+            gestionnaire-mdp/*/playwright-report/
+            gestionnaire-mdp/*/test-results/
+          retention-days: 7
+
+  construire-pages:
+    name: Construire la version web (GitHub Pages)
+    needs: verifier
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      app: ${{ steps.app.outputs.presente }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      # Rien à publier tant que app/ (Dev 2) n'existe pas.
+      - id: app
+        run: echo "presente=$([ -f app/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.app.outputs.presente == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: gestionnaire-mdp/package-lock.json
+      - if: steps.app.outputs.presente == 'true'
+        run: npm ci
+      - name: Build de app/
+        if: steps.app.outputs.presente == 'true'
+        run: npm run build -w app
+      - name: CSP en <meta> dans chaque page HTML
+        if: steps.app.outputs.presente == 'true'
+        run: node ../.github/scripts/pages-csp.mjs app/dist
+      - if: steps.app.outputs.presente == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+        with:
+          path: gestionnaire-mdp/app/dist
+
+  publier-pages:
+    name: Publier sur GitHub Pages
+    needs: construire-pages
+    if: github.ref == 'refs/heads/main' && needs.construire-pages.outputs.app == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5
