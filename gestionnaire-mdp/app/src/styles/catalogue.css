@@ -15,7 +15,7 @@
 .nuance { display: grid; gap: 4px; font-size: 12px; }
 .nuance i { height: 36px; border-radius: 6px; border: 1px solid var(--filet); }
 .nuance code { font: 11px var(--mono); color: var(--texte-doux); }
-.icones { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
+.icones { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; }
 .icones span { display: grid; justify-items: center; gap: 4px; font: 10.5px var(--mono); color: var(--texte-doux); padding: 8px 2px; border-radius: 6px; background: var(--surface); border: 1px solid var(--filet); overflow-wrap: anywhere; text-align: center; }
 .icones .i { color: var(--texte); }
 .typo .t1 { font-size: 24px; font-weight: 600; letter-spacing: -.01em; }
