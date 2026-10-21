@@ -37,7 +37,10 @@ export interface VaultBackend {
   listEntries(groupId?: Id): Promise<EntrySummary[]>;
   search(q: string): Promise<EntrySummary[]>;
   getEntry(id: Id): Promise<EntryDetail>;
+  /** Secret en clair. 'totp' donne le code courant, jamais la graine ; la graine otpauth:// se lit via { field: 'otp' } (écran d'édition seulement). */
   getSecret(id: Id, kind: SecretKind): Promise<string>;
+  /** Code 2FA courant et temps restant, pour l'anneau. */
+  getTotp(id: Id): Promise<{ code: string; period: number; remaining: number }>;
   /** Copie + effacement du presse-papiers après clipboardSeconds. */
   copySecret(id: Id, kind: SecretKind): Promise<void>;
   addEntry(i: EntryInput): Promise<Id>;
