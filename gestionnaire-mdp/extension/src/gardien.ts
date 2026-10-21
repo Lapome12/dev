@@ -272,10 +272,13 @@ export class Gardien {
         this.#ouvert().deleteGroup(String(args[0]));
         this.#modification();
         return undefined;
-      case 'vault/changeMasterKey':
-        await this.#ouvert().changeMasterKey(String(args[0]), octetsOptionnels(args[1]));
+      case 'vault/changeMasterKey': {
+        const coffre = this.#ouvert();
+        await this.#verifierCleActuelle(coffre, args[2]);
+        await coffre.changeMasterKey(String(args[0]), octetsOptionnels(args[1]));
         await this.enregistrer();
         return undefined;
+      }
       case 'vault/health':
         return this.#ouvert().health();
       default:
@@ -334,6 +337,24 @@ export class Gardien {
     if (autorisees.length === 0) throw new ErreurCadenas('refuse', 'Cette entrée ne correspond pas à ce site.');
     const entree = coffre.getEntry(entryId);
     return { urls: autorisees, username: entree.username, password: coffre.getSecret(entryId, 'password') };
+  }
+
+  /**
+   * Revérifie la clé en vigueur avant de la changer : quelqu'un devant un coffre
+   * ouvert ne doit pas pouvoir la remplacer sans la connaître.
+   */
+  async #verifierCleActuelle(coffre: Vault, actuelle: unknown): Promise<void> {
+    const refus = () => new ErreurCadenas('mauvais-mot-de-passe', 'Clé actuelle incorrecte.');
+    if (!actuelle || typeof actuelle !== 'object') throw refus();
+    const { password, keyFile } = actuelle as { password?: unknown; keyFile?: unknown };
+    if (typeof password !== 'string') throw refus();
+    let verif: Vault;
+    try {
+      verif = await this.d.coeur.open(await coffre.save(), password, octetsOptionnels(keyFile));
+    } catch {
+      throw refus();
+    }
+    verif.close();
   }
 }
 

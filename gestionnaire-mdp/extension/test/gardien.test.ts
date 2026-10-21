@@ -163,6 +163,25 @@ describe('Gardien', { timeout: 30_000 }, () => {
     }
   });
 
+  it('exige la clé actuelle pour changer de mot de passe maître', async () => {
+    await t.gardien.traiter(msg('vault/create', ['Perso', 'ancienne phrase fictive']));
+    await expect(t.gardien.traiter(msg('vault/changeMasterKey', ['nouvelle phrase fictive']))).rejects.toMatchObject({
+      code: 'mauvais-mot-de-passe',
+    });
+    await expect(
+      t.gardien.traiter(msg('vault/changeMasterKey', ['nouvelle phrase fictive', undefined, { password: 'pas la bonne' }])),
+    ).rejects.toMatchObject({ code: 'mauvais-mot-de-passe' });
+    // La clé n'a pas changé : l'ancienne rouvre toujours le coffre.
+    await t.gardien.traiter(msg('vault/lock'));
+    await t.gardien.traiter(msg('vault/unlock', ['ancienne phrase fictive']));
+
+    await t.gardien.traiter(msg('vault/changeMasterKey', ['nouvelle phrase fictive', undefined, { password: 'ancienne phrase fictive' }]));
+    await t.gardien.traiter(msg('vault/lock'));
+    await expect(t.gardien.traiter(msg('vault/unlock', ['ancienne phrase fictive']))).rejects.toMatchObject({ code: 'mauvais-mot-de-passe' });
+    await t.gardien.traiter(msg('vault/unlock', ['nouvelle phrase fictive']));
+    expect(t.gardien.etat().state).toBe('deverrouille');
+  });
+
   it('refuse une méthode du coffre sans page d’origine', async () => {
     await expect(t.gardien.traiter(msg('vault/status', [], null))).rejects.toMatchObject({ code: 'refuse' });
   });

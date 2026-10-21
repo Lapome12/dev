@@ -2,7 +2,7 @@
 // par vault.html et popup.html. Chaque appel devient un message au service
 // worker, qui le relaie au gardien. Les fichiers (ouvrir, enregistrer sous,
 // exporter) se manipulent ici, car ils demandent un geste de l'utilisateur.
-import type { VaultBackend } from '@cadenas/app/backend';
+import type { CleActuelle, VaultBackend } from '@cadenas/app/backend';
 import type { EntryDetail, EntryInput, EntrySummary, GroupInfo, HealthReport, Id, SecretKind } from '@cadenas/core';
 import type { CodeTotp, EtatCoffre } from './gardien';
 import type { Reglages } from './reglages';
@@ -160,8 +160,9 @@ export class ExtensionBackend implements VaultBackend {
   deleteGroup(id: Id): Promise<void> {
     return envoyer('deleteGroup', id);
   }
-  changeMasterKey(password: string, keyFile?: Uint8Array): Promise<void> {
-    return envoyer('changeMasterKey', password, enBase64(keyFile));
+  changeMasterKey(password: string, keyFile?: Uint8Array, actuelle?: CleActuelle): Promise<void> {
+    const cle = actuelle ? { password: actuelle.password, keyFile: enBase64(actuelle.keyFile) } : undefined;
+    return envoyer('changeMasterKey', password, enBase64(keyFile), cle);
   }
   health(): Promise<HealthReport> {
     return envoyer('health');
