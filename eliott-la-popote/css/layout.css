@@ -230,6 +230,10 @@
 
 .ouverture__saison {
   color: var(--encre-douce);
+  font-size: var(--taille-texte);
+  font-weight: var(--graisse-fine);
+  font-variant-caps: normal;
+  letter-spacing: 0;
 }
 
 .ouverture__titre {
@@ -332,6 +336,13 @@
 
 .pied__signature em {
   font-style: italic;
+}
+
+.pied__phrase {
+  margin-top: calc(-1 * var(--esp-3));
+  font-size: var(--taille-m);
+  font-style: italic;
+  font-weight: var(--graisse-fine);
 }
 
 .pied__bloc p + p {
