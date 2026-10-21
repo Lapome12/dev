@@ -1,0 +1,601 @@
+<title>Cadenas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Maquette Cadenas : application en trois colonnes (groupes, liste, détail), un seul accent vert sapin. Données fictives. */
+:root {
+  --fond: #F5F4F0; --surface: #FFFFFF; --surface-2: #ECEAE4; --filet: #DCD9D1;
+  --texte: #1A1C1E; --texte-doux: #5D6167; --accent: #2F6B4F; --sur-accent: #FFFFFF;
+  --accent-pale: #E1ECE5; --danger: #B3261E; --alerte: #8A5A00; --chiffre: #2456C9; --symbole: #A1367F;
+  --ombre: 0 8px 28px rgba(20, 24, 22, .14);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 8px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --fond: #111315; --surface: #191C1F; --surface-2: #22262A; --filet: #2E3338;
+  --texte: #E9E7E2; --texte-doux: #9CA1A7; --accent: #6DBE94; --sur-accent: #0D1A13;
+  --accent-pale: #1E3329; --danger: #F28B82; --alerte: #E6B85C; --chiffre: #8AB4FF; --symbole: #E39BD3;
+  --ombre: 0 8px 28px rgba(0, 0, 0, .5); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --fond: #111315; --surface: #191C1F; --surface-2: #22262A; --filet: #2E3338;
+  --texte: #E9E7E2; --texte-doux: #9CA1A7; --accent: #6DBE94; --sur-accent: #0D1A13;
+  --accent-pale: #1E3329; --danger: #F28B82; --alerte: #E6B85C; --chiffre: #8AB4FF; --symbole: #E39BD3;
+  --ombre: 0 8px 28px rgba(0, 0, 0, .5); color-scheme: dark; }
+
+html, body { height: 100%; }
+body { background: var(--fond); color: var(--texte); font: 15px/1.45 var(--sans); display: flex; flex-direction: column; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+.doux { color: var(--texte-doux); }
+svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+.demo-bandeau { background: var(--surface-2); color: var(--texte-doux); font-size: 13px; text-align: center;
+  padding-block: 6px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--filet); }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--filet); background: var(--surface);
+  border-radius: var(--r); padding: 7px 12px; font-weight: 500; transition: background .15s ease-out; }
+.btn:hover { background: var(--surface-2); }
+.btn.principal { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }
+.btn.principal:hover { filter: brightness(1.06); }
+.btn.icone { padding: 7px; }
+.btn.discret { border-color: transparent; background: transparent; }
+.btn.discret:hover { background: var(--surface-2); }
+
+/* Écran verrouillé */
+.verrou { flex: 1; display: grid; place-items: center;
+  padding-block: 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.verrou-carte { width: 100%; max-width: 380px; display: grid; gap: 18px; text-align: center; }
+.cadenas-logo { width: 64px; height: 64px; margin: 0 auto; border-radius: 16px; background: var(--accent); color: var(--sur-accent); display: grid; place-items: center; }
+.cadenas-logo svg { width: 34px; height: 34px; stroke-width: 1.6; }
+.verrou h1 { font-size: 24px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+.verrou p { margin: 0; }
+.fichier { display: inline-flex; gap: 8px; align-items: center; justify-content: center; font-size: 13px; }
+.champ { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--filet); border-radius: 6px; padding: 4px 4px 4px 12px; }
+.champ:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.champ input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 7px 0; outline: none; }
+.verrou .btn.principal { justify-content: center; padding: 10px; }
+.erreur { color: var(--danger); font-size: 13px; min-height: 19px; }
+.astuce { font-size: 13px; }
+
+/* Application */
+.appli { flex: 1; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.barre { display: flex; align-items: center; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--filet);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.marque { display: flex; align-items: center; gap: 10px; font-weight: 600; width: 222px; flex: none; }
+.marque .cadenas-logo { width: 28px; height: 28px; border-radius: 7px; margin: 0; }
+.marque .cadenas-logo svg { width: 16px; height: 16px; }
+.recherche { flex: 1; max-width: 520px; min-width: 0; }
+.recherche kbd { font: 12px var(--mono); color: var(--texte-doux); border: 1px solid var(--filet); border-radius: 4px; padding: 1px 6px; margin-right: 6px; }
+.barre .espace { flex: 1; }
+.etat { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--accent); white-space: nowrap; }
+.etat::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+.colonnes { display: grid; grid-template-columns: 240px 360px 1fr; min-height: 0; }
+.groupes, .liste { border-right: 1px solid var(--filet); overflow: auto; min-height: 0; }
+.groupes { padding: 14px 10px; display: grid; align-content: start; gap: 2px; }
+.groupes h2 { font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--texte-doux); margin: 14px 10px 6px; }
+.groupe { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; text-align: left; padding: 7px 10px; border-radius: 6px; }
+.groupe:hover { background: var(--surface-2); }
+.groupe[aria-current="true"] { background: var(--accent-pale); color: var(--texte); font-weight: 500; }
+.groupe .n { margin-left: auto; font-size: 12px; color: var(--texte-doux); font-variant-numeric: tabular-nums; }
+.groupe .alerte-n { color: var(--alerte); }
+
+.liste { background: var(--surface); }
+.liste-tete { position: sticky; top: 0; background: var(--surface); display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid var(--filet); z-index: 1; }
+.liste-tete h2 { font-size: 15px; margin: 0; font-weight: 600; }
+.entree { display: flex; gap: 12px; align-items: center; width: 100%; border: 0; background: transparent; text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--filet); }
+.entree:hover { background: var(--surface-2); }
+.entree[aria-selected="true"] { background: var(--accent-pale); box-shadow: inset 3px 0 0 var(--accent); }
+.monogramme { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; font-weight: 600; font-size: 14px; flex: none;
+  background: var(--surface-2); color: var(--texte); border: 1px solid var(--filet); }
+.entree .txt { min-width: 0; flex: 1; }
+.entree .titre, .entree .ident { display: block; }
+.entree .titre { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entree .ident { font-size: 13px; color: var(--texte-doux); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.puce-2fa { font: 500 11px var(--mono); color: var(--texte-doux); border: 1px solid var(--filet); border-radius: 4px; padding: 0 5px; }
+.vide { padding: 30px 16px; text-align: center; color: var(--texte-doux); }
+
+.detail { overflow: auto; min-height: 0; padding: 26px 32px 40px; }
+.detail-carte { max-width: 640px; display: grid; gap: 22px; }
+.detail-tete { display: flex; gap: 14px; align-items: center; }
+.detail-tete .monogramme { width: 48px; height: 48px; font-size: 20px; border-radius: 12px; }
+.detail-tete h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.detail-tete .actions { margin-left: auto; display: flex; gap: 6px; }
+.champs { background: var(--surface); border: 1px solid var(--filet); border-radius: var(--r); }
+.ligne { display: grid; grid-template-columns: 130px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--filet); min-height: 56px; }
+.ligne:last-child { border-bottom: 0; }
+.ligne .etiq { font-size: 13px; color: var(--texte-doux); }
+.ligne .val { min-width: 0; overflow-wrap: anywhere; }
+.ligne .outils { display: flex; gap: 2px; }
+.mdp { font-family: var(--mono); font-size: 15px; letter-spacing: .02em; }
+.mdp .c { color: var(--chiffre); } .mdp .s { color: var(--symbole); }
+.masque { letter-spacing: .18em; }
+.force { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; margin-top: 4px; }
+.jauge { display: inline-grid; grid-template-columns: repeat(4, 18px); gap: 3px; }
+.jauge i { height: 4px; border-radius: 2px; background: var(--surface-2); }
+.jauge[data-n="1"] i:nth-child(-n+1), .jauge[data-n="2"] i:nth-child(-n+2) { background: var(--danger); }
+.jauge[data-n="3"] i:nth-child(-n+3) { background: var(--alerte); }
+.jauge[data-n="4"] i { background: var(--accent); }
+.totp { display: flex; align-items: center; gap: 12px; }
+.totp .code { font: 500 22px var(--mono); letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.anneau { width: 26px; height: 26px; transform: rotate(-90deg); }
+.anneau circle { fill: none; stroke-width: 3; }
+.anneau .fond-a { stroke: var(--surface-2); }
+.anneau .plein { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.anneau.fin .plein { stroke: var(--alerte); }
+a.lien { color: var(--accent); text-decoration: none; }
+a.lien:hover { text-decoration: underline; }
+.notes { white-space: pre-wrap; }
+.meta { font-size: 13px; color: var(--texte-doux); display: flex; gap: 18px; flex-wrap: wrap; }
+.retour { display: none; }
+
+/* Panneaux latéraux (générateur, santé, extension) */
+.voile { position: fixed; inset: 0; background: rgba(10, 12, 11, .35); display: grid; justify-items: end; z-index: 20; }
+.panneau { background: var(--surface); width: min(440px, 100%); height: 100%; box-shadow: var(--ombre); overflow: auto; display: grid; align-content: start; gap: 18px;
+  padding-block: calc(22px + env(safe-area-inset-top, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)); padding-left: 24px; padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+.panneau-tete { display: flex; align-items: center; justify-content: space-between; }
+.panneau h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.gen-sortie { background: var(--fond); border: 1px solid var(--filet); border-radius: var(--r); padding: 16px; font-size: 18px; min-height: 64px; overflow-wrap: anywhere; }
+.reglage { display: grid; gap: 6px; }
+.reglage-l { display: flex; justify-content: space-between; font-size: 14px; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.cases { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cases label, .onglets label { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; }
+.onglets { display: flex; gap: 4px; background: var(--surface-2); border-radius: var(--r); padding: 3px; }
+.onglets button { flex: 1; border: 0; background: transparent; border-radius: 6px; padding: 6px; font-weight: 500; color: var(--texte-doux); }
+.onglets button[aria-pressed="true"] { background: var(--surface); color: var(--texte); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.sante-score { display: flex; align-items: baseline; gap: 10px; }
+.sante-score b { font-size: 44px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.sante-liste { display: grid; gap: 10px; }
+.sante-ligne { display: flex; gap: 12px; align-items: center; border: 1px solid var(--filet); border-radius: var(--r); padding: 10px 12px; }
+.sante-ligne .pastille { font: 600 13px var(--sans); min-width: 28px; height: 28px; border-radius: 14px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.pastille.danger { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
+.pastille.alerte { background: color-mix(in srgb, var(--alerte) 16%, transparent); color: var(--alerte); }
+.pastille.ok { background: var(--accent-pale); color: var(--accent); }
+.sante-ligne .txt { flex: 1; min-width: 0; }
+.sante-ligne small { display: block; color: var(--texte-doux); font-size: 13px; }
+
+/* Aperçu du popup de l'extension */
+.popup { width: 100%; max-width: 380px; border: 1px solid var(--filet); border-radius: 12px; overflow: hidden; background: var(--fond); }
+.popup-barre { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border-bottom: 1px solid var(--filet); font-weight: 600; font-size: 14px; }
+.popup-barre .etat { margin-left: auto; font-weight: 400; }
+.popup-site { padding: 10px 12px; font-size: 13px; color: var(--texte-doux); display: flex; gap: 6px; align-items: center; }
+.popup-site b { color: var(--texte); font-weight: 500; font-family: var(--mono); font-size: 12.5px; }
+.popup-entree { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--filet); }
+.popup-entree .txt { flex: 1; min-width: 0; font-size: 14px; }
+.popup-entree .txt small { display: block; color: var(--texte-doux); font-size: 12.5px; }
+.popup-note { font-size: 12.5px; color: var(--texte-doux); padding: 10px 12px; border-top: 1px solid var(--filet); }
+.explication { font-size: 14px; display: grid; gap: 8px; }
+.explication p { margin: 0; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--texte); color: var(--fond);
+  border-radius: var(--r); padding: 10px 16px; display: flex; gap: 10px; align-items: center; box-shadow: var(--ombre); z-index: 30; font-size: 14px; max-width: calc(100% - 32px); }
+.toast .mono { font-variant-numeric: tabular-nums; opacity: .75; }
+
+@media (max-width: 1100px) {
+  .colonnes { grid-template-columns: 300px 1fr; }
+  .groupes { display: none; }
+  .marque { width: auto; }
+}
+@media (max-width: 720px) {
+  .colonnes { grid-template-columns: minmax(0, 1fr); }
+  .barre { flex-wrap: wrap; }
+  .recherche { order: 5; flex-basis: 100%; max-width: none; }
+  .colonnes.voir-detail .liste { display: none; }
+  .colonnes:not(.voir-detail) .detail { display: none; }
+  .liste { border-right: 0; }
+  .detail { padding: 16px max(16px, env(safe-area-inset-right, 0px)) 32px max(16px, env(safe-area-inset-left, 0px)); }
+  .retour { display: inline-flex; }
+  .marque span, .etat, .barre .txt-btn { display: none; }
+  .ligne { grid-template-columns: 1fr auto; }
+  .ligne .etiq { grid-column: 1 / -1; }
+  .detail-tete { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cadenas" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><path d="M12 14.5v2.5"/></symbol>
+  <symbol id="i-copier" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></symbol>
+  <symbol id="i-oeil" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-loupe" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-de" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r=".8" fill="currentColor"/><circle cx="15" cy="15" r=".8" fill="currentColor"/><circle cx="15" cy="9" r=".8" fill="currentColor"/><circle cx="9" cy="15" r=".8" fill="currentColor"/></symbol>
+  <symbol id="i-pouls" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 5 12 2.5-6h4"/></symbol>
+  <symbol id="i-puzzle" viewBox="0 0 24 24"><path d="M9.5 4.5a2 2 0 1 1 4 0V6H18v4.5h-1.5a2 2 0 1 0 0 4H18V19H6v-4.5h1.5a2 2 0 1 0 0-4H6V6h3.5Z"/></symbol>
+  <symbol id="i-soleil" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.5 12h-2M21.5 12h-2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
+  <symbol id="i-dossier" viewBox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4l2 2h8a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5Z"/></symbol>
+  <symbol id="i-tout" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-corbeille" viewBox="0 0 24 24"><path d="M4.5 7h15M9.5 7V5h5v2M6.5 7l1 12.5h9l1-12.5"/></symbol>
+  <symbol id="i-fermer" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="i-retour" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+  <symbol id="i-crayon" viewBox="0 0 24 24"><path d="M4.5 19.5 5.5 15 15.5 5a2.1 2.1 0 0 1 3 3l-10 10Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-fichier" viewBox="0 0 24 24"><path d="M6.5 3.5h7l4 4v13h-11Z"/><path d="M13.5 3.5v4h4"/></symbol>
+</svg>
+
+<div class="demo-bandeau">Démo de l'interface. Toutes les données sont fictives et rien ne quitte cette page.</div>
+
+<main id="ecran-verrou" class="verrou">
+  <form class="verrou-carte" id="form-verrou" autocomplete="off">
+    <div class="cadenas-logo"><svg class="i"><use href="#i-cadenas"/></svg></div>
+    <h1>Coffre verrouillé</h1>
+    <p class="fichier doux"><svg class="i"><use href="#i-fichier"/></svg><span class="mono">personnel.kdbx</span> · KDBX 4 · Argon2id</p>
+    <label class="champ" for="mdp-maitre">
+      <input id="mdp-maitre" type="password" placeholder="Mot de passe maître" aria-label="Mot de passe maître" autofocus>
+      <button type="button" class="btn discret icone" id="voir-maitre" aria-label="Afficher le mot de passe maître"><svg class="i"><use href="#i-oeil"/></svg></button>
+    </label>
+    <div class="erreur" id="erreur-verrou" role="alert"></div>
+    <button class="btn principal" type="submit">Déverrouiller</button>
+    <p class="astuce doux">Pour la démo, le mot de passe maître est <b class="mono">demo</b>.</p>
+  </form>
+</main>
+
+<div id="ecran-appli" class="appli" hidden>
+  <header class="barre">
+    <div class="marque"><div class="cadenas-logo"><svg class="i"><use href="#i-cadenas"/></svg></div><span>Cadenas</span></div>
+    <label class="champ recherche" for="recherche">
+      <svg class="i doux"><use href="#i-loupe"/></svg>
+      <input id="recherche" type="search" placeholder="Rechercher un site, un identifiant…" aria-label="Rechercher">
+      <kbd>/</kbd>
+    </label>
+    <span class="espace"></span>
+    <span class="etat">Déverrouillé · <span id="minuteur" class="mono">10:00</span></span>
+    <button class="btn" id="b-gen" title="Générateur"><svg class="i"><use href="#i-de"/></svg><span class="txt-btn">Générer</span></button>
+    <button class="btn icone" id="b-sante" title="Santé du coffre" aria-label="Santé du coffre"><svg class="i"><use href="#i-pouls"/></svg></button>
+    <button class="btn icone" id="b-ext" title="Aperçu de l'extension" aria-label="Aperçu de l'extension"><svg class="i"><use href="#i-puzzle"/></svg></button>
+    <button class="btn icone" id="b-theme" title="Thème clair ou sombre" aria-label="Changer de thème"><svg class="i"><use href="#i-soleil"/></svg></button>
+    <button class="btn" id="b-verrou" title="Verrouiller (Ctrl+L)"><svg class="i"><use href="#i-cadenas"/></svg><span class="txt-btn">Verrouiller</span></button>
+  </header>
+  <div class="colonnes" id="colonnes">
+    <nav class="groupes" id="groupes" aria-label="Groupes"></nav>
+    <section class="liste" aria-label="Entrées">
+      <div class="liste-tete"><h2 id="liste-titre">Toutes les entrées</h2><button class="btn icone" aria-label="Nouvelle entrée" title="Nouvelle entrée"><svg class="i"><use href="#i-plus"/></svg></button></div>
+      <div id="liste" role="listbox" aria-label="Entrées"></div>
+    </section>
+    <section class="detail" id="detail" aria-live="polite"></section>
+  </div>
+</div>
+
+<div class="voile" id="voile" hidden><aside class="panneau" id="panneau" role="dialog" aria-modal="true"></aside></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+  // ---------- Données fictives ----------
+  const GROUPES = [
+    { id: 'perso', nom: 'Personnel' }, { id: 'travail', nom: 'Travail' },
+    { id: 'banque', nom: 'Banque et impôts' }, { id: 'social', nom: 'Réseaux sociaux' },
+    { id: 'maison', nom: 'Maison' },
+  ];
+  const J = 86400000, maintenant = Date.now();
+  const E = (id, g, titre, ident, mdp, url, extra = {}) => ({ id, g, titre, ident, mdp, url, notes: '', modifie: maintenant - (extra.age || 20) * J, ...extra });
+  const ENTREES = [
+    E(1, 'perso', 'Messagerie Exemple', 'eliott.demo@exemple.fr', 'Vq7#tL2!mR9pZx4&', 'https://mail.exemple.fr', { totp: 'JBSWY3DPEHPK3PXP', age: 40 }),
+    E(2, 'perso', 'Cloud Photos', 'eliott.demo@exemple.fr', 'tulipe-orage-cactus-boussole-42', 'https://photos.exemple.com', { age: 12 }),
+    E(3, 'banque', 'Banque Démo', '00123456', 'K8$wq!2Lr#Yz5Np3', 'https://banque-demo.exemple', { totp: 'GEZDGNBVGY3TQOJQ', age: 90, notes: 'Code client sur la carte verte.\nConseiller : agence fictive de Lyon.' }),
+    E(4, 'banque', 'Impôts (démo)', '1 23 45 678 901 234', 'Soleil2019', 'https://impots.exemple.fr', { age: 520 }),
+    E(5, 'social', 'Réseau Pro', 'eliott-demo', 'Soleil2019', 'https://reseau-pro.exemple.com', { age: 410 }),
+    E(6, 'social', 'Photos & amis', 'eliott.popote', 'm4rmite-ch0colat', 'https://photos-amis.exemple', { age: 33 }),
+    E(7, 'travail', 'Agenda Popote', 'contact@popote.exemple', 'H3!vB9qa@T6uW2ke', 'https://agenda.popote.exemple', { totp: 'MFRGGZDFMZTWQ2LK', age: 5 }),
+    E(8, 'travail', 'Fournisseur primeurs', 'popote-commandes', 'carotte', 'https://primeurs.exemple.fr', { age: 700 }),
+    E(9, 'travail', 'Hébergeur du site', 'eliott', 'pX2&nV8#cM5!rQ7z', 'https://console.hebergeur.exemple', { totp: 'NBSWY3DPO5XXE3DE', age: 2 }),
+    E(10, 'maison', 'Box internet', 'admin', 'Z9!fD3k#Lw7@pS2r', 'http://192.168.1.1', { age: 300, notes: 'Wi‑Fi : réseau « Popote‑5G ».' }),
+    E(11, 'maison', 'Énergie (démo)', 'eliott.demo@exemple.fr', 'ampoule-violon-sable-retard', 'https://espace-client.energie.exemple', { age: 60 }),
+    E(12, 'perso', 'Musique en ligne', 'eliott.demo@exemple.fr', 'Q2#gH7!wS4$eR9tY', 'https://musique.exemple.com', { age: 18 }),
+  ];
+
+  // ---------- Outils ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const ico = n => `<svg class="i"><use href="#i-${n}"/></svg>`;
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const sansAccents = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const hote = u => { try { return new URL(u).host; } catch { return u; } };
+  const colorer = p => [...p].map(ch => /[0-9]/.test(ch) ? `<span class="c">${esc(ch)}</span>` : /[A-Za-z]/.test(ch) ? esc(ch) : `<span class="s">${esc(ch)}</span>`).join('');
+  const dateFr = t => new Date(t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Estimation simplifiée pour la maquette (la vraie appli utilise zxcvbn-ts).
+  function force(p) {
+    let pool = 0;
+    if (/[a-z]/.test(p)) pool += 26; if (/[A-Z]/.test(p)) pool += 26;
+    if (/[0-9]/.test(p)) pool += 10; if (/[^A-Za-z0-9]/.test(p)) pool += 32;
+    let bits = p.length * Math.log2(Math.max(pool, 1));
+    if (/^[a-z]+(-[a-z0-9]+){3,}$/.test(p)) bits = (p.split('-').length) * 12.9;
+    if (/^(?:[A-Z]?[a-z]+)\d{0,4}$/.test(p) && p.length < 12) bits = Math.min(bits, 28);
+    return bits < 36 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
+  }
+  const LIB_FORCE = ['', 'Faible', 'Moyen', 'Bon', 'Excellent'];
+  const jauge = n => `<span class="force"><span class="jauge" data-n="${n}"><i></i><i></i><i></i><i></i></span>${LIB_FORCE[n]}</span>`;
+
+  // Aléa sans biais (rejet) avec crypto.getRandomValues.
+  function hasard(max) {
+    const lim = Math.floor(0x100000000 / max) * max, buf = new Uint32Array(1);
+    do crypto.getRandomValues(buf); while (buf[0] >= lim);
+    return buf[0] % max;
+  }
+  const MOTS = 'abeille ancre argile aube balcon bambou banane boussole brioche cactus canard capuche carafe cerise chalet citron comete corde coton crayon dauphin domino ecorce epice etoile falaise farine fenetre figue flocon fougere fromage galet girafe grenier hamac hibou iris jardin jasmin kayak lagon lanterne lavande loutre manege marmite melon meringue miroir moulin muguet navet nuage olive orage orange paille panda papier phare piment plume poivre pomme prairie quartz radis renard ruban sable sapin savon sirop soleil tambour tilleul tomate tulipe valise vanille velours violon volcan yaourt zebre'.split(' ');
+  function genMdp(o) {
+    let jeu = '';
+    const cl = { lower: 'abcdefghijkmnopqrstuvwxyz', upper: 'ABCDEFGHJKLMNPQRSTUVWXYZ', digits: '23456789', symbols: '!#$%&*+-=?@^_~' };
+    const choisis = Object.keys(cl).filter(k => o[k]);
+    if (!choisis.length) return '';
+    choisis.forEach(k => jeu += cl[k]);
+    for (;;) {
+      let p = ''; for (let i = 0; i < o.length; i++) p += jeu[hasard(jeu.length)];
+      if (choisis.every(k => [...p].some(ch => cl[k].includes(ch)))) return p;
+    }
+  }
+  const genPhrase = n => Array.from({ length: n }, () => MOTS[hasard(MOTS.length)]).join('-') + '-' + hasard(100);
+
+  // TOTP (RFC 6238) avec WebCrypto, secrets fictifs.
+  function base32(s) {
+    const a = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'; let bits = '';
+    for (const ch of s.replace(/=+$/, '')) bits += a.indexOf(ch).toString(2).padStart(5, '0');
+    const out = new Uint8Array(Math.floor(bits.length / 8));
+    for (let i = 0; i < out.length; i++) out[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
+    return out;
+  }
+  async function totp(secret) {
+    const t = Math.floor(Date.now() / 30000), msg = new ArrayBuffer(8);
+    new DataView(msg).setUint32(4, t);
+    const cle = await crypto.subtle.importKey('raw', base32(secret), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const h = new Uint8Array(await crypto.subtle.sign('HMAC', cle, msg)), o = h[19] & 15;
+    const n = ((h[o] & 127) << 24 | h[o + 1] << 16 | h[o + 2] << 8 | h[o + 3]) % 1e6;
+    return String(n).padStart(6, '0');
+  }
+
+  // ---------- État ----------
+  const etat = { groupe: 'tout', sel: 1, q: '', voir: false, filtre: null };
+  const reutilises = () => { const m = {}; ENTREES.forEach(e => (m[e.mdp] ||= []).push(e.id)); return Object.values(m).filter(v => v.length > 1).flat(); };
+  const faibles = () => ENTREES.filter(e => force(e.mdp) <= 1).map(e => e.id);
+  const anciens = () => ENTREES.filter(e => maintenant - e.modifie > 365 * J).map(e => e.id);
+
+  // ---------- Verrouillage ----------
+  let finVerrou = 0, chrono;
+  function deverrouiller() {
+    $('#ecran-verrou').hidden = true; $('#ecran-appli').hidden = false;
+    finVerrou = Date.now() + 10 * 60000; rendre(); $('#recherche').focus();
+    clearInterval(chrono); chrono = setInterval(tic, 1000); tic();
+  }
+  function verrouiller() {
+    clearInterval(chrono); fermerPanneau();
+    $('#ecran-appli').hidden = true; $('#ecran-verrou').hidden = false;
+    $('#mdp-maitre').value = ''; $('#erreur-verrou').textContent = ''; etat.voir = false; $('#mdp-maitre').focus();
+  }
+  function tic() {
+    const r = Math.max(0, finVerrou - Date.now());
+    if (!r) return verrouiller();
+    $('#minuteur').textContent = `${Math.floor(r / 60000)}:${String(Math.floor(r / 1000) % 60).padStart(2, '0')}`;
+    const anneau = $('#anneau-totp');
+    if (anneau) majTotp();
+  }
+  ['click', 'keydown'].forEach(ev => document.addEventListener(ev, () => { if (finVerrou) finVerrou = Date.now() + 10 * 60000; }));
+  $('#form-verrou').addEventListener('submit', e => {
+    e.preventDefault();
+    if ($('#mdp-maitre').value === 'demo') deverrouiller();
+    else { $('#erreur-verrou').textContent = 'Mot de passe incorrect. Vérifiez la touche Verr. Maj.'; $('#mdp-maitre').select(); }
+  });
+  $('#voir-maitre').addEventListener('click', () => { const i = $('#mdp-maitre'); i.type = i.type === 'password' ? 'text' : 'password'; });
+  $('#b-verrou').addEventListener('click', verrouiller);
+
+  // ---------- Rendu ----------
+  function visibles() {
+    let l = ENTREES;
+    if (etat.filtre) l = l.filter(e => etat.filtre.includes(e.id));
+    else if (etat.groupe !== 'tout') l = l.filter(e => etat.groupe === '2fa' ? e.totp : e.g === etat.groupe);
+    if (etat.q) { const q = sansAccents(etat.q); l = l.filter(e => sansAccents(`${e.titre} ${e.ident} ${e.url}`).includes(q)); }
+    return [...l].sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+  }
+  function rendreGroupes() {
+    const n = g => g === 'tout' ? ENTREES.length : g === '2fa' ? ENTREES.filter(e => e.totp).length : ENTREES.filter(e => e.g === g).length;
+    const b = (id, nom, icone) => `<button class="groupe" data-g="${id}" aria-current="${etat.groupe === id && !etat.filtre}">${ico(icone)}${esc(nom)}<span class="n">${n(id)}</span></button>`;
+    const prob = new Set([...faibles(), ...reutilises(), ...anciens()]).size;
+    $('#groupes').innerHTML = b('tout', 'Toutes les entrées', 'tout') + b('2fa', 'Codes 2FA', 'cadenas') +
+      `<h2>Groupes</h2>` + GROUPES.map(g => b(g.id, g.nom, 'dossier')).join('') +
+      `<h2>Coffre</h2><button class="groupe" data-sante>${ico('pouls')}Santé du coffre<span class="n alerte-n">${prob}</span></button>` +
+      `<button class="groupe" disabled>${ico('corbeille')}Corbeille<span class="n">0</span></button>`;
+  }
+  function rendreListe() {
+    const l = visibles();
+    const nomG = etat.filtre ? 'Entrées à revoir' : etat.groupe === 'tout' ? 'Toutes les entrées' : etat.groupe === '2fa' ? 'Codes 2FA' : GROUPES.find(g => g.id === etat.groupe).nom;
+    $('#liste-titre').textContent = etat.q ? `Résultats pour « ${etat.q} »` : nomG;
+    $('#liste').innerHTML = l.length ? l.map(e => `
+      <button class="entree" role="option" data-id="${e.id}" aria-selected="${e.id === etat.sel}">
+        <span class="monogramme" aria-hidden="true">${esc(e.titre[0])}</span>
+        <span class="txt"><span class="titre">${esc(e.titre)}</span><span class="ident">${esc(e.ident)}</span></span>
+        ${e.totp ? '<span class="puce-2fa">2FA</span>' : ''}
+      </button>`).join('') : `<div class="vide">Aucune entrée ne correspond.</div>`;
+  }
+  function rendreDetail() {
+    const e = ENTREES.find(x => x.id === etat.sel);
+    if (!e) { $('#detail').innerHTML = `<div class="vide">Choisissez une entrée.</div>`; return; }
+    const f = force(e.mdp), reu = reutilises().includes(e.id), vieux = maintenant - e.modifie > 365 * J;
+    $('#detail').innerHTML = `<div class="detail-carte">
+      <button class="btn discret retour" data-retour>${ico('retour')}Retour</button>
+      <div class="detail-tete">
+        <span class="monogramme" aria-hidden="true">${esc(e.titre[0])}</span>
+        <div><h1>${esc(e.titre)}</h1><div class="doux">${esc(GROUPES.find(g => g.id === e.g).nom)}</div></div>
+        <div class="actions"><button class="btn">${ico('crayon')}Modifier</button></div>
+      </div>
+      <div class="champs">
+        <div class="ligne"><span class="etiq">Identifiant</span><span class="val">${esc(e.ident)}</span>
+          <span class="outils"><button class="btn discret icone" data-copie="ident" aria-label="Copier l'identifiant" title="Copier (Ctrl+B)">${ico('copier')}</button></span></div>
+        <div class="ligne"><span class="etiq">Mot de passe</span>
+          <span class="val"><span class="mdp ${etat.voir ? '' : 'masque'}">${etat.voir ? colorer(e.mdp) : '•'.repeat(12)}</span><br>${jauge(f)}
+          ${reu ? ' <span class="force" style="color:var(--alerte)">· Réutilisé ailleurs</span>' : ''}${vieux ? ' <span class="force" style="color:var(--alerte)">· Plus d\'un an</span>' : ''}</span>
+          <span class="outils"><button class="btn discret icone" data-voir aria-label="${etat.voir ? 'Masquer' : 'Afficher'} le mot de passe" title="Afficher">${ico('oeil')}</button>
+          <button class="btn discret icone" data-copie="mdp" aria-label="Copier le mot de passe" title="Copier (Ctrl+C)">${ico('copier')}</button></span></div>
+        ${e.totp ? `<div class="ligne"><span class="etiq">Code 2FA</span>
+          <span class="val totp"><span class="code" id="code-totp">··· ···</span>
+          <svg class="anneau" id="anneau-totp" viewBox="0 0 26 26" aria-hidden="true"><circle class="fond-a" cx="13" cy="13" r="10"/><circle class="plein" cx="13" cy="13" r="10" stroke-dasharray="62.83"/></svg>
+          <span class="doux" id="reste-totp" style="font-size:13px"></span></span>
+          <span class="outils"><button class="btn discret icone" data-copie="totp" aria-label="Copier le code" title="Copier le code">${ico('copier')}</button></span></div>` : ''}
+        <div class="ligne"><span class="etiq">Site web</span><span class="val"><a class="lien" href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(hote(e.url))}</a>
+          ${e.url.startsWith('http:') ? '<br><span class="force" style="color:var(--alerte)">Connexion non chiffrée (http) : remplissage limité à cette adresse exacte</span>' : ''}</span><span></span></div>
+        ${e.notes ? `<div class="ligne"><span class="etiq">Notes</span><span class="val notes">${esc(e.notes)}</span><span></span></div>` : ''}
+      </div>
+      <div class="meta"><span>Modifié le ${dateFr(e.modifie)}</span><span>3 versions dans l'historique</span></div>
+    </div>`;
+    if (e.totp) majTotp();
+  }
+  async function majTotp() {
+    const e = ENTREES.find(x => x.id === etat.sel); if (!e || !e.totp) return;
+    const reste = 30 - Math.floor(Date.now() / 1000) % 30, code = await totp(e.totp);
+    const c = $('#code-totp'), a = $('#anneau-totp'); if (!c) return;
+    c.textContent = code.slice(0, 3) + ' ' + code.slice(3);
+    a.querySelector('.plein').style.strokeDashoffset = 62.83 * (1 - reste / 30);
+    a.classList.toggle('fin', reste <= 5);
+    $('#reste-totp').textContent = `${reste} s`;
+  }
+  function rendre() { rendreGroupes(); rendreListe(); rendreDetail(); }
+
+  // ---------- Interactions ----------
+  $('#groupes').addEventListener('click', ev => {
+    const b = ev.target.closest('.groupe'); if (!b) return;
+    if (b.hasAttribute('data-sante')) return ouvrirSante();
+    etat.groupe = b.dataset.g; etat.filtre = null; const l = visibles(); if (l[0]) etat.sel = l[0].id; rendre();
+  });
+  $('#liste').addEventListener('click', ev => {
+    const b = ev.target.closest('.entree'); if (!b) return;
+    etat.sel = +b.dataset.id; etat.voir = false; $('#colonnes').classList.add('voir-detail'); rendreListe(); rendreDetail();
+  });
+  $('#detail').addEventListener('click', ev => {
+    if (ev.target.closest('[data-retour]')) return $('#colonnes').classList.remove('voir-detail');
+    if (ev.target.closest('[data-voir]')) { etat.voir = !etat.voir; return rendreDetail(); }
+    const c = ev.target.closest('[data-copie]'); if (c) copier(c.dataset.copie);
+  });
+  $('#recherche').addEventListener('input', ev => { etat.q = ev.target.value.trim(); const l = visibles(); if (l[0]) etat.sel = l[0].id; rendreListe(); rendreDetail(); });
+  document.addEventListener('keydown', ev => {
+    if ($('#ecran-appli').hidden) return;
+    const dansChamp = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if (ev.key === '/' && !dansChamp) { ev.preventDefault(); $('#recherche').focus(); }
+    else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); $('#recherche').focus(); }
+    else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'l') { ev.preventDefault(); verrouiller(); }
+    else if (ev.key === 'Escape') { if (!$('#voile').hidden) fermerPanneau(); else $('#recherche').blur(); }
+    else if ((ev.key === 'ArrowDown' || ev.key === 'ArrowUp') && $('#voile').hidden) {
+      const l = visibles(), i = l.findIndex(e => e.id === etat.sel), j = Math.min(l.length - 1, Math.max(0, i + (ev.key === 'ArrowDown' ? 1 : -1)));
+      if (l[j]) { ev.preventDefault(); etat.sel = l[j].id; etat.voir = false; rendreListe(); rendreDetail(); }
+    }
+    else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'b' && !dansChamp) { ev.preventDefault(); copier('ident'); }
+    else if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'c' && !dansChamp && !String(getSelection())) { ev.preventDefault(); copier('mdp'); }
+  });
+
+  // Copie avec effacement du presse-papiers après 30 s
+  let tToast;
+  async function copier(quoi) {
+    const e = ENTREES.find(x => x.id === etat.sel); if (!e) return;
+    const val = quoi === 'ident' ? e.ident : quoi === 'mdp' ? e.mdp : await totp(e.totp);
+    const lib = { ident: 'Identifiant copié', mdp: 'Mot de passe copié', totp: 'Code copié' }[quoi];
+    try { await navigator.clipboard.writeText(val); } catch { /* le cadre de démo peut refuser : on affiche quand même */ }
+    clearInterval(tToast); let r = 30; const t = $('#toast'); t.hidden = false;
+    const maj = () => t.innerHTML = `${ico('copier')}<span>${lib}. Effacé du presse-papiers dans <span class="mono">${r} s</span></span>`;
+    maj();
+    tToast = setInterval(() => {
+      if (--r <= 0) { clearInterval(tToast); try { navigator.clipboard.writeText(''); } catch {} t.textContent = 'Presse-papiers effacé.'; setTimeout(() => t.hidden = true, 1800); }
+      else maj();
+    }, 1000);
+  }
+
+  // ---------- Panneaux ----------
+  const voile = $('#voile'), panneau = $('#panneau');
+  function ouvrir(html, titre) {
+    panneau.innerHTML = `<div class="panneau-tete"><h2 id="p-titre">${titre}</h2><button class="btn discret icone" data-fermer aria-label="Fermer">${ico('fermer')}</button></div>` + html;
+    panneau.setAttribute('aria-labelledby', 'p-titre'); voile.hidden = false; panneau.querySelector('[data-fermer]').focus();
+  }
+  function fermerPanneau() { voile.hidden = true; }
+  voile.addEventListener('click', ev => { if (ev.target === voile || ev.target.closest('[data-fermer]')) fermerPanneau(); });
+
+  const gen = { mode: 'mdp', length: 20, lower: true, upper: true, digits: true, symbols: true, mots: 5 };
+  function ouvrirGen() {
+    ouvrir(`<div class="onglets" role="group" aria-label="Type">
+        <button data-mode="mdp" aria-pressed="${gen.mode === 'mdp'}">Mot de passe</button>
+        <button data-mode="phrase" aria-pressed="${gen.mode === 'phrase'}">Phrase de passe</button></div>
+      <div class="gen-sortie mdp" id="gen-sortie"></div>
+      <div id="gen-force"></div>
+      <div id="gen-reglages"></div>
+      <div style="display:flex;gap:8px"><button class="btn principal" data-gcopier>${ico('copier')}Copier</button><button class="btn" data-regen>${ico('de')}Nouveau</button></div>
+      <p class="doux" style="margin:0;font-size:13px">Généré sur votre appareil avec <span class="mono">crypto.getRandomValues</span>. Rien n'est envoyé.</p>`, 'Générateur');
+    majGen();
+    panneau.addEventListener('input', majGenDepuisChamps);
+  }
+  function majGenDepuisChamps(ev) {
+    const t = ev.target; if (!t.dataset.k) return;
+    gen[t.dataset.k] = t.type === 'checkbox' ? t.checked : +t.value; majGen(false);
+  }
+  function majGen(reglages = true) {
+    const p = gen.mode === 'mdp' ? genMdp(gen) : genPhrase(gen.mots);
+    $('#gen-sortie').innerHTML = p ? colorer(p) : '<span class="doux">Choisissez au moins un type de caractère.</span>';
+    $('#gen-sortie').dataset.val = p;
+    $('#gen-force').innerHTML = p ? jauge(gen.mode === 'phrase' ? (gen.mots >= 5 ? 4 : gen.mots >= 4 ? 3 : 2) : force(p)) : '';
+    if (!reglages) { const l = $('#lib-long'); if (l) l.textContent = gen.mode === 'mdp' ? gen.length : gen.mots; return; }
+    $('#gen-reglages').innerHTML = gen.mode === 'mdp' ? `
+      <div class="reglage"><div class="reglage-l"><label for="g-long">Longueur</label><b class="mono" id="lib-long">${gen.length}</b></div>
+        <input id="g-long" type="range" min="8" max="64" value="${gen.length}" data-k="length"></div>
+      <div class="cases">
+        <label><input type="checkbox" data-k="lower" ${gen.lower ? 'checked' : ''}>Minuscules</label>
+        <label><input type="checkbox" data-k="upper" ${gen.upper ? 'checked' : ''}>Majuscules</label>
+        <label><input type="checkbox" data-k="digits" ${gen.digits ? 'checked' : ''}>Chiffres</label>
+        <label><input type="checkbox" data-k="symbols" ${gen.symbols ? 'checked' : ''}>Symboles</label>
+      </div>` : `
+      <div class="reglage"><div class="reglage-l"><label for="g-mots">Nombre de mots</label><b class="mono" id="lib-long">${gen.mots}</b></div>
+        <input id="g-mots" type="range" min="3" max="10" value="${gen.mots}" data-k="mots"></div>
+      <p class="doux" style="margin:0;font-size:13px">La vraie application tire ses mots dans la liste EFF de 7 776 mots, soit environ 12,9 bits par mot.</p>`;
+  }
+  panneau.addEventListener('click', ev => {
+    const m = ev.target.closest('[data-mode]'); if (m) { gen.mode = m.dataset.mode; panneau.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', b === m)); majGen(); }
+    if (ev.target.closest('[data-regen]')) majGen(false);
+    if (ev.target.closest('[data-gcopier]')) { navigator.clipboard?.writeText($('#gen-sortie').dataset.val).catch(() => {}); const t = $('#toast'); t.hidden = false; t.textContent = 'Mot de passe généré copié.'; setTimeout(() => t.hidden = true, 1800); }
+    const s = ev.target.closest('[data-revoir]'); if (s) { etat.filtre = JSON.parse(s.dataset.revoir); etat.q = ''; $('#recherche').value = ''; etat.sel = etat.filtre[0]; fermerPanneau(); rendre(); }
+  });
+
+  function ouvrirSante() {
+    const f = faibles(), r = reutilises(), a = anciens(), tot = ENTREES.length;
+    const score = Math.round(100 * (1 - new Set([...f, ...r, ...a]).size / tot));
+    const ligne = (n, cl, titre, sous, ids) => `<button class="sante-ligne btn" ${n ? `data-revoir='${JSON.stringify(ids)}'` : 'disabled'} style="text-align:left;justify-content:flex-start">
+      <span class="pastille ${n ? cl : 'ok'}">${n}</span><span class="txt">${titre}<small>${sous}</small></span></button>`;
+    ouvrir(`<div class="sante-score"><b>${score}</b><span class="doux">sur 100</span></div>
+      <p class="doux" style="margin:0">Calculé sur votre appareil, sans rien envoyer en ligne.</p>
+      <div class="sante-liste">
+        ${ligne(f.length, 'danger', 'Mots de passe faibles', 'Faciles à deviner. Remplacez-les par un mot de passe généré.', f)}
+        ${ligne(new Set(r.map(id => ENTREES.find(e => e.id === id).mdp)).size, 'alerte', 'Mots de passe réutilisés', `${r.length} entrées partagent un même mot de passe.`, r)}
+        ${ligne(a.length, 'alerte', 'Plus d\'un an sans changement', 'À renouveler en priorité pour les comptes importants.', a)}
+        ${ligne(ENTREES.filter(e => !e.totp).length ? 0 : 0, 'ok', 'Sans mot de passe', 'Aucune entrée vide.', [])}
+      </div>`, 'Santé du coffre');
+  }
+
+  function ouvrirExt() {
+    const e = ENTREES.find(x => x.id === 7);
+    ouvrir(`<div class="popup" aria-label="Aperçu du popup de l'extension">
+        <div class="popup-barre"><span class="cadenas-logo" style="width:22px;height:22px;border-radius:6px;margin:0"><svg class="i" style="width:13px;height:13px"><use href="#i-cadenas"/></svg></span>Cadenas<span class="etat">Déverrouillé</span></div>
+        <div class="popup-site">Onglet actif : <b>https://agenda.popote.exemple</b></div>
+        <div class="popup-entree"><span class="monogramme">${esc(e.titre[0])}</span><span class="txt">${esc(e.titre)}<small>${esc(e.ident)}</small></span>
+          <button class="btn principal" data-remplir>Remplir</button></div>
+        <div class="popup-entree"><span class="txt"><small>Copier rapidement</small></span>
+          <button class="btn icone" title="Identifiant" aria-label="Copier l'identifiant">${ico('copier')}</button>
+          <button class="btn icone" title="Code 2FA" aria-label="Copier le code 2FA">${ico('cadenas')}</button>
+          <button class="btn icone" title="Générer" aria-label="Générer un mot de passe">${ico('de')}</button></div>
+        <div class="popup-note" id="popup-note">Raccourci : <span class="mono">Ctrl+Maj+L</span>. Cadenas ne remplit qu'après votre clic, et seulement sur l'adresse exacte enregistrée.</div>
+      </div>
+      <div class="explication">
+        <p><b>Dans Opera, Chrome, Edge, Brave.</b> L'extension s'ouvre d'un clic sur son icône. Elle montre d'abord les comptes de l'onglet ouvert.</p>
+        <p><b>Pas de menu glissé dans les pages.</b> Les attaques de 2025 cachaient un faux formulaire sous un bouton pour voler les mots de passe remplis automatiquement. Cadenas n'affiche rien dans les sites, donc un site piégé n'a rien sur quoi faire cliquer.</p>
+        <p><b>Sites sosies refusés.</b> <span class="mono">agenda.popote.exemple</span> ne remplit pas <span class="mono">agenda-popote.exemple</span>, ni une iframe d'un autre site, ni un champ invisible.</p>
+      </div>`, 'Extension navigateur');
+    panneau.querySelector('[data-remplir]').addEventListener('click', () => { $('#popup-note').textContent = 'Démo : l\'adresse correspond exactement, identifiant et mot de passe remplis dans la page.'; });
+  }
+
+  $('#b-gen').addEventListener('click', ouvrirGen);
+  $('#b-sante').addEventListener('click', ouvrirSante);
+  $('#b-ext').addEventListener('click', ouvrirExt);
+  $('#b-theme').addEventListener('click', () => {
+    const r = document.documentElement, sombre = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    r.dataset.theme = sombre ? 'light' : 'dark';
+  });
+})();
+</script>
