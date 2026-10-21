@@ -79,6 +79,13 @@
   max-width: 30ch;
 }
 
+/* Étiquette discrète : le texte de l'avis reste en encre, seul ce marqueur est en brique */
+.avis__a-remplacer {
+  margin-bottom: var(--esp-3);
+  font-size: var(--taille-xs);
+  line-height: 1.3;
+}
+
 .avis__citation > p::before { content: "« "; }
 .avis__citation > p::after  { content: " »"; }
 
