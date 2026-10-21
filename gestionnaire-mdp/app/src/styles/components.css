@@ -33,6 +33,7 @@
 .btn.petit { padding: 4px 9px; font-size: 13px; }
 .btn[aria-pressed="true"] { background: var(--accent-pale); border-color: var(--accent); }
 .groupe-btn { display: flex; gap: 8px; flex-wrap: wrap; }
+.pile { display: grid; gap: 8px; }
 
 /* ---------- Champs ---------- */
 .etiquette { display: block; font-size: 13px; font-weight: 500; color: var(--texte-doux); margin-bottom: 6px; }
@@ -51,7 +52,8 @@
 .champ .mono, .champ input.mono { font-family: var(--mono); letter-spacing: .02em; }
 .champ kbd { font: 12px var(--mono); color: var(--texte-doux); border: 1px solid var(--filet); border-radius: 4px; padding: 1px 6px; margin-right: 6px; }
 .aide { font-size: 13px; color: var(--texte-doux); margin-top: 6px; }
-.erreur { font-size: 13px; color: var(--danger); min-height: 19px; }
+.erreur { font-size: 13px; color: var(--danger); }
+.erreur:empty { display: none; }
 .formulaire { display: grid; gap: 16px; }
 .formulaire .rangee { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 560px) { .formulaire .rangee { grid-template-columns: 1fr; } }
