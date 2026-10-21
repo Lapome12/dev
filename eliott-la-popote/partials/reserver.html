@@ -1,0 +1,104 @@
+<section id="reserver" class="section reserver" aria-labelledby="reserver-titre">
+  <div class="grille reserver__tete">
+    <div class="col-7 debut-2">
+      <p class="chapitre">VIII. Réserver une date</p>
+      <h2 id="reserver-titre" class="titre-section">Réserver <em>une date</em>.</h2>
+      <p class="chapeau reserver__chapeau">Dites-m'en un peu, je vous réponds sous 48 h avec une proposition de menu et un devis.</p>
+    </div>
+  </div>
+
+  <div class="grille reserver__corps">
+    <form class="reserver__formulaire col-7 debut-2" id="reserver-formulaire" novalidate
+          data-destinataire="[À COMPLÉTER : e-mail]">
+      <p class="reserver__note discret">Les champs suivis d'un astérisque sont nécessaires, le reste m'aide à préparer.</p>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-nom">Nom et prénom <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-nom" name="nom" type="text" autocomplete="name" required aria-describedby="r-nom-erreur">
+          <p class="champ__erreur" id="r-nom-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-email">E-mail <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="r-email-erreur">
+          <p class="champ__erreur" id="r-email-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-telephone">Téléphone</label>
+          <input id="r-telephone" name="telephone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="r-telephone-erreur">
+          <p class="champ__erreur" id="r-telephone-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-ville">Ville <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-ville" name="ville" type="text" autocomplete="address-level2" required aria-describedby="r-ville-erreur">
+          <p class="champ__erreur" id="r-ville-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="reserver__ligne">
+        <div class="champ reserver__champ">
+          <label for="r-date">Date souhaitée <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-date" name="date" type="date" required aria-describedby="r-date-erreur">
+          <p class="champ__erreur" id="r-date-erreur" hidden></p>
+        </div>
+        <div class="champ reserver__champ">
+          <label for="r-convives">Nombre de convives <span class="reserver__requis" aria-hidden="true">*</span></label>
+          <input id="r-convives" name="convives" type="number" min="1" max="60" step="1" inputmode="numeric" required aria-describedby="r-convives-erreur">
+          <p class="champ__erreur" id="r-convives-erreur" hidden></p>
+        </div>
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-occasion">Occasion</label>
+        <input id="r-occasion" name="occasion" type="text" list="r-occasions" placeholder="Anniversaire, dîner entre amis, événement…">
+        <datalist id="r-occasions">
+          <option value="Dîner à deux"></option>
+          <option value="Table d'amis"></option>
+          <option value="Anniversaire"></option>
+          <option value="Repas de famille"></option>
+          <option value="Événement ou entreprise"></option>
+          <option value="Cours à la maison"></option>
+        </datalist>
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-allergies">Allergies ou régimes particuliers</label>
+        <input id="r-allergies" name="allergies" type="text" placeholder="Sans gluten pour une personne, pas de coriandre…">
+      </div>
+
+      <div class="champ reserver__champ">
+        <label for="r-message">Votre message</label>
+        <textarea id="r-message" name="message" rows="5" placeholder="L'ambiance, un plat dont vous rêvez, la taille de votre cuisine…"></textarea>
+      </div>
+
+      <div class="reserver__envoi">
+        <button class="bouton bouton--plein reserver__bouton" type="submit">Envoyer ma demande <span class="bouton__fleche" aria-hidden="true">→</span></button>
+        <p class="reserver__precision discret">Le bouton ouvre votre messagerie avec la demande déjà rédigée. Il ne reste qu'à l'envoyer.</p>
+      </div>
+
+      <div class="reserver__confirmation" id="reserver-confirmation" role="status" tabindex="-1" hidden></div>
+    </form>
+
+    <aside class="reserver__coordonnees col-3 debut-10" aria-labelledby="reserver-coord-titre">
+      <p class="etiquette" id="reserver-coord-titre">Ou directement</p>
+      <dl class="reserver__liste">
+        <div class="reserver__item">
+          <dt class="etiquette">Téléphone</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : téléphone]</span></dd>
+        </div>
+        <div class="reserver__item">
+          <dt class="etiquette">E-mail</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : e-mail]</span></dd>
+        </div>
+        <div class="reserver__item">
+          <dt class="etiquette">Zone</dt>
+          <dd><span class="placeholder">[À COMPLÉTER : ville et rayon]</span></dd>
+        </div>
+      </dl>
+      <p class="reserver__mot">Je réponds en général le soir, après le service.</p>
+    </aside>
+  </div>
+</section>
