@@ -17,6 +17,7 @@ const TRACES = {
   corbeille: '<path d="M4.5 7h15M9.5 7V5h5v2M6.5 7l1 12.5h9l1-12.5"/>',
   fermer: '<path d="m6 6 12 12M18 6 6 18"/>',
   retour: '<path d="M14.5 5.5 8 12l6.5 6.5"/>',
+  suivant: '<path d="M9.5 5.5 16 12l-6.5 6.5"/>',
   crayon: '<path d="M4.5 19.5 5.5 15 15.5 5a2.1 2.1 0 0 1 3 3l-10 10Z"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   fichier: '<path d="M6.5 3.5h7l4 4v13h-11Z"/><path d="M13.5 3.5v4h4"/>',
