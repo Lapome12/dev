@@ -130,3 +130,11 @@ details.option[open] > summary { margin-bottom: 10px; }
 .raccourcis { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; margin: 0; align-items: center; }
 .raccourcis dd { margin: 0; }
 .raccourcis kbd { font: 12.5px var(--mono); border: 1px solid var(--filet); border-bottom-width: 2px; border-radius: 5px; padding: 2px 7px; background: var(--fond); white-space: nowrap; }
+
+/* Annonce de mise à jour (PWA) */
+.mise-a-jour {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 45;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center;
+  background: var(--surface); border: 1px solid var(--filet); border-radius: var(--r); box-shadow: var(--ombre);
+  padding: 10px 12px; font-size: 14px; width: max-content; max-width: calc(100% - 32px);
+}

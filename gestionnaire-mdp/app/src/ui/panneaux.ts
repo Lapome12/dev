@@ -41,8 +41,9 @@ export async function ouvrirReglages(ctx: Contexte, o: { estDemo: boolean; actio
     sel.addEventListener('change', () => surChange(Number(sel.value)));
     return h('div', null, h('span', { class: 'etiquette' }, libelle), h('div', { class: 'champ' }, sel));
   };
-  const exporter = bouton({ texte: 'Télécharger une copie du coffre (.kdbx)', icone: 'telecharger', surClic: async () => {
-    try { await ctx.backend.exportFile(); toast('Copie chiffrée téléchargée'); } catch (e) { toast(messageErreur(e)); }
+  const partage = 'share' in navigator && matchMedia('(pointer: coarse)').matches;
+  const exporter = bouton({ texte: partage ? 'Partager une copie du coffre (.kdbx)' : 'Télécharger une copie du coffre (.kdbx)', icone: partage ? 'partager' : 'telecharger', surClic: async () => {
+    try { await ctx.backend.exportFile(); toast(partage ? 'Copie chiffrée prête' : 'Copie chiffrée téléchargée'); } catch (e) { const m = messageErreur(e); if (m) toast(m); }
   } });
 
   ouvrirDialogue({
