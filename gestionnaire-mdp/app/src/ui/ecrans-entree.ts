@@ -6,6 +6,7 @@ import type { Contexte } from './contexte';
 import { messageErreur } from './contexte';
 import { h } from './dom';
 import { icone } from './icons';
+import { choixFichierCle } from './fichier-cle';
 
 /** Mot de passe maître accepté : score zxcvbn ≥ 3, ou phrase de passe d'au moins 5 mots (PLAN §E). */
 export function maitreAcceptable(mdp: string): boolean {
@@ -43,6 +44,7 @@ export function ecranCreation(ctx: Contexte): HTMLElement {
     aide: 'Une phrase de cinq mots ou plus est facile à retenir et très difficile à deviner.' });
   const conf = champMotDePasse({ etiquette: 'Confirmez le mot de passe maître', requis: true, autocomplete: 'new-password' });
   const force = h('div', { 'aria-live': 'polite' });
+  const cle = choixFichierCle({ generer: true, nomSuggere: () => nom.entree.value.trim() || 'cadenas' });
   const accord = h('input', { type: 'checkbox', required: true });
   const erreur = h('div', { class: 'erreur', role: 'alert' });
   const creer = bouton({ texte: 'Créer le coffre', variante: 'principal', type: 'submit', classe: 'large' });
@@ -62,6 +64,7 @@ export function ecranCreation(ctx: Contexte): HTMLElement {
     h('div', { class: 'entete' }, logo(), h('h1', null, 'Créer un coffre'),
       h('p', { class: 'doux' }, 'Le coffre est chiffré en AES-256 au format KDBX 4, avec une clé dérivée par Argon2id.')),
     nom.bloc, h('div', null, mdp.bloc, force), conf.bloc,
+    h('details', { class: 'option' }, h('summary', null, 'Options avancées : fichier clé'), cle.el),
     encart('alerte', h('b', null, 'Aucune récupération possible. '),
       'Si vous oubliez le mot de passe maître, personne ne pourra ouvrir ce coffre, pas même nous. Notez-le sur papier et rangez-le en lieu sûr.'),
     h('label', { class: 'case' }, accord, 'J\'ai compris qu\'aucune récupération n\'est possible.'),
@@ -78,7 +81,8 @@ export function ecranCreation(ctx: Contexte): HTMLElement {
     creer.disabled = true;
     creer.replaceChildren(icone('horloge'), h('span', null, 'Création et chiffrement…'));
     try {
-      await ctx.backend.create(nom.entree.value.trim(), mdp.entree.value);
+      await ctx.backend.create(nom.entree.value.trim(), mdp.entree.value, cle.valeur());
+      cle.vider();
       mdp.entree.value = ''; conf.entree.value = '';
       await ctx.rafraichir();
     } catch (e) {
@@ -98,12 +102,15 @@ export function ecranVerrou(ctx: Contexte, nomCoffre: string, fichier?: string):
   mdp.bloc.querySelector('.etiquette')?.classList.add('lecteur');
   mdp.entree.placeholder = 'Mot de passe maître';
   const erreur = h('div', { class: 'erreur', role: 'alert' });
+  const cle = choixFichierCle();
   const ok = bouton({ texte: 'Déverrouiller', variante: 'principal', type: 'submit', classe: 'large' });
 
   const form = h('form', { class: 'carte-centre', autocomplete: 'off' },
     h('div', { class: 'entete' }, logo(), h('h1', null, 'Coffre verrouillé'),
       h('p', { class: 'fichier-ouvert' }, icone('fichier'), h('span', { class: 'mono' }, fichier ?? nomCoffre), ' · KDBX 4 · Argon2id')),
-    mdp.bloc, erreur, ok,
+    mdp.bloc,
+    h('details', { class: 'option' }, h('summary', null, 'J\'utilise un fichier clé'), cle.el),
+    erreur, ok,
     ctx.indice && h('p', { class: 'pied-centre' }, ctx.indice()),
     h('p', { class: 'pied-centre' }, h('button', { type: 'button', class: 'lien-btn', onclick: async () => {
       try { await ctx.backend.openFile(); await ctx.rafraichir(); } catch (e) { erreur.textContent = messageErreur(e); }
@@ -116,8 +123,9 @@ export function ecranVerrou(ctx: Contexte, nomCoffre: string, fichier?: string):
     ok.disabled = true;
     ok.replaceChildren(icone('horloge'), h('span', null, 'Déverrouillage…'));
     try {
-      await ctx.backend.unlock(mdp.entree.value);
+      await ctx.backend.unlock(mdp.entree.value, cle.valeur());
       mdp.entree.value = '';
+      cle.vider();
       await ctx.rafraichir();
     } catch (e) {
       erreur.textContent = messageErreur(e);

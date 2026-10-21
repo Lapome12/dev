@@ -12,6 +12,7 @@ import { editeurEntree } from './editeur';
 import { ouvrirGenerateur } from './generateur';
 import { icone, type NomIcone } from './icons';
 import { ouvrirReglages, ouvrirSante } from './panneaux';
+import { ouvrirChangementCle, ouvrirImport } from './outils-coffre';
 
 type Vue =
   | { type: 'tout' }
@@ -384,7 +385,11 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
   }
 
   async function ouvrirReglagesCoffre(): Promise<void> {
-    await ouvrirReglages(ctx, { estDemo: o.estDemo });
+    const recharger = () => { void charger(); };
+    await ouvrirReglages(ctx, { estDemo: o.estDemo, actionsSupplementaires: [
+      bouton({ texte: 'Importer depuis un autre gestionnaire', icone: 'importer', surClic: () => { fermerDialogues(); ouvrirImport(b, recharger); } }),
+      bouton({ texte: 'Changer le mot de passe maître ou le fichier clé', icone: 'cle', surClic: () => { fermerDialogues(); ouvrirChangementCle(b, etat.name, recharger); } }),
+    ] });
   }
 
   function nouvelleEntree(): void {
@@ -488,9 +493,13 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
       window.clearInterval(tic);
       document.removeEventListener('keydown', surTouche);
       for (const ev of evenementsActivite) window.removeEventListener(ev, activite);
-      for (const d of Array.from(document.querySelectorAll('dialog[open]'))) (d as HTMLDialogElement).close();
+      fermerDialogues();
     },
   };
+}
+
+function fermerDialogues(): void {
+  for (const d of Array.from(document.querySelectorAll<HTMLDialogElement>('dialog[open]'))) d.close();
 }
 
 /** Identifiant utilisable dans un attribut id (les UUID KDBX en base64 contiennent + / =). */
