@@ -16,9 +16,14 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "build:demo": "vite build -c vite.demo.config.ts"
   },
   "dependencies": {
     "@cadenas/core": "0.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
   }
 }

@@ -58,6 +58,7 @@ export async function ouvrirReglages(ctx: Contexte, o: { estDemo: boolean; actio
         r.clipboardSeconds, v => { void enregistrer({ clipboardSeconds: v }); }),
       h('div', { class: 'pile' }, h('h3', null, 'Coffre'), exporter, ...(o.actionsSupplementaires ?? []),
         o.estDemo ? h('p', { class: 'aide' }, 'Démo : l\'export et l\'enregistrement sur disque sont désactivés.') : null),
+      h('p', { class: 'aide' }, 'Raccourcis clavier : appuyez sur ', h('kbd', { class: 'mono' }, '?'), ' dans le coffre.'),
       h('div', { class: 'pile' }, h('h3', null, 'Compatibilité'),
         h('p', { class: 'aide' }, 'Le fichier .kdbx s\'ouvre aussi dans KeePassXC (ordinateur), KeePassDX (Android) et KeePassium (iPhone). Pour synchroniser, placez-le dans un dossier synchronisé (Syncthing, Nextcloud, Drive).'))),
   });

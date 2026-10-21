@@ -58,7 +58,7 @@ export function motDePasseColore(mdp: string, grand = false): HTMLElement {
 }
 
 export function motDePasseMasque(): HTMLElement {
-  return h('span', { class: 'mdp masque', 'aria-label': 'Mot de passe masqué' }, '••••••••••••');
+  return h('span', { class: 'mdp masque' }, h('span', { 'aria-hidden': 'true' }, '••••••••••••'), h('span', { class: 'lecteur' }, 'masqué'));
 }
 
 // ---------- Jauge de force ----------
