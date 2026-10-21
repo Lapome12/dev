@@ -104,7 +104,7 @@ export function ecranVerrou(ctx: Contexte, nomCoffre: string, fichier?: string):
     h('div', { class: 'entete' }, logo(), h('h1', null, 'Coffre verrouillé'),
       h('p', { class: 'fichier-ouvert' }, icone('fichier'), h('span', { class: 'mono' }, fichier ?? nomCoffre), ' · KDBX 4 · Argon2id')),
     mdp.bloc, erreur, ok,
-    ctx.indiceDemo && h('p', { class: 'pied-centre' }, 'Pour la démo, le mot de passe maître est ', h('b', { class: 'mono' }, ctx.indiceDemo), '.'),
+    ctx.indice && h('p', { class: 'pied-centre' }, ctx.indice()),
     h('p', { class: 'pied-centre' }, h('button', { type: 'button', class: 'lien-btn', onclick: async () => {
       try { await ctx.backend.openFile(); await ctx.rafraichir(); } catch (e) { erreur.textContent = messageErreur(e); }
     } }, 'Ouvrir un autre coffre')));

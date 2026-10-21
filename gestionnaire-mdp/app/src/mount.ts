@@ -16,8 +16,8 @@ export type { VaultBackend } from './backend';
 export interface OptionsMontage {
   /** Bandeau affiché en haut (démo). */
   bandeau?: string;
-  /** Démo : mot de passe rappelé sous le formulaire de déverrouillage. */
-  indiceDemo?: string;
+  /** Démo uniquement : contenu affiché sous le formulaire de déverrouillage (fourni par demo.ts). */
+  indice?: () => Node;
 }
 
 export function mountApp(root: HTMLElement, backend: VaultBackend, options: OptionsMontage = {}): void {
@@ -43,7 +43,7 @@ export function mountApp(root: HTMLElement, backend: VaultBackend, options: Opti
 
   const ctx: Contexte = {
     backend,
-    indiceDemo: options.indiceDemo,
+    indice: options.indice,
     appliquerTheme,
     allerCreation: () => montrer('creation', ecranCreation(ctx)),
     allerAccueil: () => montrer('aucun-coffre', ecranAccueil(ctx)),

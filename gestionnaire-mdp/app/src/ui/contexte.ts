@@ -11,8 +11,8 @@ export interface Contexte {
   /** Affiche l'écran d'accueil (créer ou ouvrir). */
   allerAccueil(): void;
   appliquerTheme(theme: Settings['theme']): void;
-  /** Démo : indice du mot de passe affiché sous le formulaire de déverrouillage. */
-  indiceDemo?: string;
+  /** Démo uniquement : texte affiché sous le formulaire de déverrouillage. */
+  indice?: () => Node;
 }
 
 export type EtatOuvert = Extract<VaultState, { state: 'deverrouille' }>;
