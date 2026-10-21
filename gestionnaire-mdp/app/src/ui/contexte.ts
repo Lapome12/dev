@@ -18,7 +18,7 @@ export interface Contexte {
 export type EtatOuvert = Extract<VaultState, { state: 'deverrouille' }>;
 
 const MESSAGES: Record<string, string> = {
-  'mauvais-mot-de-passe': 'Mot de passe incorrect. Vérifiez la touche Verr. Maj.',
+  'mauvais-mot-de-passe': 'Mot de passe maître ou fichier clé incorrect. Vérifiez la touche Verr. Maj.',
   'fichier-corrompu': 'Ce fichier est endommagé ou n\'est pas un coffre KeePass.',
   'format-non-supporte': 'Ce format de coffre n\'est pas pris en charge (KDBX 3.1 et 4 seulement).',
   introuvable: 'Élément introuvable. Le coffre a peut-être été verrouillé.',

@@ -112,3 +112,11 @@
 .groupe[data-niveau="1"] { padding-left: 24px; }
 .groupe[data-niveau="2"] { padding-left: 38px; }
 .groupe[data-niveau="3"] { padding-left: 52px; }
+
+/* Options repliées (fichier clé) */
+details.option { border: 1px solid var(--filet); border-radius: var(--r); padding: 10px 12px; background: var(--surface); }
+details.option > summary { cursor: pointer; font-size: 14px; font-weight: 500; color: var(--texte-doux); }
+details.option[open] > summary { margin-bottom: 10px; }
+.fichier-cle { align-items: center; }
+.fichier-cle .espace { flex: 1; }
+.panneau .pile > .btn { white-space: normal; text-align: left; justify-content: flex-start; }
