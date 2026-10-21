@@ -157,6 +157,10 @@ describe('Gardien', { timeout: 30_000 }, () => {
     await expect(t.gardien.traiter(msg('vault/getSecret', [id, { field: 'otp' }], 'popup'))).rejects.toMatchObject({ code: 'refuse' });
     await expect(t.gardien.traiter(msg('vault/copySecret', [id, { field: 'OTP' }], 'popup'))).rejects.toMatchObject({ code: 'refuse' });
     expect(await t.gardien.traiter(msg('vault/getSecret', [id, { field: 'otp' }], 'vault'))).toContain('otpauth://');
+    // Format KeePass 2 : refusé au popup avant même de chercher le champ.
+    for (const field of ['TimeOtp-Secret-Base32', 'HmacOtp-Secret']) {
+      await expect(t.gardien.traiter(msg('vault/getSecret', [id, { field }], 'popup'))).rejects.toMatchObject({ code: 'refuse' });
+    }
   });
 
   it('refuse une méthode du coffre sans page d’origine', async () => {
@@ -171,13 +175,26 @@ describe('Gardien', { timeout: 30_000 }, () => {
     await t.gardien.traiter(msg('vault/create', ['Perso', 'pw']));
     const id = await ajouter(t.gardien);
     const cadres = ['https://exemple.fr/connexion', 'https://pub.autre-site.fr/cadre', 'http://exemple.fr/'];
-    expect(await t.gardien.traiter(msg('interne/identifiants', [id, cadres], null))).toEqual({
+    expect(await t.gardien.traiter(msg('interne/identifiants', [id, cadres, 'https://exemple.fr/'], null))).toEqual({
       urls: ['https://exemple.fr/connexion'],
       username: 'demo@exemple.fr',
       password: 'motdepasse-fictif',
     });
     await expect(
-      t.gardien.traiter(msg('interne/identifiants', [id, ['https://exemple.fr.attaquant.com/', 'https://paypa1.com/']], null)),
+      t.gardien.traiter(
+        msg('interne/identifiants', [id, ['https://exemple.fr.attaquant.com/', 'https://paypa1.com/'], 'https://paypa1.com/'], null),
+      ),
     ).rejects.toMatchObject({ code: 'refuse' });
+  });
+
+  it('refuse une iframe légitime posée dans une page hostile', async () => {
+    await t.gardien.traiter(msg('vault/create', ['Perso', 'pw']));
+    const id = await ajouter(t.gardien);
+    await expect(
+      t.gardien.traiter(msg('interne/identifiants', [id, ['https://exemple.fr/connexion'], 'https://piege.example/'], null)),
+    ).rejects.toMatchObject({ code: 'refuse' });
+    await expect(t.gardien.traiter(msg('interne/identifiants', [id, ['https://exemple.fr/connexion']], null))).rejects.toMatchObject({
+      code: 'refuse',
+    });
   });
 });

@@ -228,7 +228,8 @@ async function candidats(): Promise<Candidats> {
 
 /**
  * 1. Sonde tous les cadres de l'onglet (origine, champs visibles), sans rien modifier.
- * 2. Le gardien ne remet les identifiants que pour les cadres dont l'origine correspond.
+ * 2. Le gardien ne remet les identifiants que si la page principale correspond à l'entrée,
+ *    et seulement pour les cadres dont l'origine correspond.
  * 3. On remplit ces cadres-là, par identifiant de document (pas de course avec une navigation).
  */
 async function remplirOnglet(onglet: chrome.tabs.Tab, entryId: string): Promise<{ remplis: number }> {
@@ -243,8 +244,11 @@ async function remplirOnglet(onglet: chrome.tabs.Tab, entryId: string): Promise<
   );
   if (cadres.length === 0) throw new ErreurCadenas('refuse', 'Aucun champ de connexion visible sur cette page.');
 
+  // Cadre principal : sa sonde (frameId 0) donne l'URL réelle de la page, même sans champ.
+  const principal = sondes.find((r) => r.frameId === 0)?.result as RapportSonde | undefined;
+  if (!principal) throw new ErreurCadenas('refuse', 'Cadenas ne peut pas remplir cette page.');
   const ids = await valeur<Identifiants>(
-    demanderAuGardien('interne/identifiants', [entryId, cadres.map((c) => c.result?.url ?? '')]),
+    demanderAuGardien('interne/identifiants', [entryId, cadres.map((c) => c.result?.url ?? ''), principal.url]),
   );
   let remplis = 0;
   for (const cadre of cadres) {

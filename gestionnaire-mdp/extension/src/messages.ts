@@ -39,8 +39,9 @@ export type MethodeVault = (typeof METHODES_VAULT)[number];
 export const METHODES_SECRETES: readonly MethodeVault[] = ['getSecret'];
 
 /**
- * Un secret peut-il être remis à cette page ? La graine 2FA (champ `otp`,
- * l'URI otpauth://) ne sort que vers vault.html (écran d'édition). `'totp'`
+ * Un secret peut-il être remis à cette page ? Les graines 2FA (champ `otp`,
+ * l'URI otpauth://, ou `TimeOtp-*` / `HmacOtp-*` de KeePass 2) ne sortent que
+ * vers vault.html (écran d'édition). `'totp'`
  * désigne le code du moment, calculé par le gardien : le popup peut l'obtenir.
  */
 export function secretAutorise(page: PageExtension | undefined, kind: unknown): boolean {
@@ -48,7 +49,8 @@ export function secretAutorise(page: PageExtension | undefined, kind: unknown): 
   if (page !== 'popup') return false;
   if (kind === 'password' || kind === 'totp') return true;
   if (typeof kind === 'object' && kind !== null && typeof (kind as { field?: unknown }).field === 'string') {
-    return (kind as { field: string }).field.toLowerCase() !== 'otp';
+    // Graines 2FA : `otp` (KeePassXC) et `TimeOtp-*` / `HmacOtp-*` (KeePass 2).
+    return !/^(otp$|timeotp-|hmacotp-)/i.test((kind as { field: string }).field);
   }
   return false;
 }
@@ -83,7 +85,7 @@ export type TypeInterne =
   | 'interne/verrouiller' // session du système verrouillée, navigateur inactif
   | 'interne/reglages' // nouveaux réglages (args: [Settings])
   | 'interne/candidats' // entrées pour une URL (args: [pageUrl])
-  | 'interne/identifiants'; // identifiants pour remplir (args: [entryId])
+  | 'interne/identifiants'; // identifiants pour remplir (args: [entryId, urlsCadres, urlPrincipale])
 
 export interface MessageGardien {
   cible: 'gardien';

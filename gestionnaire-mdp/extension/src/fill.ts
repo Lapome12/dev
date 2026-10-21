@@ -27,9 +27,13 @@ export function sonder(): RapportSonde {
     const r = el.getBoundingClientRect();
     if (r.width < 4 || r.height < 4) return false;
     if (r.bottom <= 0 || r.right <= 0 || r.top >= innerHeight || r.left >= innerWidth) return false;
+    // Opacité cumulée : plusieurs ancêtres à 0,3 rendent le champ aussi invisible qu'un seul à 0,02.
+    let opacite = 1;
     for (let n: Element | null = el; n; n = n.parentElement) {
       const s = getComputedStyle(n);
-      if (s.visibility === 'hidden' || s.display === 'none' || Number.parseFloat(s.opacity) < 0.1) return false;
+      if (s.visibility === 'hidden' || s.display === 'none') return false;
+      opacite *= Number.parseFloat(s.opacity);
+      if (opacite < 0.1) return false;
     }
     // Recouvert par autre chose (faux bouton, bannière) : on refuse.
     const x = Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1);
@@ -57,9 +61,13 @@ export function remplir(origineAttendue: string, identifiant: string, motDePasse
     const r = el.getBoundingClientRect();
     if (r.width < 4 || r.height < 4) return false;
     if (r.bottom <= 0 || r.right <= 0 || r.top >= innerHeight || r.left >= innerWidth) return false;
+    // Opacité cumulée : plusieurs ancêtres à 0,3 rendent le champ aussi invisible qu'un seul à 0,02.
+    let opacite = 1;
     for (let n: Element | null = el; n; n = n.parentElement) {
       const s = getComputedStyle(n);
-      if (s.visibility === 'hidden' || s.display === 'none' || Number.parseFloat(s.opacity) < 0.1) return false;
+      if (s.visibility === 'hidden' || s.display === 'none') return false;
+      opacite *= Number.parseFloat(s.opacity);
+      if (opacite < 0.1) return false;
     }
     const x = Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1);
     const y = Math.min(Math.max(r.top + r.height / 2, 0), innerHeight - 1);
