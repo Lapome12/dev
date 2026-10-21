@@ -52,6 +52,14 @@ jobs:
         run: npm audit --omit=dev --audit-level=high
       - name: Build
         run: npm run build
+      - name: Paquet de l'extension (zip reproductible)
+        run: node extension/scripts/package.mjs
+      - name: Téléverser cadenas-extension.zip
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: cadenas-extension
+          path: gestionnaire-mdp/extension/cadenas-extension.zip
+          retention-days: 30
 
       - name: Chromium pour Playwright
         run: npx playwright install --with-deps chromium
