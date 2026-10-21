@@ -78,32 +78,41 @@ jobs:
   construire-pages:
     name: Construire la version web (GitHub Pages)
     needs: verifier
-    # Rien à publier tant que app/ (Dev 2) n'existe pas.
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && hashFiles('gestionnaire-mdp/app/package.json') != ''
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    outputs:
+      app: ${{ steps.app.outputs.presente }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      # Rien à publier tant que app/ (Dev 2) n'existe pas.
+      - id: app
+        run: echo "presente=$([ -f app/package.json ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+      - if: steps.app.outputs.presente == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: gestionnaire-mdp/package-lock.json
-      - run: npm ci
+      - if: steps.app.outputs.presente == 'true'
+        run: npm ci
       - name: Build de app/
+        if: steps.app.outputs.presente == 'true'
         run: npm run build -w app
       - name: CSP en <meta> dans chaque page HTML
+        if: steps.app.outputs.presente == 'true'
         run: node ../.github/scripts/pages-csp.mjs app/dist
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+      - if: steps.app.outputs.presente == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
         with:
           path: gestionnaire-mdp/app/dist
 
   publier-pages:
     name: Publier sur GitHub Pages
     needs: construire-pages
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.construire-pages.outputs.app == 'true'
     runs-on: ubuntu-24.04
     permissions:
       pages: write
