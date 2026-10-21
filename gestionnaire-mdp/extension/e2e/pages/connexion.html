@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Connexion</title></head>
+<body>
+  <form id="f" action="#">
+    <label>Adresse e-mail <input id="u" name="email" type="email" autocomplete="username"></label>
+    <label>Mot de passe <input id="p" name="password" type="password" autocomplete="current-password"></label>
+    <button>Se connecter</button>
+  </form>
+  <script>
+    // Comme un framework : la valeur n'est prise en compte qu'à l'événement input.
+    window.recu = { u: '', p: '' };
+    document.getElementById('u').addEventListener('input', (e) => (window.recu.u = e.target.value));
+    document.getElementById('p').addEventListener('input', (e) => (window.recu.p = e.target.value));
+  </script>
+</body></html>

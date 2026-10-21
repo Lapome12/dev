@@ -3,7 +3,7 @@ import { expect, test } from './outils';
 test('l’extension se charge et le popup obtient l’état du gardien', async ({ contexte, idExtension }) => {
   const page = await contexte.newPage();
   await page.goto(`chrome-extension://${idExtension}/popup.html`);
-  await expect(page.locator('#popup')).toContainText('aucun-coffre');
+  await expect(page.locator('#popup')).toContainText('Aucun coffre');
 });
 
 test('le manifest respecte les permissions et la CSP du plan (§E)', async ({ contexte, idExtension }) => {
@@ -35,7 +35,7 @@ test('une page web ne peut pas parler au gardien', async ({ contexte, idExtensio
 test('le gardien refuse un message qui ne vient pas du service worker', async ({ contexte, idExtension }) => {
   const page = await contexte.newPage();
   await page.goto(`chrome-extension://${idExtension}/popup.html`);
-  await expect(page.locator('#popup')).toContainText('aucun-coffre'); // le gardien existe
+  await expect(page.locator('#popup')).toContainText('Aucun coffre'); // le gardien existe
   const reponse = await page.evaluate(() =>
     chrome.runtime.sendMessage({ cible: 'gardien', type: 'vault/status', args: [], page: 'vault' }),
   );
