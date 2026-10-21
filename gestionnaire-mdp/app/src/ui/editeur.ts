@@ -81,7 +81,7 @@ export async function editeurEntree(o: OptionsEditeur): Promise<HTMLElement> {
 
   const enregistrer = bouton({ texte: e ? 'Enregistrer' : 'Ajouter', variante: 'principal', type: 'submit', icone: 'coche' });
   const form = h('form', { class: 'editeur formulaire', novalidate: true },
-    h('div', { class: 'detail-tete' }, h('h1', null, e ? 'Modifier l\'entrée' : 'Nouvelle entrée')),
+    h('div', { class: 'detail-tete' }, h('h2', null, e ? 'Modifier l\'entrée' : 'Nouvelle entrée')),
     titre.bloc,
     h('div', null, h('span', { class: 'etiquette' }, 'Groupe'), h('div', { class: 'champ' }, groupe)),
     ident.bloc,

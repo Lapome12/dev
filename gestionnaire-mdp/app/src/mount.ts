@@ -24,7 +24,7 @@ export function mountApp(root: HTMLElement, backend: VaultBackend, options: Opti
   const estDemo = 'estDemo' in backend && (backend as { estDemo?: unknown }).estDemo === true;
   const zone = h('div', { class: 'cadenas-app' });
   root.classList.add('cadenas-racine');
-  remplacer(root, options.bandeau ? h('div', { class: 'bandeau-demo', role: 'note' }, options.bandeau) : null, zone);
+  remplacer(root, options.bandeau ? h('aside', { class: 'bandeau-demo', 'aria-label': 'Avertissement' }, options.bandeau) : null, zone);
 
   let coffre: EcranCoffre | null = null;
   let affiche: VaultState['state'] | 'creation' | null = null;

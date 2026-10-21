@@ -34,7 +34,7 @@
   padding-left: max(var(--gouttiere), env(safe-area-inset-left, 0px)); padding-right: max(var(--gouttiere), env(safe-area-inset-right, 0px));
 }
 .marque { display: flex; align-items: center; gap: 10px; font-weight: 600; width: 222px; flex: none; min-width: 0; }
-.marque span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.marque .nom-coffre { font-size: 15px; font-weight: 600; letter-spacing: 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recherche { flex: 1; max-width: 520px; min-width: 0; }
 .barre .espace { flex: 1; }
 .barre .actions { display: flex; gap: 6px; align-items: center; }
@@ -63,7 +63,7 @@
 .detail-carte { max-width: 680px; display: grid; gap: 22px; }
 .detail-tete { display: flex; gap: 14px; align-items: center; }
 .detail-tete .titres { min-width: 0; }
-.detail-tete h1 { overflow-wrap: anywhere; }
+.detail-tete h2 { font-size: 22px; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .detail-tete .actions { margin-left: auto; display: flex; gap: 6px; }
 .meta { font-size: 13px; color: var(--texte-doux); display: flex; gap: 18px; flex-wrap: wrap; }
 .retour { display: none; }
@@ -81,11 +81,15 @@
 
 @media (max-width: 1100px) {
   .colonnes { grid-template-columns: 300px minmax(0, 1fr); }
+  .barre .actions .large-seul > span { display: none; }
+  .barre .actions .large-seul { padding: 7px; }
   .groupes { display: none; }
   .marque { width: auto; }
   .colonnes.voir-groupes .groupes { display: flex; position: fixed; inset: 0 auto 0 0; width: min(300px, 85vw); z-index: 30; background: var(--surface); box-shadow: var(--ombre); padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
 }
 @media (min-width: 1101px) { .seul-etroit { display: none !important; } }
+@media (max-width: 960px) { .barre .etat { display: none; } }
+.barre, .coffre { min-width: 0; }
 
 @media (max-width: 720px) {
   .colonnes { grid-template-columns: minmax(0, 1fr); }
@@ -96,7 +100,8 @@
   .liste { border-right: 0; }
   .detail { padding: 16px max(var(--gouttiere), env(safe-area-inset-right, 0px)) 32px max(var(--gouttiere), env(safe-area-inset-left, 0px)); }
   .retour { display: inline-flex; justify-self: start; }
-  .marque > span:last-child, .barre .etat, .barre .txt-btn { display: none; }
+  .marque .nom-coffre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .barre .etat, .barre .txt-btn { display: none; }
   .barre .actions .large-seul { display: none; }
   .detail-tete { flex-wrap: wrap; }
   .coffre { grid-template-rows: auto minmax(0, 1fr) auto; }
@@ -120,3 +125,8 @@ details.option[open] > summary { margin-bottom: 10px; }
 .fichier-cle { align-items: center; }
 .fichier-cle .espace { flex: 1; }
 .panneau .pile > .btn { white-space: normal; text-align: left; justify-content: flex-start; }
+
+/* Aide des raccourcis */
+.raccourcis { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; margin: 0; align-items: center; }
+.raccourcis dd { margin: 0; }
+.raccourcis kbd { font: 12.5px var(--mono); border: 1px solid var(--filet); border-bottom-width: 2px; border-radius: 5px; padding: 2px 7px; background: var(--fond); white-space: nowrap; }

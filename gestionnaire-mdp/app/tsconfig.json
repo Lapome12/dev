@@ -1,7 +1,17 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vite/client", "node"]
+    "types": [
+      "vite/client",
+      "node"
+    ]
   },
-  "include": ["src", "test", "vite.config.ts"]
+  "include": [
+    "src",
+    "test",
+    "e2e",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "vite.demo.config.ts"
+  ]
 }

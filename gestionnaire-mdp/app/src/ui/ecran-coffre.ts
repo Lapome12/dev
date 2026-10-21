@@ -21,6 +21,7 @@ type Vue =
   | { type: 'filtre'; titre: string; ids: Id[] };
 
 const AN = 365 * 86_400_000;
+const pile = () => window.matchMedia('(max-width: 720px)').matches;
 
 export interface EcranCoffre { el: HTMLElement; majEtat(s: EtatOuvert): void; detruire(): void }
 
@@ -53,7 +54,7 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
   const outilsListe = h('span', { class: 'groupe-btn' });
   const corpsListe = h('div', { class: 'liste-corps', role: 'listbox', 'aria-labelledby': 'titre-liste', tabindex: '0' });
   const detail = h('section', { class: 'detail', 'aria-label': 'Détail de l\'entrée' });
-  const colonnes = h('div', { class: 'colonnes' },
+  const colonnes = h('main', { class: 'colonnes' },
     navGroupes,
     h('section', { class: 'liste', 'aria-label': 'Entrées' },
       h('div', { class: 'liste-tete' }, titreListe, outilsListe,
@@ -66,7 +67,7 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
   const el = h('div', { class: 'ecran coffre' },
     h('header', { class: 'barre' },
       bouton({ icone: 'menu', variante: 'discret', libelle: 'Groupes', classe: 'seul-etroit', surClic: () => basculerGroupes() }),
-      h('div', { class: 'marque' }, logo('petit'), h('span', null, etat.name)),
+      h('div', { class: 'marque' }, logo('petit'), h('h1', { class: 'nom-coffre' }, etat.name)),
       h('label', { class: 'champ recherche' }, icone('loupe', 'doux'), champRecherche, h('kbd', { 'aria-hidden': 'true' }, '/')),
       h('span', { class: 'espace' }),
       etatEl, btnEnregistrer,
@@ -235,7 +236,10 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
     corpsListe.setAttribute('aria-activedescendant', `entree-${cssId(id)}`);
     document.getElementById(`entree-${cssId(id)}`)?.scrollIntoView({ block: 'nearest' });
     if (ouvrirDetail) colonnes.classList.add('voir-detail');
-    void dessinerDetail();
+    void dessinerDetail().then(() => {
+      // Navigation en pile (mobile) : le focus suit l'écran affiché.
+      if (ouvrirDetail && pile()) detail.querySelector<HTMLElement>('.retour')?.focus();
+    });
   }
 
   function deplacer(pas: number): void {
@@ -257,7 +261,10 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
         backend: b, groupes, entree: e,
         groupeParDefaut: vue.type === 'groupe' && !dansCorbeille(vue.id) ? vue.id
           : (e?.groupId ?? groupes.find(x => x.parentId === racine()?.id && !x.isRecycleBin)?.id ?? racine()?.id ?? ''),
-        surFin: id => { mode = 'fiche'; if (id) sel = id; void charger(); },
+        surFin: id => {
+          mode = 'fiche'; if (id) sel = id;
+          void charger().then(() => { if (!pile()) corpsListe.focus(); else detail.querySelector<HTMLElement>('.retour')?.focus(); });
+        },
       });
       if (g !== generation) return;
       remplacer(detail, h('button', { type: 'button', class: 'btn discret retour', onclick: () => { mode = 'fiche'; colonnes.classList.remove('voir-detail'); void dessinerDetail(); } }, icone('retour'), 'Retour'), form);
@@ -315,10 +322,10 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
     if (e.notes) ligne('Notes', h('span', { class: 'notes' }, e.notes));
 
     remplacer(detail, h('div', { class: 'detail-carte' },
-      h('button', { type: 'button', class: 'btn discret retour', onclick: () => colonnes.classList.remove('voir-detail') }, icone('retour'), 'Retour'),
+      h('button', { type: 'button', class: 'btn discret retour', onclick: () => { colonnes.classList.remove('voir-detail'); corpsListe.focus(); } }, icone('retour'), 'Retour'),
       h('div', { class: 'detail-tete' },
         monogramme(e.title, true),
-        h('div', { class: 'titres' }, h('h1', null, e.title || 'Sans titre'), h('div', { class: 'doux' }, groupes.find(x => x.id === e.groupId)?.parentId === null ? 'Sans groupe' : nomGroupe(e.groupId))),
+        h('div', { class: 'titres' }, h('h2', null, e.title || 'Sans titre'), h('div', { class: 'doux' }, groupes.find(x => x.id === e.groupId)?.parentId === null ? 'Sans groupe' : nomGroupe(e.groupId))),
         h('div', { class: 'actions' },
           !enCorbeille && bouton({ icone: 'crayon', texte: 'Modifier', surClic: () => { mode = 'edition'; void dessinerDetail(); } }),
           bouton({ icone: 'corbeille', variante: 'discret', libelle: enCorbeille ? 'Supprimer définitivement' : 'Mettre à la corbeille', surClic: () => { void supprimer(e); } }))),
@@ -392,6 +399,16 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
     ] });
   }
 
+  function ouvrirRaccourcis(): void {
+    const RACCOURCIS: [string, string][] = [
+      ['/  ou  Ctrl+K', 'Rechercher'], ['↑  ↓', 'Entrée précédente ou suivante'], ['Entrée', 'Ouvrir l\'entrée'],
+      ['Ctrl+C', 'Copier le mot de passe'], ['Ctrl+B', 'Copier l\'identifiant'], ['N', 'Nouvelle entrée'],
+      ['Ctrl+S', 'Enregistrer'], ['Ctrl+L', 'Verrouiller'], ['Échap', 'Fermer, revenir'], ['?', 'Cette aide'],
+    ];
+    ouvrirDialogue({ titre: 'Raccourcis clavier', contenu: h('dl', { class: 'raccourcis' },
+      RACCOURCIS.map(([t, d]) => [h('dt', null, h('kbd', null, t)), h('dd', null, d)])) });
+  }
+
   function nouvelleEntree(): void {
     mode = 'nouveau';
     colonnes.classList.remove('voir-groupes');
@@ -461,7 +478,8 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
     if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { ev.preventDefault(); deplacer(ev.key === 'ArrowDown' ? 1 : -1); return; }
     if (mod && k === 'c' && !String(window.getSelection() ?? '')) { ev.preventDefault(); void copier('password'); return; }
     if (mod && k === 'b') { ev.preventDefault(); void copier('username'); return; }
-    if (!mod && !ev.altKey && k === 'n') { ev.preventDefault(); nouvelleEntree(); }
+    if (!mod && !ev.altKey && k === 'n') { ev.preventDefault(); nouvelleEntree(); return; }
+    if (ev.key === '?') { ev.preventDefault(); ouvrirRaccourcis(); }
   };
   document.addEventListener('keydown', surTouche);
 
@@ -483,7 +501,7 @@ export function ecranCoffre(ctx: Contexte, etatInitial: EtatOuvert, o: { estDemo
   }
 
   majEtat(etat);
-  void charger().catch(e => toast(messageErreur(e)));
+  void charger().then(() => { if (!pile()) champRecherche.focus(); }).catch(e => toast(messageErreur(e)));
 
   return {
     el,
