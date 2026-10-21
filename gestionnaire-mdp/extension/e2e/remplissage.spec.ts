@@ -44,6 +44,7 @@ test('remplit une iframe de la même origine', async ({ contexte, extension, por
 test.describe('pages piégées : rien n’est rempli', () => {
   const pieges: { nom: string; entree: (port: number) => string; page: (port: number) => string }[] = [
     { nom: 'formulaire invisible', entree: (p) => `http://exemple.test:${p}`, page: (p) => `http://exemple.test:${p}/invisible.html` },
+    { nom: 'opacité cumulée des ancêtres', entree: (p) => `http://exemple.test:${p}`, page: (p) => `http://exemple.test:${p}/opacite-cumulee.html` },
     { nom: 'champ recouvert', entree: (p) => `http://exemple.test:${p}`, page: (p) => `http://exemple.test:${p}/recouvert.html` },
     { nom: 'sous-domaine', entree: (p) => `http://exemple.test:${p}`, page: (p) => `http://connexion.exemple.test:${p}/connexion.html` },
     { nom: 'http au lieu de https', entree: (p) => `https://exemple.test:${p}`, page: (p) => `http://exemple.test:${p}/connexion.html` },
@@ -66,6 +67,15 @@ test.describe('pages piégées : rien n’est rempli', () => {
     const id = await coffreAvecEntree(extension, `http://exemple.test:${port}`);
     const site = await contexte.newPage();
     await ouvrir(site, `http://exemple.test:${port}/iframe-autre.html`);
+    await site.frameLocator('#cadre').locator('#p').waitFor();
+    expect(await appeler(extension, 'fill/run', id)).toMatchObject({ ok: false, code: 'refuse' });
+    await expect(site.frameLocator('#cadre').locator('#p')).toHaveValue('');
+  });
+
+  test('vraie page de connexion dans une iframe d’une page hostile', async ({ contexte, extension, port }) => {
+    const id = await coffreAvecEntree(extension, `http://exemple.test:${port}`);
+    const site = await contexte.newPage();
+    await ouvrir(site, `http://piege.test:${port}/iframe-legitime.html`);
     await site.frameLocator('#cadre').locator('#p').waitFor();
     expect(await appeler(extension, 'fill/run', id)).toMatchObject({ ok: false, code: 'refuse' });
     await expect(site.frameLocator('#cadre').locator('#p')).toHaveValue('');

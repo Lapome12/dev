@@ -198,7 +198,7 @@ export class Gardien {
       case 'interne/candidats':
         return this.#ouvert().findForUrl(String(args[0]));
       case 'interne/identifiants':
-        return this.identifiants(String(args[0]), Array.isArray(args[1]) ? args[1].map(String) : []);
+        return this.identifiants(String(args[0]), Array.isArray(args[1]) ? args[1].map(String) : [], String(args[2] ?? ''));
       default:
         break;
     }
@@ -320,11 +320,17 @@ export class Gardien {
   /**
    * Identifiants pour remplir, et parmi les URL des cadres de l'onglet, celles où
    * l'entrée a le droit d'être remplie (règles de core : origine exacte, URL
-   * principale ou supplémentaires). Aucune URL ne correspond : rien n'est remis.
+   * principale ou supplémentaires). La page principale de l'onglet doit elle aussi
+   * correspondre : une iframe légitime posée dans une page hostile n'est jamais
+   * remplie (la page pourrait la recouvrir ou la déguiser). Sinon rien n'est remis.
    */
-  identifiants(entryId: string, urlsCadres: string[]): Identifiants {
+  identifiants(entryId: string, urlsCadres: string[], urlPrincipale: string): Identifiants {
     const coffre = this.#ouvert();
-    const autorisees = urlsCadres.filter((url) => coffre.findForUrl(url).some((e) => e.id === entryId));
+    const correspond = (url: string) => coffre.findForUrl(url).some((e) => e.id === entryId);
+    if (!urlPrincipale || !correspond(urlPrincipale)) {
+      throw new ErreurCadenas('refuse', 'Cette entrée ne correspond pas à ce site.');
+    }
+    const autorisees = urlsCadres.filter(correspond);
     if (autorisees.length === 0) throw new ErreurCadenas('refuse', 'Cette entrée ne correspond pas à ce site.');
     const entree = coffre.getEntry(entryId);
     return { urls: autorisees, username: entree.username, password: coffre.getSecret(entryId, 'password') };

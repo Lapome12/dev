@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><title>Piège : opacité cumulée</title></head>
+<body>
+  <!-- 0,3 × 0,3 = 0,09 : chaque ancêtre passe le seuil de 0,1, l'ensemble est invisible. -->
+  <div style="opacity:0.3"><div style="opacity:0.3">
+    <form>
+      <input id="u" name="email" type="email">
+      <input id="p" name="password" type="password">
+    </form>
+  </div></div>
+</body></html>

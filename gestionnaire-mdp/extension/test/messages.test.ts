@@ -6,6 +6,7 @@ import {
   estServiceWorker,
   octetsVersBase64,
   pageExpeditrice,
+  secretAutorise,
   versReponseErreur,
 } from '../src/messages';
 
@@ -63,5 +64,18 @@ describe('utilitaires', () => {
   it('encode les octets en base64 aller-retour', () => {
     const o = new Uint8Array(70_000).map((_, i) => i % 256);
     expect(base64VersOctets(octetsVersBase64(o))).toEqual(o);
+  });
+});
+
+describe('secretAutorise', () => {
+  it('ne donne aucune graine 2FA au popup', () => {
+    expect(secretAutorise('popup', 'password')).toBe(true);
+    expect(secretAutorise('popup', 'totp')).toBe(true); // code du moment, pas la graine
+    expect(secretAutorise('popup', { field: 'Code PIN' })).toBe(true);
+    for (const field of ['otp', 'OTP', 'TimeOtp-Secret-Base32', 'TimeOtp-Secret', 'HmacOtp-Secret-Hex', 'hmacotp-counter']) {
+      expect(secretAutorise('popup', { field })).toBe(false);
+      expect(secretAutorise('vault', { field })).toBe(true);
+    }
+    expect(secretAutorise(undefined, 'password')).toBe(false);
   });
 });
