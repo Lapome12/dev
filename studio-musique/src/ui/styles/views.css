@@ -270,6 +270,17 @@
 .telephone .rk-poignee, .telephone .rk-ligne .bouton-rotatif, .telephone .rk-ligne .champ-nombre { display: none; }
 .telephone .rk-nom { width: 88px; margin: 0 4px 0 2px; }
 .telephone .rk-lignes.pas-32, .telephone .rk-lignes.pas-64 { min-width: 0; }
+.rk-pages { display: none; gap: 2px; }
+.telephone .rk-pages:not([hidden]) { display: flex; }
+.rk-page { min-width: 30px; height: 28px; border: 1px solid var(--filet); border-radius: var(--r-petit); background: var(--releve-2); color: var(--texte-doux); }
+.rk-page[aria-pressed="true"] { border-color: var(--accent); color: var(--texte); background: var(--accent-pale); }
+.telephone .rk-lignes[data-page="0"] .rk-pas-btn:nth-child(n+17),
+.telephone .rk-lignes[data-page="1"] .rk-pas-btn:not(:nth-child(n+17):nth-child(-n+32)),
+.telephone .rk-lignes[data-page="2"] .rk-pas-btn:not(:nth-child(n+33):nth-child(-n+48)),
+.telephone .rk-lignes[data-page="3"] .rk-pas-btn:nth-child(-n+48) { display: none; }
+.telephone .rk-lignes .rk-pas-btn:nth-child(16n+1) { margin-left: 0; }
+.telephone .pas-64 .rk-pas { gap: 3px; }
+.telephone .pas-64 .rk-pas-btn { border-radius: 3px; min-width: 9px; }
 .telephone .rk-entete .liste-select { min-width: 0; max-width: 140px; }
 .telephone .rk-defilement { padding: 6px; }
 .telephone .barre-aide::after { content: "Piano roll, arrangement et console : sur ordinateur."; margin-left: auto; color: var(--texte-faible); }

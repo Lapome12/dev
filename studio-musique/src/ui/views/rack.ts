@@ -116,6 +116,29 @@ export function vueRack(ctx: Contexte): HTMLElement {
   const btnAjouter = boutonMenu(bouton({ texte: 'Canal', icone: 'plus', aide: 'Ajoute un canal avec l\'instrument de votre choix.' }),
     () => [{ titre: 'Instrument' }, ...INSTRUMENTS.map(i => ({ texte: `${i.nom} : ${i.description}`, action: () => { ajouterCanal(ctx, i.type); } }))], 'Ajouter un canal');
 
+  // Sur téléphone, 16 pas à la fois : une page par mesure (la tête de lecture tourne les pages).
+  const PAS_PAGE = 16;
+  let page = 0;
+  const pages = h('div', { class: 'rk-pages', role: 'group', 'aria-label': 'Mesure affichée' });
+  const surTelephone = () => !!el.closest('.telephone');
+  const montrerPage = (n: number) => {
+    const nb = nombrePas(pattern(store.get(), ui.get().patternId) ?? { lengthTicks: 384 } as Pattern);
+    page = borner(n, 0, Math.max(0, Math.ceil(nb / PAS_PAGE) - 1));
+    corps.dataset['page'] = String(page);
+    for (const [i, b] of [...pages.children].entries()) b.setAttribute('aria-pressed', String(i === page));
+  };
+  const majPages = (nb: number) => {
+    const n = Math.ceil(nb / PAS_PAGE);
+    pages.hidden = n <= 1;
+    if (pages.children.length !== n) {
+      pages.replaceChildren(...Array.from({ length: n }, (_, i) => {
+        const b = h('button', { type: 'button', class: 'rk-page', 'aria-label': `Mesure ${i + 1} (pas ${i * PAS_PAGE + 1} à ${(i + 1) * PAS_PAGE})` }, String(i + 1));
+        b.addEventListener('click', () => montrerPage(i));
+        return b;
+      }));
+    }
+    montrerPage(page);
+  };
   const entete = h('div', { class: 'rk-entete barre-vue' },
     h('div', { class: 'rk-patterns' }, pastille, choixPattern.el,
       bouton({ icone: 'plus', libelle: 'Nouveau pattern', variante: 'discret', surClic: nouveauPattern }),
@@ -123,6 +146,7 @@ export function vueRack(ctx: Contexte): HTMLElement {
       bouton({ icone: 'dupliquer', libelle: 'Dupliquer le pattern', variante: 'discret', surClic: dupliquerPattern }),
       btnSupprimerPattern),
     choixLongueur.el,
+    pages,
     h('span', { class: 'espace' }),
     btnAjouter);
 
@@ -221,6 +245,7 @@ export function vueRack(ctx: Contexte): HTMLElement {
       if (!l) continue;
       for (const [j, b] of l.pas.entries()) b.tabIndex = i === focus.ligne && j === focus.pas ? 0 : -1;
     }
+    if (donner && surTelephone() && Math.floor(focus.pas / PAS_PAGE) !== page) montrerPage(Math.floor(focus.pas / PAS_PAGE));
     if (donner) lignes.get(ordre[focus.ligne] ?? '')?.pas[focus.pas]?.focus();
   };
 
@@ -404,6 +429,7 @@ export function vueRack(ctx: Contexte): HTMLElement {
     choixPattern.definir(u.patternId);
     pastille.style.setProperty('--couleur', pt?.color ?? 'transparent');
     choixLongueur.definir(String(nb));
+    majPages(nb);
     corps.classList.toggle('pas-32', nb === 32);
     corps.classList.toggle('pas-64', nb === 64);
     btnSupprimerPattern.disabled = p.patterns.length <= 1;
@@ -433,6 +459,8 @@ export function vueRack(ctx: Contexte): HTMLElement {
     const nb = pt ? nombrePas(pt) : 16;
     const c = actif ? Math.floor(t / TICKS_PAS) % nb : -1;
     if (c === colonne) return;
+    // Tourne la page quand la tête de lecture entre dans une autre mesure.
+    if (c >= 0 && c % PAS_PAGE === 0 && surTelephone()) montrerPage(c / PAS_PAGE);
     for (const l of lignes.values()) {
       if (colonne >= 0) l.pas[colonne]?.classList.remove('tete');
       if (c >= 0) l.pas[c]?.classList.add('tete');

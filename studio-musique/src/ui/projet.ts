@@ -9,7 +9,7 @@ import { toast } from './components/toast';
 import type { Contexte } from './contexte';
 import { h } from './dom';
 import { nouvelId } from './notes';
-import { choisirFichier, nomFichier, telecharger } from './services';
+import { choisirFichier, nomFichier, telecharger, type Morceau } from './services';
 import { trancheLibre } from './views/rack';
 import { fermerPlugins } from './views/plugin-window';
 import { etatInitial } from './ui-state';
@@ -24,6 +24,13 @@ export function chargerProjet(ctx: Contexte, p: Project): void {
   ctx.store.replace(p);
   const e = etatInitial(p);
   ctx.ui.set({ patternId: e.patternId, canalId: e.canalId, mode: p.arrangement.clips.length ? 'morceau' : 'pattern' });
+}
+
+/** Charge un projet et ses sons (modèle, démo). */
+export async function chargerMorceau(ctx: Contexte, m: Morceau): Promise<void> {
+  chargerProjet(ctx, m.project);
+  const echecs = await ctx.echantillons.remplacerTout(m.samples);
+  if (echecs.length) toast(`${echecs.length} son(s) n'ont pas pu être lus.`, 'alerte');
 }
 
 export async function nouveauDepuisModele(ctx: Contexte): Promise<void> {
@@ -42,7 +49,7 @@ export async function nouveauDepuisModele(ctx: Contexte): Promise<void> {
     contenu: h('div', null, h('p', { class: 'doux' }, 'Le projet actuel sera remplacé. Enregistrez-le d\'abord si vous voulez le garder.'), liste),
     actions: [{ texte: 'Annuler', variante: 'discret' }, { texte: 'Créer', variante: 'principal', defaut: true, action: () => {
       const m = modeles.find(x => x.id === choix);
-      if (m) { chargerProjet(ctx, m.creer()); void ctx.echantillons.remplacerTout(new Map()); toast(`Nouveau projet : ${m.nom}.`, 'ok'); }
+      if (m) { void chargerMorceau(ctx, m.creer()); toast(`Nouveau projet : ${m.nom}.`, 'ok'); }
     } }],
   });
 }
@@ -146,8 +153,7 @@ export async function ecouterDemo(ctx: Contexte, demander = true): Promise<void>
   const { demo } = ctx.services;
   if (!demo) return;
   if (demander && !await confirmer('Écouter la démo ?', 'Le projet actuel sera remplacé par le morceau de démo. Enregistrez-le d\'abord si vous voulez le garder.', 'Charger la démo')) return;
-  chargerProjet(ctx, demo());
-  await ctx.echantillons.remplacerTout(new Map());
+  await chargerMorceau(ctx, demo());
   ctx.ui.set({ mode: 'morceau', vue: 'arrangement' });
   void ctx.moteur.resume();
   ctx.moteur.play({ kind: 'morceau' }, 0);

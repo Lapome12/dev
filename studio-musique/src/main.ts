@@ -6,11 +6,13 @@ import './ui/styles/base.css';
 import './ui/styles/components.css';
 import './ui/styles/views.css';
 import { createEngine, renderWav } from './engine/index';
+import { demoSong } from './project/demo-song';
 import { newProject } from './project/defaults';
 import { exportMidi, importMidi } from './project/midi-file';
 import { openFile, saveFile } from './project/serialize';
 import { autosave, autosaveSample, flushAutosave, restoreAutosave } from './project/storage';
 import { createStore } from './project/store';
+import { TEMPLATES } from './project/templates';
 import { brancherClaviers } from './ui/claviers';
 import { installerBulles } from './ui/components/bulle';
 import type { Contexte } from './ui/contexte';
@@ -37,12 +39,13 @@ store.subscribe(p => moteur.sync(p));
 const ui = creerEtatUi(etatInitial(store.get()));
 store.subscribe(p => ui.reparer(p));
 
-// Services branchés au fur et à mesure des livraisons (modèles et démo de Dev 3 à venir).
+// Services de fichiers, d'export, de modèles et de démo (Dev 1 et Dev 3), vus par l'interface.
 const services: ServicesProjet = {
   saveFile, openFile, autosave, restoreAutosave, autosaveSample, renderWav, exportMidi, importMidi,
   decodeSample: data => moteur.decodeSample(data),
   setSampleAudio: (id, audio) => moteur.setSampleAudio(id, audio),
-  modeles: [{ id: 'vide', nom: 'Vide', description: '4 canaux (grosse caisse, caisse claire, charley, Trio), 130 BPM.', creer: newProject }],
+  modeles: TEMPLATES.map(t => ({ id: t.id, nom: t.name, description: t.description, creer: t.create })),
+  demo: demoSong,
 };
 store.subscribe(p => autosave(p));
 // Écrit la dernière version tout de suite quand l'onglet se ferme ou passe en arrière-plan.

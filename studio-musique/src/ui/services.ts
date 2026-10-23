@@ -6,7 +6,9 @@ import type { Channel, Id, Pattern, Project } from '../project/types';
 import type { PlayMode } from './moteur';
 
 export interface OptionsRendu { mode: PlayMode; sampleRate: 44100 | 48000; bitDepth: 16 | 24; tailSec: number; normalize: boolean }
-export interface Modele { id: string; nom: string; description: string; creer(): Project }
+/** Un projet et les sons qu'il contient (modèles, démo). */
+export interface Morceau { project: Project; samples: Map<Id, ArrayBuffer> }
+export interface Modele { id: string; nom: string; description: string; creer(): Morceau }
 
 export interface ServicesProjet {
   saveFile?(p: Project, samples: Map<Id, ArrayBuffer>): Blob;
@@ -20,7 +22,7 @@ export interface ServicesProjet {
   decodeSample?(data: ArrayBuffer): Promise<AudioBuffer>;
   setSampleAudio?(id: Id, audio: AudioBuffer): void;
   modeles?: Modele[];
-  demo?(): Project;
+  demo?(): Morceau;
 }
 
 /** Les sons importés : octets d'origine (pour l'enregistrement) et audio décodé (pour la lecture et l'export). */
