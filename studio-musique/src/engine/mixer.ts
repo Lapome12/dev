@@ -1,6 +1,6 @@
 // Console audio : canal → tranche (effets, fader, pan, mute/solo) → maître → limiteur de sécurité.
 import type { Channel, EffectSlot, Id, MixerTrack } from '../project/types';
-import { clamp, smoothSet } from './context';
+import { clamp, compressorMakeupCompensation, smoothSet } from './context';
 import type { Effect, EffectHost, TransportInfo } from './effects/effect';
 import { StereoMeter } from './meters';
 import { resolveParams } from './params';
@@ -31,12 +31,15 @@ class SlotRuntime {
   update(slot: EffectSlot, first: boolean): void {
     const mix = slot.bypass ? 0 : clamp(slot.mix, 0, 1);
     const t = this.ctx.currentTime;
+    // Mélange : à 50 %, le son sec et l'effet passent tous deux à plein volume.
+    const wet = Math.min(1, 2 * mix);
+    const dry = Math.min(1, 2 * (1 - mix));
     if (first) {
-      this.wet.gain.value = mix;
-      this.dry.gain.value = 1 - mix;
+      this.wet.gain.value = wet;
+      this.dry.gain.value = dry;
     } else {
-      smoothSet(this.wet.gain, mix, t);
-      smoothSet(this.dry.gain, 1 - mix, t);
+      smoothSet(this.wet.gain, wet, t);
+      smoothSet(this.dry.gain, dry, t);
     }
     const key = JSON.stringify(slot.params);
     if (key !== this.paramsKey) {
@@ -249,11 +252,13 @@ export class Mixer {
     this.limiter.ratio.value = 20;
     this.limiter.attack.value = 0.001;
     this.limiter.release.value = 0.1;
+    const compensation = ctx.createGain();
+    compensation.gain.value = compressorMakeupCompensation(-1, 20);
     this.clipper = ctx.createWaveShaper();
     this.clipper.curve = safetyCurve();
     this.bypassNode = ctx.createGain();
     master.out.connect(this.post);
-    if (safety) this.post.connect(this.limiter).connect(this.clipper).connect(this.output);
+    if (safety) this.post.connect(this.limiter).connect(compensation).connect(this.clipper).connect(this.output);
     else this.post.connect(this.bypassNode).connect(this.output);
     this.output.connect(ctx.destination);
   }
