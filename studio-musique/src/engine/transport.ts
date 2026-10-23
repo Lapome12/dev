@@ -105,7 +105,7 @@ export interface TransportHooks {
   click?(time: number, accent: boolean): void;
 }
 
-interface Segment { time: number; tick: number }
+interface Segment { time: number; tick: number; bpm: number }
 
 /**
  * Ordonnanceur. La position est un repère (instant, tick) : les instants des notes sont toujours
@@ -137,7 +137,7 @@ export class Transport {
     this.anchorTime = at;
     this.anchorTick = tick;
     this.cursor = tick;
-    this.segments = [{ time: at, tick }];
+    this.segments = [{ time: at, tick, bpm: this.bpm }];
     this.playing = true;
     this.schedule();
   }
@@ -161,7 +161,7 @@ export class Transport {
       const t = this.timeOfLinear(this.cursor);
       this.anchorTime = t;
       this.anchorTick = this.cursor;
-      this.segments.push({ time: t, tick: this.cursor });
+      this.segments.push({ time: t, tick: this.cursor, bpm });
     }
     this.bpm = bpm;
   }
@@ -182,8 +182,7 @@ export class Transport {
     let seg = this.segments[0];
     if (!seg) return this.pausedTick;
     for (const s of this.segments) if (s.time <= time) seg = s;
-    // Les segments suivent le repère courant : le tempo est celui en vigueur depuis le dernier changement.
-    return seg.tick + Math.max(0, time - seg.time) / secondsPerTick(this.bpm);
+    return seg.tick + Math.max(0, time - seg.time) / secondsPerTick(seg.bpm);
   }
 
   /** Programme tout ce qui tombe avant `untilTime` (par défaut : maintenant + anticipation). */
@@ -209,7 +208,7 @@ export class Transport {
     this.anchorTime = t;
     this.anchorTick = toTick;
     this.cursor = toTick;
-    this.segments.push({ time: t, tick: toTick });
+    this.segments.push({ time: t, tick: toTick, bpm: this.bpm });
     // Garder un historique court (la position ne regarde que le passé proche).
     if (this.segments.length > 64) this.segments.splice(0, this.segments.length - 64);
   }

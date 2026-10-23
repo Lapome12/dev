@@ -42,6 +42,7 @@ export class NodeVoice implements Voice {
   private stopAt = Infinity;
   private envs: EnvTarget[] = [];
   private disposed = false;
+  private cleanups: (() => void)[] = [];
   readonly out: GainNode;
 
   constructor(
@@ -64,6 +65,11 @@ export class NodeVoice implements Voice {
 
   addNodes(...n: AudioNode[]): void {
     this.nodes.push(...n);
+  }
+
+  /** Action à la libération (ex. débrancher un LFO partagé de cette voix). */
+  onDispose(fn: () => void): void {
+    this.cleanups.push(fn);
   }
 
   /** Enveloppe ADSR sur un paramètre : attaque programmée tout de suite, relâchement à la fin de la note. */
@@ -120,6 +126,15 @@ export class NodeVoice implements Voice {
       s.disconnect();
     }
     for (const n of this.nodes) n.disconnect();
+    for (const fn of this.cleanups) fn();
     this.out.disconnect();
+  }
+}
+
+export function safeDisconnect(from: AudioNode, to: AudioParam | AudioNode): void {
+  try {
+    from.disconnect(to as AudioParam);
+  } catch {
+    // déjà débranché
   }
 }

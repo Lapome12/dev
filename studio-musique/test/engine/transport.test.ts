@@ -176,3 +176,16 @@ describe('boucle et modes', () => {
     expect(Math.abs(gaps.at(-1)! - 0.0625)).toBeLessThan(1e-9);
   });
 });
+
+describe('position après un changement de tempo', () => {
+  it('chaque segment garde son tempo', () => {
+    const p = project();
+    let now = 0;
+    const tr = new Transport({ now: () => now, project: () => p, note: () => {} });
+    tr.start({ kind: 'pattern', patternId: 'p1' }, 0, 0);
+    for (; now < 0.3; now += 0.025) tr.schedule();
+    tr.setBpm(60);
+    // Juste après le changement, la partie déjà programmée reste à 120 BPM.
+    expect(tr.position(0.3)).toBeCloseTo(0.3 / secondsPerTick(120), 6);
+  });
+});
