@@ -3,6 +3,10 @@ import type { EffectType, InstrumentType } from '../project/types';
 import type { EffectModule } from './effects/effect';
 import type { InstrumentModule } from './instruments/instrument';
 import type { PluginDef } from './params';
+import { bitcrusher } from './effects/bitcrusher';
+import { chorus } from './effects/chorus';
+import { limiteur } from './effects/limiteur';
+import { pompe } from './effects/pompe';
 import { compresseur } from './effects/compresseur';
 import { delai } from './effects/delai';
 import { distorsion } from './effects/distorsion';
@@ -17,7 +21,9 @@ import { trio } from './instruments/trio';
 
 export const INSTRUMENTS: Partial<Record<InstrumentType, InstrumentModule>> = { trio, prisme, frappe, corde, echantillon };
 
-export const EFFECTS: Partial<Record<EffectType, EffectModule>> = { eq, reverbe, delai, compresseur, distorsion, filtre };
+export const EFFECTS: Partial<Record<EffectType, EffectModule>> = {
+  eq, reverbe, delai, compresseur, distorsion, filtre, chorus, limiteur, pompe, bitcrusher,
+};
 
 export const PLUGINS: PluginDef[] = [
   ...Object.values(INSTRUMENTS).map((m) => m.def),

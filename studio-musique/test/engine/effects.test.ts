@@ -45,3 +45,33 @@ describe('effets', () => {
     expect(compressorMakeupCompensation(-40, 10)).toBeCloseTo(dbToGain(-21.6), 9);
   });
 });
+
+describe('effets de l’étape 3.1', () => {
+  it('les 10 effets sont déclarés', async () => {
+    const types = listPlugins().filter((p) => p.kind === 'effet').map((p) => p.type).sort();
+    expect(types).toEqual(['bitcrusher', 'chorus', 'compresseur', 'delai', 'distorsion', 'eq', 'filtre', 'limiteur', 'pompe', 'reverbe']);
+  });
+
+  it('limiteur : la courbe ne dépasse jamais le plafond et reste transparente en dessous', async () => {
+    const { ceilingCurve } = await import('../../src/engine/effects/limiteur');
+    const c = ceilingCurve(0.5, 1001);
+    for (const v of c) expect(Math.abs(v)).toBeLessThanOrEqual(0.5);
+    expect(c[500 + 200]).toBeCloseTo(0.4, 6);          // x = 0,4 < 0,45 : inchangé
+  });
+
+  it('bitcrusher : 2^(bits-1) paliers par demi-onde', async () => {
+    const { crushCurve } = await import('../../src/engine/effects/bitcrusher');
+    expect(new Set(crushCurve(3, 1001)).size).toBe(9);   // -4..4 quarts
+    expect(crushCurve(3, 1001)[500]).toBe(0);
+  });
+
+  it('pompe : plongée au début du cycle, remontée continue jusqu’au plein volume', async () => {
+    const { pumpShape } = await import('../../src/engine/effects/pompe');
+    const { shape, mean } = pumpShape(2);
+    expect(shape[0]).toBeCloseTo(0, 9);
+    expect(Math.min(...shape)).toBeCloseTo(-1, 2);
+    expect(shape.at(-1)).toBeGreaterThan(-0.01);
+    expect(mean).toBeLessThan(0);
+    for (let i = 1; i < shape.length; i++) expect(Math.abs((shape[i] ?? 0) - (shape[i - 1] ?? 0))).toBeLessThan(0.06);
+  });
+});
