@@ -14,8 +14,8 @@ export interface ServicesProjet {
   autosave?(p: Project): void;
   restoreAutosave?(): Promise<{ project: Project; samples: Map<Id, ArrayBuffer> } | null>;
   autosaveSample?(id: Id, data: ArrayBuffer): Promise<void>;
-  exportMidi?(p: Project): Uint8Array;
-  importMidi?(data: ArrayBuffer): { channels: Channel[]; pattern: Pattern };
+  exportMidi?(p: Project, o?: { patternId?: Id }): Uint8Array;
+  importMidi?(data: ArrayBuffer): { channels: Channel[]; pattern: Pattern; bpm?: number | null };
   renderWav?(p: Project, samples: Map<Id, AudioBuffer>, o: OptionsRendu, onProgress?: (ratio: number) => void): Promise<Blob>;
   decodeSample?(data: ArrayBuffer): Promise<AudioBuffer>;
   setSampleAudio?(id: Id, audio: AudioBuffer): void;

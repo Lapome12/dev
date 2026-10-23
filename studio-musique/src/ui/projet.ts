@@ -79,7 +79,9 @@ export function exporterMidi(ctx: Contexte): void {
   const { exportMidi } = ctx.services;
   if (!exportMidi) return;
   const p = ctx.store.get();
-  const octets = exportMidi(structuredClone(p) as Project);
+  // En mode pattern, on exporte le pattern écouté ; en mode morceau, tout l'arrangement.
+  const u = ctx.ui.get();
+  const octets = exportMidi(structuredClone(p) as Project, u.mode === 'pattern' ? { patternId: u.patternId } : {});
   telecharger(new Blob([octets.slice().buffer as ArrayBuffer], { type: 'audio/midi' }), nomFichier(p.name, 'mid'));
   toast('Fichier MIDI exporté.', 'ok');
 }
@@ -90,8 +92,12 @@ export async function importerMidi(ctx: Contexte): Promise<void> {
   const f = await choisirFichier('.mid,.midi,audio/midi');
   if (!f) return;
   try {
-    const { channels, pattern } = importMidi(await f.arrayBuffer());
+    const { channels, pattern, bpm } = importMidi(await f.arrayBuffer());
+    // Le tempo du fichier n'est repris que dans un projet encore sans notes.
+    const vierge = ctx.store.get().patterns.every(pt => Object.values(pt.notes).every(n => !n.length));
+    const tempo = bpm && vierge ? Math.min(300, Math.max(40, Math.round(bpm * 100) / 100)) : null;
     ctx.store.update('Importer un fichier MIDI', d => {
+      if (tempo) d.bpm = tempo;
       for (const c of channels) {
         c.color = colorAt(d.channels.length);
         c.mixerTrack = trancheLibre(d);
@@ -101,7 +107,7 @@ export async function importerMidi(ctx: Contexte): Promise<void> {
       d.patterns.push(pattern);
     });
     ctx.ui.set({ patternId: pattern.id, canalId: channels[0]?.id ?? ctx.ui.get().canalId });
-    toast(`MIDI importé : ${channels.length} canal(aux) dans « ${pattern.name} ».`, 'ok');
+    toast(`MIDI importé : ${channels.length} canal(aux) dans « ${pattern.name} »${tempo ? `, tempo ${String(tempo).replace('.', ',')} BPM` : ''}.`, 'ok');
   } catch (e) {
     toast(`Impossible d'importer ce fichier MIDI : ${message(e)}`, 'alerte', 6000);
   }

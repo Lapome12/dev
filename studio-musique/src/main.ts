@@ -7,6 +7,7 @@ import './ui/styles/components.css';
 import './ui/styles/views.css';
 import { createEngine, renderWav } from './engine/index';
 import { newProject } from './project/defaults';
+import { exportMidi, importMidi } from './project/midi-file';
 import { openFile, saveFile } from './project/serialize';
 import { autosave, autosaveSample, flushAutosave, restoreAutosave } from './project/storage';
 import { createStore } from './project/store';
@@ -36,9 +37,9 @@ store.subscribe(p => moteur.sync(p));
 const ui = creerEtatUi(etatInitial(store.get()));
 store.subscribe(p => ui.reparer(p));
 
-// Services branchés au fur et à mesure des livraisons (MIDI, modèles et démo de Dev 3 à venir).
+// Services branchés au fur et à mesure des livraisons (modèles et démo de Dev 3 à venir).
 const services: ServicesProjet = {
-  saveFile, openFile, autosave, restoreAutosave, autosaveSample, renderWav,
+  saveFile, openFile, autosave, restoreAutosave, autosaveSample, renderWav, exportMidi, importMidi,
   decodeSample: data => moteur.decodeSample(data),
   setSampleAudio: (id, audio) => moteur.setSampleAudio(id, audio),
   modeles: [{ id: 'vide', nom: 'Vide', description: '4 canaux (grosse caisse, caisse claire, charley, Trio), 130 BPM.', creer: newProject }],
