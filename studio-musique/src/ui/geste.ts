@@ -4,6 +4,5 @@
 import type { Store } from '../project/store';
 
 export function finGeste(store: Store): void {
-  const s = store as Store & { endMerge?: () => void };
-  if (typeof s.endMerge === 'function') s.endMerge();
+  store.endMerge();
 }
