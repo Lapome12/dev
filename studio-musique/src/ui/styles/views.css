@@ -85,3 +85,27 @@
 .rk-pas-btn.tete:not([aria-pressed="true"]) { background: var(--lecture-pale); }
 .rk-indicateur { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; }
 .rk-vide { padding: 32px; text-align: center; }
+
+/* ---------- Piano roll ---------- */
+.groupe-outils { display: inline-flex; gap: 2px; padding: 2px; background: var(--fond); border-radius: var(--r); }
+.pr-grille {
+  flex: 1; min-height: 0; display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: 22px minmax(0, 1fr) 84px;
+}
+.pr-grille[hidden] { display: none; }
+.pr-coin { background: var(--panneau); border-right: 1px solid var(--filet); }
+.pr-legende-vel { display: flex; align-items: flex-start; padding: 6px; font-size: 10px; color: var(--texte-doux); border-top: 1px solid var(--filet); }
+.pr-zone-regle, .pr-zone-clavier, .pr-zone-notes, .pr-zone-vel { position: relative; overflow: hidden; min-width: 0; min-height: 0; touch-action: none; }
+.pr-zone-regle { cursor: pointer; }
+.pr-zone-clavier { border-right: 1px solid var(--filet); cursor: pointer; }
+.pr-zone-notes canvas, .pr-zone-vel canvas, .pr-zone-regle canvas, .pr-zone-clavier canvas { position: absolute; left: 0; top: 0; display: block; }
+.pr-zone-notes { cursor: crosshair; }
+.pr-zone-notes:focus-visible { outline-offset: -2px; }
+.pr-zone-notes[data-curseur="deplacer"] { cursor: move; }
+.pr-zone-notes[data-curseur="etirer"] { cursor: ew-resize; }
+.pr-zone-notes[data-curseur="gomme"] { cursor: not-allowed; }
+.pr-zone-notes[data-curseur="decoupe"] { cursor: col-resize; }
+.pr-zone-notes[data-curseur="selection"] { cursor: default; }
+.pr-zone-vel { cursor: ns-resize; }
+.pr-vide { margin: auto; }

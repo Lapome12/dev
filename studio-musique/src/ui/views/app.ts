@@ -6,6 +6,7 @@ import type { Contexte } from '../contexte';
 import { h } from '../dom';
 import type { Vue } from '../ui-state';
 import { barreAide } from './help-bar';
+import { vuePianoRoll } from './piano-roll';
 import { vueRack } from './rack';
 import { barreTransport, VUES } from './transport';
 
@@ -25,7 +26,7 @@ function bientot(v: Vue): HTMLElement {
 export function monterApplication(racine: HTMLElement, ctx: Contexte, o: OptionsApplication): void {
   const fabriques: Record<Vue, (c: Contexte) => HTMLElement> = {
     rack: vueRack,
-    piano: o.vues?.piano ?? (() => bientot('piano')),
+    piano: o.vues?.piano ?? vuePianoRoll,
     arrangement: o.vues?.arrangement ?? (() => bientot('arrangement')),
     console: o.vues?.console ?? (() => bientot('console')),
   };

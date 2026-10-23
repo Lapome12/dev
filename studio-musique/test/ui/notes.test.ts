@@ -57,3 +57,30 @@ describe('position', () => {
     expect(formaterPosition(384 + 96 + 24).trim()).toBe('2:2:2');
   });
 });
+
+describe('piano roll', () => {
+  it('noms de notes et touches noires', async () => {
+    const { nomNote, estNoire } = await import('../../src/ui/notes');
+    expect(nomNote(60)).toBe('C4');
+    expect(nomNote(69)).toBe('A4');
+    expect(nomNote(61)).toBe('C#4');
+    expect(estNoire(61)).toBe(true);
+    expect(estNoire(64)).toBe(false);
+  });
+
+  it('aimant, quantification, découpe', async () => {
+    const { aimanter, quantifier, decouper, longueurCouvrante, etendue } = await import('../../src/ui/notes');
+    expect(aimanter(37, 24)).toBe(48);
+    expect(aimanter(37, 24, 'bas')).toBe(24);
+    expect(aimanter(37.4, 1)).toBe(37);
+    const notes = [{ id: 'a', tick: 50, length: 5, pitch: 60, velocity: 1 }, { id: 'b', tick: 13, length: 30, pitch: 62, velocity: 1 }];
+    quantifier(notes, 24, new Set(['a']));
+    expect(notes.map(n => [n.id, n.tick, n.length])).toEqual([['b', 13, 30], ['a', 48, 24]]);
+    const seconde = decouper(notes, 'a', 60);
+    expect(seconde).toMatchObject({ tick: 60, length: 12 });
+    expect(notes.find(n => n.id === 'a')?.length).toBe(12);
+    expect(decouper(notes, 'a', 48)).toBeNull();
+    expect(longueurCouvrante(384, [{ id: 'x', tick: 380, length: 10, pitch: 1, velocity: 1 }])).toBe(768);
+    expect(etendue(notes, 24)).toEqual({ debut: 0, fin: 72 });
+  });
+});
