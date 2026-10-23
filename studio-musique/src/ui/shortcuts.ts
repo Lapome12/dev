@@ -24,6 +24,7 @@ export function enSaisie(e: KeyboardEvent): boolean {
 
 export interface ActionsRaccourcis {
   enregistrer(): void;
+  ouvrir(): void;
   exporter(): void;
   aide(): void;
 }
@@ -39,6 +40,7 @@ export function installerRaccourcis(ctx: Contexte, a: ActionsRaccourcis): () => 
     else if (ctrl && touche === 'z' && !e.shiftKey) ctx.store.undo();
     else if (ctrl && ((touche === 'z' && e.shiftKey) || touche === 'y')) ctx.store.redo();
     else if (ctrl && touche === 's') a.enregistrer();
+    else if (ctrl && touche === 'o') a.ouvrir();
     else if (ctrl && touche === 'e') a.exporter();
     else if (e.altKey && !ctrl && /^Digit[1-4]$/.test(e.code)) {
       const v = VUES[Number(e.code.slice(5)) - 1];

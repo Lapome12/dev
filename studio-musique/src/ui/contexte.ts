@@ -4,6 +4,7 @@
 import type { Store } from '../project/store';
 import type { Id } from '../project/types';
 import type { MoteurUi } from './moteur';
+import type { Echantillons, ServicesProjet } from './services';
 import type { MagasinUi } from './ui-state';
 
 export interface ActionsUi {
@@ -18,4 +19,6 @@ export interface Contexte {
   moteur: MoteurUi;
   ui: MagasinUi;
   actions: ActionsUi;
+  services: ServicesProjet;
+  echantillons: Echantillons;
 }

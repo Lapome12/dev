@@ -17,6 +17,7 @@ import type { Contexte } from '../contexte';
 import { borner, h } from '../dom';
 import { finGeste } from '../geste';
 import { suivrePattern } from '../lecture';
+import { ajouterEffetPreset, changerInstrument, glisseEnCours, lireGlisse } from '../presets-glisses';
 import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, nouvelId, TICKS_PAS } from '../notes';
 
 export const INSTRUMENTS: { type: InstrumentType; nom: string; description: string }[] = [
@@ -129,6 +130,13 @@ export function vueRack(ctx: Contexte): HTMLElement {
   const indicateur = h('div', { class: 'rk-indicateur', hidden: true, 'aria-hidden': 'true' });
   const vide = h('p', { class: 'rk-vide doux', hidden: true }, 'Aucun canal. Ajoutez-en un avec le bouton « Canal ».');
   const defilement = h('div', { class: 'rk-defilement' }, corps, indicateur, vide);
+  defilement.addEventListener('dragover', e => { if (glisseEnCours(e)) e.preventDefault(); });
+  defilement.addEventListener('drop', e => {
+    const g = lireGlisse(e);
+    if (g?.kind !== 'instrument') return;
+    e.preventDefault();
+    ajouterCanal(ctx, g.type as InstrumentType, g.presetId);
+  });
   const el = h('section', { class: 'vue vue-rack', id: 'vue-rack', role: 'tabpanel', 'aria-labelledby': 'onglet-rack' }, entete, defilement);
 
   // ---------- Peinture des pas et vélocité ----------
@@ -326,6 +334,18 @@ export function vueRack(ctx: Contexte): HTMLElement {
     const el = h('div', { class: 'rk-ligne', 'data-canal': id }, poignee, mute.el, solo.el, pan.el, volume.el, tranche.el, nom, zonePas);
     let nbCourant = 0;
     let nomCourant = '';
+    // Déposer un preset du navigateur : instrument = remplace celui du canal, effet = va sur sa tranche.
+    el.addEventListener('dragover', e => { if (glisseEnCours(e)) { e.preventDefault(); e.stopPropagation(); el.classList.add('cible'); } });
+    el.addEventListener('dragleave', () => el.classList.remove('cible'));
+    el.addEventListener('drop', e => {
+      el.classList.remove('cible');
+      const g = lireGlisse(e);
+      if (!g) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (g.kind === 'instrument') { changerInstrument(ctx, id, g); ui.set({ canalId: id }); }
+      else ajouterEffetPreset(ctx, store.get().channels.find(c => c.id === id)?.mixerTrack ?? 0, g);
+    });
 
     return {
       el, pas,

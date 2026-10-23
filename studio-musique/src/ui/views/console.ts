@@ -16,9 +16,11 @@ import { formaterPan, formaterVolume, volumeDepuisNorme, volumeVersNorme } from 
 import type { Contexte } from '../contexte';
 import { borner, h, jeton, preparerCanvas } from '../dom';
 import { finGeste } from '../geste';
+import { ajouterEffetPreset, glisseEnCours, lireGlisse } from '../presets-glisses';
 import { definition } from './plugin-window';
 
-export const EMPLACEMENTS = 8;
+export { MAX_EFFECTS as EMPLACEMENTS } from '../../project/defaults';
+import { MAX_EFFECTS as EMPLACEMENTS } from '../../project/defaults';
 
 /** Effets proposés : ceux que le moteur sait jouer. */
 export const effetsDisponibles = () => listPlugins().filter(p => p.kind === 'effet');
@@ -104,6 +106,16 @@ export function vueConsole(ctx: Contexte): HTMLElement {
       h('div', { class: 'cs-pan' }, pan.el, h('div', { class: 'cs-ms' }, mute.el, solo.el)),
       h('div', { class: 'cs-niveaux' }, metre.el, fd.el),
       valeurVol);
+
+    el.addEventListener('dragover', e => { if (glisseEnCours(e)) { e.preventDefault(); el.classList.add('cible'); } });
+    el.addEventListener('dragleave', e => { if (!el.contains(e.relatedTarget as Node)) el.classList.remove('cible'); });
+    el.addEventListener('drop', e => {
+      el.classList.remove('cible');
+      const g = lireGlisse(e);
+      if (g?.kind !== 'effet') return;
+      e.preventDefault();
+      ajouterEffetPreset(ctx, i, g);
+    });
 
     const majSlots = (t: MixerTrack) => {
       slots.replaceChildren();

@@ -9,12 +9,18 @@ import { createEngine } from './engine/index';
 import { newProject } from './project/defaults';
 import { createStore } from './project/store';
 import { installerBulles } from './ui/components/bulle';
-import { toast } from './ui/components/toast';
 import type { Contexte } from './ui/contexte';
+import { enregistrer, menuProjet, ouvrir } from './ui/projet';
+import { Echantillons, type ServicesProjet } from './ui/services';
 import { installerRaccourcis } from './ui/shortcuts';
 import { creerEtatUi, etatInitial } from './ui/ui-state';
+import { afficherAccueil } from './ui/views/accueil';
 import { monterApplication } from './ui/views/app';
+import { navigateur } from './ui/views/browser';
+import { ouvrirExport } from './ui/views/export-dialog';
 import { ouvrirPlugin } from './ui/views/plugin-window';
+import { ouvrirRaccourcis } from './ui/views/raccourcis';
+import { aPropos } from './ui/views/a-propos';
 
 const racine = document.getElementById('app');
 if (!racine) throw new Error('#app introuvable');
@@ -27,8 +33,17 @@ store.subscribe(p => moteur.sync(p));
 const ui = creerEtatUi(etatInitial(store.get()));
 store.subscribe(p => ui.reparer(p));
 
+// Services branchés au fur et à mesure des livraisons (fichiers et MIDI : Dev 3 ; rendu WAV : Dev 1).
+const services: ServicesProjet = {
+  decodeSample: data => moteur.decodeSample(data),
+  setSampleAudio: (id, audio) => moteur.setSampleAudio(id, audio),
+  modeles: [{ id: 'vide', nom: 'Vide', description: '4 canaux (grosse caisse, caisse claire, charley, Trio), 130 BPM.', creer: newProject }],
+};
+if (services.autosave) { const sauver = services.autosave; store.subscribe(p => sauver(p)); }
+
 const ctx: Contexte = {
-  store, moteur, ui,
+  store, moteur, ui, services,
+  echantillons: new Echantillons(services),
   actions: {
     ouvrirInstrument: canalId => ouvrirPlugin(ctx, { kind: 'instrument', canalId }),
     ouvrirEffet: (piste, slotId) => ouvrirPlugin(ctx, { kind: 'effet', piste, slotId }),
@@ -42,13 +57,13 @@ document.addEventListener('keydown', reveil, { once: true, capture: true });
 
 installerBulles();
 installerRaccourcis(ctx, {
-  enregistrer: () => toast('Enregistrer : bientôt (étape 3.5).'),
-  exporter: () => toast('Export WAV : bientôt (étape 3.5).'),
-  aide: () => toast('Raccourcis : bientôt (étape 3.5).'),
+  enregistrer: () => enregistrer(ctx),
+  ouvrir: () => void ouvrir(ctx),
+  exporter: () => ouvrirExport(ctx),
+  aide: ouvrirRaccourcis,
 });
 monterApplication(racine, ctx, {
-  menuProjet: () => [
-    { texte: 'Annuler', raccourci: 'Ctrl+Z', desactive: !store.canUndo(), action: () => store.undo() },
-    { texte: 'Rétablir', raccourci: 'Ctrl+Maj+Z', desactive: !store.canRedo(), action: () => store.redo() },
-  ],
+  menuProjet: () => menuProjet(ctx, { exporterWav: () => ouvrirExport(ctx), raccourcis: ouvrirRaccourcis, aPropos }),
+  navigateur,
 });
+void afficherAccueil(ctx);
