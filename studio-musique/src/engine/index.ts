@@ -1,5 +1,5 @@
 // Moteur audio de Fréquence (contrat §D.3 du plan). Il lit le projet (sync) et ne le modifie jamais.
-import type { Id, InstrumentType, Project } from '../project/types';
+import type { Id, InstrumentType, ParamValue, Project } from '../project/types';
 import { createAudioContext } from './context';
 import type { EffectHost } from './effects/effect';
 import type { Instrument, InstrumentHost } from './instruments/instrument';
@@ -7,7 +7,7 @@ import { ChannelStrip, Mixer, TRACK_COUNT } from './mixer';
 import { resolveParams } from './params';
 import { INSTRUMENTS } from './registry';
 import { audibleChannels, TIMER_MS, Transport, type NoteEvent, type PlayMode } from './transport';
-import { STOP_FADE_SEC, VoicePool, type Voice } from './voices';
+import { STEAL_FADE_SEC, STOP_FADE_SEC, VoicePool, type Voice } from './voices';
 
 export type { PlayMode } from './transport';
 
@@ -30,11 +30,17 @@ export interface Engine {
   spectrum(track: number, out: Float32Array): void;
   frequencyResponse(track: number, slotId: Id, freqs: Float32Array, magDb: Float32Array): void;
   gainReduction(track: number, slotId: Id): number;
+  /** Écoute d'un preset (survol du navigateur) : voix temporaire branchée au maître, 4 au plus. */
+  preview(type: InstrumentType, params: Record<string, ParamValue>, pitch: number, velocity: number, durationSec: number): void;
   dispose(): void;
 }
 
 /** Délai entre l'appel à play() et le premier son : laisse le temps de programmer sans retard. */
 const START_DELAY_SEC = 0.03;
+/** Écoutes de presets simultanées au plus. */
+export const MAX_PREVIEWS = 4;
+
+interface Preview { instrument: Instrument; voice: Voice; timer: ReturnType<typeof setTimeout> | null }
 
 interface ChannelRuntime {
   type: InstrumentType;
@@ -47,7 +53,7 @@ interface ChannelRuntime {
 }
 
 /** Options internes (rendu hors ligne). */
-export interface EngineOptions { safetyLimiter?: boolean; realtime?: boolean }
+export interface EngineOptions { safetyLimiter?: boolean; realtime?: boolean; startDelay?: number }
 
 export class AudioEngine implements Engine {
   readonly context: BaseAudioContext;
@@ -60,11 +66,14 @@ export class AudioEngine implements Engine {
   private positionCbs = new Set<(tick: number) => void>();
   private raf: number | null = null;
   private realtime: boolean;
+  private startDelay: number;
+  private previews: Preview[] = [];
 
   constructor(context?: BaseAudioContext, opts: EngineOptions = {}) {
     this.context = context ?? createAudioContext();
     this.realtime = opts.realtime ?? !(typeof OfflineAudioContext !== 'undefined' && this.context instanceof OfflineAudioContext);
     const host: EffectHost = { ctx: this.context, bpm: () => this.project?.bpm ?? 120 };
+    this.startDelay = opts.startDelay ?? START_DELAY_SEC;
     this.mixer = new Mixer(this.context, host, opts.safetyLimiter ?? true);
     this.transport = new Transport({
       now: () => this.context.currentTime,
@@ -220,7 +229,7 @@ export class AudioEngine implements Engine {
     const now = this.context.currentTime;
     const from = fromTick ?? this.transport.position(now);
     if (this.transport.playing) this.silence(now);
-    this.transport.start(mode, from, now + START_DELAY_SEC);
+    this.transport.start(mode, from, now + this.startDelay);
     this.mixer.setTempo(project.bpm);
     this.notifyTransport();
     if (this.realtime) this.startTimers();
@@ -329,6 +338,37 @@ export class AudioEngine implements Engine {
     return () => this.positionCbs.delete(cb);
   }
 
+  // ---------- Écoute des presets ----------
+
+  preview(type: InstrumentType, params: Record<string, ParamValue>, pitch: number, velocity: number, durationSec: number): void {
+    const mod = INSTRUMENTS[type];
+    if (!mod) return;
+    const now = this.context.currentTime;
+    while (this.previews.length >= MAX_PREVIEWS) {
+      const old = this.previews.shift();
+      if (old) this.endPreview(old, now, true);
+    }
+    const instrument = mod.create({ ctx: this.context, sample: (id) => this.samples.get(id) });
+    instrument.setParams(resolveParams(mod.def, params));
+    instrument.output.connect(this.mixer.track(0).input);
+    const voice = instrument.noteOn({ pitch, velocity: Math.min(1, Math.max(0, velocity)), time: now, transpose: this.project?.masterPitch ?? 0 });
+    voice.release(now + Math.max(0.01, Math.min(10, durationSec)));
+    const entry: Preview = { instrument, voice, timer: null };
+    this.previews.push(entry);
+    const ms = Math.min(15, Math.max(0, voice.end - now)) * 1000 + 100;
+    entry.timer = setTimeout(() => this.endPreview(entry, this.context.currentTime, false), ms);
+  }
+
+  private endPreview(p: Preview, now: number, cut: boolean): void {
+    if (p.timer) clearTimeout(p.timer);
+    this.previews = this.previews.filter((x) => x !== p);
+    if (cut) p.voice.kill(now, STEAL_FADE_SEC);
+    setTimeout(() => {
+      p.voice.dispose();
+      p.instrument.dispose();
+    }, cut ? 30 : 0);
+  }
+
   // ---------- Mesures ----------
 
   levels(): { track: number; left: number; right: number; peakHold: number }[] {
@@ -353,6 +393,7 @@ export class AudioEngine implements Engine {
 
   dispose(): void {
     this.stopTimers();
+    for (const p of this.previews.slice()) this.endPreview(p, this.context.currentTime, true);
     for (const [id, rt] of this.channels) {
       this.channels.delete(id);
       rt.pool.disposeAll();
@@ -363,6 +404,8 @@ export class AudioEngine implements Engine {
     this.positionCbs.clear();
   }
 }
+
+export { renderWav, type RenderOptions } from './render';
 
 export function createEngine(context?: BaseAudioContext): Engine {
   return new AudioEngine(context);
