@@ -13,6 +13,7 @@ export interface ServicesProjet {
   openFile?(b: Blob): Promise<{ project: Project; samples: Map<Id, ArrayBuffer> }>;
   autosave?(p: Project): void;
   restoreAutosave?(): Promise<{ project: Project; samples: Map<Id, ArrayBuffer> } | null>;
+  autosaveSample?(id: Id, data: ArrayBuffer): Promise<void>;
   exportMidi?(p: Project): Uint8Array;
   importMidi?(data: ArrayBuffer): { channels: Channel[]; pattern: Pattern };
   renderWav?(p: Project, samples: Map<Id, AudioBuffer>, o: OptionsRendu, onProgress?: (ratio: number) => void): Promise<Blob>;
@@ -36,6 +37,7 @@ export class Echantillons {
     this.octets.set(id, copie);
     this.audio.set(id, audio);
     this.services.setSampleAudio?.(id, audio);
+    void this.services.autosaveSample?.(id, copie);
     return audio;
   }
 

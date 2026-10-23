@@ -7,6 +7,8 @@ import './ui/styles/components.css';
 import './ui/styles/views.css';
 import { createEngine } from './engine/index';
 import { newProject } from './project/defaults';
+import { openFile, saveFile } from './project/serialize';
+import { autosave, autosaveSample, flushAutosave, restoreAutosave } from './project/storage';
 import { createStore } from './project/store';
 import { installerBulles } from './ui/components/bulle';
 import type { Contexte } from './ui/contexte';
@@ -33,13 +35,17 @@ store.subscribe(p => moteur.sync(p));
 const ui = creerEtatUi(etatInitial(store.get()));
 store.subscribe(p => ui.reparer(p));
 
-// Services branchés au fur et à mesure des livraisons (fichiers et MIDI : Dev 3 ; rendu WAV : Dev 1).
+// Services branchés au fur et à mesure des livraisons (MIDI, modèles, démo : Dev 3 ; rendu WAV : Dev 1).
 const services: ServicesProjet = {
+  saveFile, openFile, autosave, restoreAutosave, autosaveSample,
   decodeSample: data => moteur.decodeSample(data),
   setSampleAudio: (id, audio) => moteur.setSampleAudio(id, audio),
   modeles: [{ id: 'vide', nom: 'Vide', description: '4 canaux (grosse caisse, caisse claire, charley, Trio), 130 BPM.', creer: newProject }],
 };
-if (services.autosave) { const sauver = services.autosave; store.subscribe(p => sauver(p)); }
+store.subscribe(p => autosave(p));
+// Écrit la dernière version tout de suite quand l'onglet se ferme ou passe en arrière-plan.
+addEventListener('pagehide', () => { void flushAutosave(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') void flushAutosave(); });
 
 const ctx: Contexte = {
   store, moteur, ui, services,
