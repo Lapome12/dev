@@ -46,7 +46,9 @@
 .rk-patterns { display: flex; align-items: center; gap: 4px; }
 .rk-patterns .liste-select { min-width: 160px; }
 .rk-defilement { position: relative; flex: 1; overflow: auto; padding: 8px 10px 24px; }
-.rk-lignes { display: flex; flex-direction: column; gap: 4px; width: max-content; min-width: 100%; }
+.rk-lignes { display: flex; flex-direction: column; gap: 4px; min-width: 100%; }
+.rk-lignes.pas-32 { min-width: 760px; }
+.rk-lignes.pas-64 { min-width: 960px; }
 .rk-ligne {
   --couleur: var(--accent);
   display: flex; align-items: center; gap: 4px; height: 34px; padding: 0 6px 0 2px;
@@ -69,14 +71,16 @@
 .rk-nom:hover { border-color: var(--filet-fort); }
 .rk-nom[aria-current="true"] { border-color: var(--couleur); box-shadow: 0 0 0 1px var(--couleur) inset; }
 .rk-nom-texte { overflow: hidden; text-overflow: ellipsis; }
-.rk-pas { display: flex; gap: 3px; }
+.rk-pas { flex: 1; min-width: 0; display: flex; gap: 3px; }
 .rk-pas-btn {
   --vel: 0;
-  position: relative; width: 22px; height: 26px; padding: 0; overflow: hidden;
+  position: relative; flex: 1 1 0; min-width: 9px; max-width: 26px; height: 26px; padding: 0; overflow: hidden;
   border: 1px solid #353b4a; border-radius: 3px; background: #2b303d; touch-action: none;
 }
 .rk-pas-btn.alt { background: #22262f; }
-.rk-pas-btn:nth-child(4n+1) { margin-left: 3px; }
+.rk-pas-btn:nth-child(4n+1) { margin-left: 4px; }
+.pas-64 .rk-pas { gap: 2px; }
+.pas-64 .rk-pas-btn { border-radius: 2px; min-width: 7px; }
 .rk-pas-btn:first-child { margin-left: 0; }
 .rk-pas-btn:hover { border-color: var(--texte-faible); }
 .rk-pas-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--couleur) 30%, #1d2028); border-color: var(--couleur); }
@@ -249,3 +253,24 @@
 .ac-choix.principal { background: var(--accent); border-color: var(--accent); color: var(--sur-accent); }
 .ac-choix.principal span { color: var(--sur-accent); opacity: .8; }
 .ac-choix.principal strong { font-size: 15px; }
+
+/* ---------- Écrans moyens et téléphone (§A.6) ---------- */
+@media (max-width: 1279px) {
+  .transport { gap: 8px; }
+  .tr-nom, .tr-legende { display: none; }
+  .onglet { padding: 0 9px; }
+}
+@media (max-width: 1099px) {
+  .transport .tr-groupe > .btn.discret[aria-label="Pause"] { display: none; }
+  .segmente .seg { padding: 0 7px; }
+}
+.telephone { grid-template-rows: auto 1fr var(--hauteur-aide); }
+.telephone .transport { flex-wrap: wrap; height: auto; padding: 6px 8px; row-gap: 6px; overflow: visible; }
+.telephone .onglets, .telephone .tr-fin, .telephone .navigateur, .telephone .montrer-nav, .telephone .vu-metre { display: none; }
+.telephone .rk-poignee, .telephone .rk-ligne .bouton-rotatif, .telephone .rk-ligne .champ-nombre { display: none; }
+.telephone .rk-nom { width: 88px; margin: 0 4px 0 2px; }
+.telephone .rk-lignes.pas-32, .telephone .rk-lignes.pas-64 { min-width: 0; }
+.telephone .rk-entete .liste-select { min-width: 0; max-width: 140px; }
+.telephone .rk-defilement { padding: 6px; }
+.telephone .barre-aide::after { content: "Piano roll, arrangement et console : sur ordinateur."; margin-left: auto; color: var(--texte-faible); }
+.telephone .barre-aide .ba-texte { display: none; }

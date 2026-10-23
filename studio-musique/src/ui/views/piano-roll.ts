@@ -61,6 +61,8 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
   let tete = -1;
   let sale = true;
   let cle = '';                 // canal et pattern affichés, pour vider la sélection quand ils changent
+  // Curseur clavier : sans sélection, les flèches le déplacent et Entrée pose une note (saisie pas à pas).
+  const curseur = { tick: 0, pitch: 60, visible: false };
   interface Clipboard { notes: Note[]; debut: number }
 
   // ---------- Barre d'outils ----------
@@ -110,7 +112,7 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
   const cClavier = h('canvas', { class: 'pr-clavier', 'aria-hidden': 'true' });
   const cNotes = h('canvas', { class: 'pr-notes', role: 'img', 'aria-label': 'Grille de notes' });
   const cVel = h('canvas', { class: 'pr-vel', 'aria-hidden': 'true' });
-  const zoneNotes = h('div', { class: 'pr-zone-notes', tabindex: 0, 'aria-label': 'Grille de notes : Suppr efface la sélection, flèches haut et bas transposent, Ctrl+A sélectionne tout.' }, cNotes);
+  const zoneNotes = h('div', { class: 'pr-zone-notes', tabindex: 0, 'aria-label': 'Grille de notes. Flèches : déplacer le curseur ; Entrée : poser une note ; Suppr : effacer. Avec une sélection, les flèches la transposent ou la déplacent ; Échap la vide.' }, cNotes);
   aide(zoneNotes, 'Molette : défiler. Maj+molette : défiler dans le temps. Ctrl+molette : zoom horizontal. Alt+molette : zoom vertical.');
   const zoneVel = h('div', { class: 'pr-zone-vel' }, cVel);
   aide(zoneVel, 'Vélocités : cliquer ou glisser pour régler la force des notes.');
@@ -123,7 +125,9 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     zoneClavier, zoneNotes,
     h('div', { class: 'pr-coin pr-legende-vel' }, 'Vélocité'), zoneVel);
   const vide = h('p', { class: 'pr-vide doux', hidden: true }, 'Ajoutez un canal dans le Rack pour écrire des notes.');
-  const el = h('section', { class: 'vue vue-piano', id: 'vue-piano', role: 'tabpanel', 'aria-labelledby': 'onglet-piano' }, barre, grille, vide);
+  const annonce = h('p', { class: 'lecteur', 'aria-live': 'polite' });
+  const annoncer = (t: string) => { annonce.textContent = t; };
+  const el = h('section', { class: 'vue vue-piano', id: 'vue-piano', role: 'tabpanel', 'aria-labelledby': 'onglet-piano' }, barre, grille, vide, annonce);
 
   const largeurNotes = () => zoneNotes.clientWidth;
   const hauteurNotes = () => zoneNotes.clientHeight;
@@ -241,6 +245,39 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     selection = new Set(nouvelles.map(n => n.id));
   };
 
+  // ---------- Curseur clavier ----------
+  const decrireCurseur = () => {
+    const t = curseur.tick;
+    return `${nomNote(curseur.pitch)}, mesure ${Math.floor(t / MESURE) + 1}, temps ${Math.floor((t % MESURE) / 96) + 1}${t % 96 ? `, pas ${Math.floor((t % 96) / 24) + 1}` : ''}`;
+  };
+  const montrerCurseur = () => {
+    const x = xDeTick(curseur.tick); const y = yDeHauteur(curseur.pitch);
+    if (x < 0 || x > largeurNotes() - 40) defX = Math.max(0, curseur.tick * zoomX - largeurNotes() / 3);
+    if (y < 0 || y > hauteurNotes() - rangee) defY = (127 - curseur.pitch) * rangee - hauteurNotes() / 2;
+    limiterDefilement();
+    sale = true;
+  };
+  const bougerCurseur = (dt: number, dh: number) => {
+    curseur.visible = true;
+    curseur.tick = Math.max(0, curseur.tick + dt);
+    curseur.pitch = borner(curseur.pitch + dh, 0, 127);
+    montrerCurseur();
+    annoncer(decrireCurseur());
+    if (dh) { jouer(curseur.pitch); setTimeout(arreterEcoute, 150); }
+  };
+  const noteAuCurseur = () => courant().notes.find(n => n.pitch === curseur.pitch && curseur.tick >= n.tick && curseur.tick < n.tick + n.length);
+  const poserAuCurseur = () => {
+    if (!courant().canal) return;
+    const note: Note = { id: nouvelId(), tick: curseur.tick, length: longueurNote, pitch: curseur.pitch, velocity: 0.8 };
+    modifier('Ajouter une note', n => { n.push(note); });
+    jouer(note.pitch); setTimeout(arreterEcoute, 180);
+    annoncer(`Note ${nomNote(note.pitch)} posée.`);
+    curseur.tick += note.length;
+    montrerCurseur();
+  };
+  zoneNotes.addEventListener('focus', () => { if (zoneNotes.matches(':focus-visible')) { curseur.visible = true; sale = true; } });
+  zoneNotes.addEventListener('blur', () => { curseur.visible = false; sale = true; });
+
   // ---------- Souris : grille de notes ----------
   zoneNotes.addEventListener('contextmenu', e => e.preventDefault());
   zoneNotes.addEventListener('pointerdown', e => {
@@ -248,6 +285,9 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     const { x, y } = position(e, zoneNotes);
     zoneNotes.focus({ preventScroll: true });
     zoneNotes.setPointerCapture(e.pointerId);
+    curseur.visible = false;
+    curseur.tick = Math.max(0, aimanter(tickDeX(x), grilleCourante(e), 'bas'));
+    curseur.pitch = hauteurDeY(y);
     const outil = ui.get().outilPiano;
     const sous = noteSous(x, y);
     const g = grilleCourante(e);
@@ -447,8 +487,17 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     else if (ctrl && k === 'd') dupliquer();
     else if (ctrl && k === 'x') { copier(); supprimerSelection(); }
     else if (ctrl) return false;
-    else if (e.key === 'Delete' || e.key === 'Backspace') supprimerSelection();
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && !selection.size && document.activeElement === zoneNotes) {
+      const n = noteAuCurseur();
+      if (n) { modifier('Supprimer une note', l => { const i = l.findIndex(z => z.id === n.id); if (i >= 0) l.splice(i, 1); }); annoncer(`Note ${nomNote(n.pitch)} supprimée.`); }
+    }
+    else if (e.key === 'Delete' || e.key === 'Backspace') { const k = selection.size; supprimerSelection(); annoncer(`${k} note${k > 1 ? 's' : ''} supprimée${k > 1 ? 's' : ''}.`); }
     else if (e.key === 'Escape') { selection.clear(); sale = true; }
+    else if (document.activeElement === zoneNotes && /^Arrow/.test(e.key) && !selection.size) {
+      const g = Math.max(1, ui.get().grillePiano);
+      bougerCurseur(e.key === 'ArrowRight' ? g : e.key === 'ArrowLeft' ? -g : 0, e.key === 'ArrowUp' ? (e.shiftKey ? 12 : 1) : e.key === 'ArrowDown' ? (e.shiftKey ? -12 : -1) : 0);
+    }
+    else if (document.activeElement === zoneNotes && (e.key === 'Enter' || e.key === 'Insert')) poserAuCurseur();
     else if (e.key === 'ArrowUp' && document.activeElement === zoneNotes) transposer(e.shiftKey ? 12 : 1);
     else if (e.key === 'ArrowDown' && document.activeElement === zoneNotes) transposer(e.shiftKey ? -12 : -1);
     else if (e.key === 'ArrowRight' && document.activeElement === zoneNotes) decaler(Math.max(1, ui.get().grillePiano));
@@ -540,6 +589,12 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
       cx.strokeStyle = 'rgba(231,234,240,.35)';
       cx.lineWidth = 1;
       cx.strokeRect(xDeTick(t) + 0.5, yDeHauteur(hauteurDeY(survol.y)) + 1.5, Math.max(3, longueurNote * zoomX - 1), rangee - 3);
+    }
+    // Curseur clavier
+    if (curseur.visible) {
+      cx.strokeStyle = C.lecture ?? '';
+      cx.lineWidth = 2;
+      cx.strokeRect(xDeTick(curseur.tick) + 1, yDeHauteur(curseur.pitch) + 1, Math.max(6, longueurNote * zoomX - 2), rangee - 2);
     }
     // Rectangle de sélection
     if (geste?.type === 'rectangle') {

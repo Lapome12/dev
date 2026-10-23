@@ -18,7 +18,7 @@ import { borner, h } from '../dom';
 import { finGeste } from '../geste';
 import { suivrePattern } from '../lecture';
 import { ajouterEffetPreset, changerInstrument, glisseEnCours, lireGlisse } from '../presets-glisses';
-import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, nouvelId, TICKS_PAS } from '../notes';
+import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, nouvelId, TICKS_PAS, velocitesParPas } from '../notes';
 
 export const INSTRUMENTS: { type: InstrumentType; nom: string; description: string }[] = [
   { type: 'trio', nom: 'Trio', description: 'Synthé à 3 oscillateurs : basses, leads, nappes.' },
@@ -360,6 +360,10 @@ export function vueRack(ctx: Contexte): HTMLElement {
           poignee.setAttribute('aria-label', `Déplacer ${c.name} (Alt+flèches)`);
           mute.el.setAttribute('aria-label', `Muet : ${c.name}`);
           solo.el.setAttribute('aria-label', `Solo : ${c.name}`);
+          pan.el.setAttribute('aria-label', `Pan : ${c.name}`);
+          volume.el.setAttribute('aria-label', `Volume : ${c.name}`);
+          tranche.el.setAttribute('aria-label', `Tranche de console : ${c.name}`);
+          nom.setAttribute('aria-label', `${c.name} (canal)`);
           for (const [i, b] of pas.entries()) b.setAttribute('aria-label', `${c.name}, pas ${i + 1}`);
         }
         mute.definir(c.mute);
@@ -377,13 +381,14 @@ export function vueRack(ctx: Contexte): HTMLElement {
           }
           zonePas.append(...pas);
         }
-        const notes = pt?.notes[c.id];
+        // Vélocité maximale par pas, en un seul passage sur les notes (rapide même avec des milliers de notes).
+        const vel = velocitesParPas(pt?.notes[c.id], nb);
         for (const [i, b] of pas.entries()) {
-          const n = notesDuPas(notes, i);
-          const on = n.length > 0;
+          const v = vel[i] ?? 0;
+          const on = v > 0;
           if (b.getAttribute('aria-pressed') !== String(on)) b.setAttribute('aria-pressed', String(on));
-          const v = on ? Math.max(...n.map(x => x.velocity)) : 0;
-          b.style.setProperty('--vel', v.toFixed(2));
+          const t = v.toFixed(2);
+          if (b.style.getPropertyValue('--vel') !== t) b.style.setProperty('--vel', t);
         }
       },
     };
@@ -399,6 +404,8 @@ export function vueRack(ctx: Contexte): HTMLElement {
     choixPattern.definir(u.patternId);
     pastille.style.setProperty('--couleur', pt?.color ?? 'transparent');
     choixLongueur.definir(String(nb));
+    corps.classList.toggle('pas-32', nb === 32);
+    corps.classList.toggle('pas-64', nb === 64);
     btnSupprimerPattern.disabled = p.patterns.length <= 1;
 
     const ids = p.channels.map(c => c.id);

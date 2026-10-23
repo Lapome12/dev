@@ -67,3 +67,5 @@ monterApplication(racine, ctx, {
   navigateur,
 });
 void afficherAccueil(ctx);
+// Accès de débogage et de mesure (tests de performance), seulement en développement.
+if (import.meta.env.DEV) Object.assign(window, { frequence: ctx });
