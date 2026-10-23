@@ -1,6 +1,7 @@
 // Squelette de l'application : transport en haut, navigateur à gauche (étape 3.5), vues à onglets
 // au centre, barre d'aide en bas. Les vues encore à venir affichent un panneau d'attente.
 
+import { bouton } from '../components/button';
 import type { ElementMenu } from '../components/menu';
 import type { Contexte } from '../contexte';
 import { h } from '../dom';
@@ -36,7 +37,8 @@ export function monterApplication(racine: HTMLElement, ctx: Contexte, o: Options
   const construites = new Map<Vue, HTMLElement>();
   const centre = h('main', { class: 'centre' });
   const nav = o.navigateur ? o.navigateur(ctx) : null;
-  const corps = h('div', { class: 'corps' }, nav, centre);
+  const montrerNav = bouton({ icone: 'dossier', libelle: 'Afficher le navigateur', variante: 'discret', classe: 'montrer-nav', surClic: () => ctx.ui.set({ navigateur: true }) });
+  const corps = h('div', { class: 'corps' }, nav, montrerNav, centre);
   racine.replaceChildren(h('div', { class: 'application' }, barreTransport(ctx, { menuProjet: o.menuProjet }), corps, barreAide()));
 
   const afficher = () => {
@@ -45,6 +47,7 @@ export function monterApplication(racine: HTMLElement, ctx: Contexte, o: Options
     if (!el) { el = fabriques[u.vue](ctx); construites.set(u.vue, el); centre.appendChild(el); }
     for (const [v, e] of construites) e.hidden = v !== u.vue;
     if (nav) nav.hidden = !u.navigateur;
+    montrerNav.hidden = !nav || u.navigateur;
   };
   ctx.ui.subscribe((e, avant) => { if (e.vue !== avant.vue || e.navigateur !== avant.navigateur) afficher(); });
   afficher();
