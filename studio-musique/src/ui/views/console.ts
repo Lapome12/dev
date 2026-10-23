@@ -151,6 +151,10 @@ export function vueConsole(ctx: Contexte): HTMLElement {
       el, metre,
       maj(t, canaux) {
         nom.textContent = t.name;
+        fd.el.setAttribute('aria-label', `Volume : ${t.name}`);
+        pan.el.setAttribute('aria-label', `Pan : ${t.name}`);
+        mute.el.setAttribute('aria-label', `Muet : ${t.name}`);
+        solo.el.setAttribute('aria-label', `Solo : ${t.name}`);
         el.style.setProperty('--couleur', t.color);
         el.classList.toggle('muet', t.mute);
         fd.definir(t.volume);

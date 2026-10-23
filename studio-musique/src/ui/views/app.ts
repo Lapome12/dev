@@ -39,10 +39,22 @@ export function monterApplication(racine: HTMLElement, ctx: Contexte, o: Options
   const nav = o.navigateur ? o.navigateur(ctx) : null;
   const montrerNav = bouton({ icone: 'dossier', libelle: 'Afficher le navigateur', variante: 'discret', classe: 'montrer-nav', surClic: () => ctx.ui.set({ navigateur: true }) });
   const corps = h('div', { class: 'corps' }, nav, montrerNav, centre);
-  racine.replaceChildren(h('div', { class: 'application' }, barreTransport(ctx, { menuProjet: o.menuProjet }), corps, barreAide()));
+  const appli = h('div', { class: 'application' }, barreTransport(ctx, { menuProjet: o.menuProjet }), corps, barreAide());
+  racine.replaceChildren(appli);
+
+  // Téléphone (§A.6) : seulement le transport et le Rack ; écran moyen : navigateur replié au départ.
+  const telephone = window.matchMedia('(max-width: 699px)');
+  const suivreTaille = () => {
+    appli.classList.toggle('telephone', telephone.matches);
+    if (telephone.matches && ctx.ui.get().vue !== 'rack') ctx.ui.set({ vue: 'rack' });
+  };
+  telephone.addEventListener('change', suivreTaille);
+  suivreTaille();
+  if (window.innerWidth < 1200) ctx.ui.set({ navigateur: false });
 
   const afficher = () => {
     const u = ctx.ui.get();
+    if (appli.classList.contains('telephone') && u.vue !== 'rack') { ctx.ui.set({ vue: 'rack' }); return; }
     let el = construites.get(u.vue);
     if (!el) { el = fabriques[u.vue](ctx); construites.set(u.vue, el); centre.appendChild(el); }
     for (const [v, e] of construites) e.hidden = v !== u.vue;

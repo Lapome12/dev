@@ -84,3 +84,17 @@ describe('piano roll', () => {
     expect(etendue(notes, 24)).toEqual({ debut: 0, fin: 72 });
   });
 });
+
+describe('vélocités par pas', () => {
+  it('garde la plus forte et ignore les notes hors des pas affichés', async () => {
+    const { velocitesParPas } = await import('../../src/ui/notes');
+    const v = velocitesParPas([
+      { id: 'a', tick: 0, length: 24, pitch: 1, velocity: 0.4 },
+      { id: 'b', tick: 10, length: 24, pitch: 2, velocity: 0.9 },
+      { id: 'c', tick: 24 * 20, length: 24, pitch: 2, velocity: 1 },
+    ], 16);
+    expect(v[0]).toBeCloseTo(0.9);
+    expect(v[1]).toBe(0);
+    expect(v.length).toBe(16);
+  });
+});

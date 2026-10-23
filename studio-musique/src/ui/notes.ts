@@ -30,6 +30,17 @@ export function definirPas(pattern: Pattern, canalId: Id, pas: number, allume: b
   return true;
 }
 
+/** Vélocité la plus forte des notes qui commencent dans chaque pas (0 = pas éteint). */
+export function velocitesParPas(notes: readonly Note[] | undefined, nb: number): Float32Array {
+  const v = new Float32Array(nb);
+  if (!notes) return v;
+  for (const n of notes) {
+    const i = Math.floor(n.tick / TICKS_PAS);
+    if (i >= 0 && i < nb && n.tick >= 0) v[i] = Math.max(v[i] ?? 0, n.velocity || 0.001);
+  }
+  return v;
+}
+
 /** Nombre de pas affichés dans le Rack pour un pattern (16, 32 ou 64). */
 export function nombrePas(pattern: Pattern): number {
   const n = Math.round(pattern.lengthTicks / TICKS_PAS);

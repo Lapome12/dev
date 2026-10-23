@@ -191,13 +191,59 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
   const vuesEffet: HTMLElement[] = [];
   if (cible.kind === 'effet' && (def.view === 'eq-courbe' || def.view === 'filtre-courbe')) {
     const c = h('canvas', { class: 'pw-courbe', 'aria-hidden': 'true' });
-    vuesEffet.push(h('div', { class: 'pw-vue' }, c));
+    vuesEffet.push(h('div', { class: 'pw-vue', 'data-aide': 'Courbe : glisser une poignée (horizontal = fréquence, vertical = gain ou résonance). Molette sur une poignée : largeur (Q).' }, c));
+    const LC = 420; const HC = 140;
+    // Poignées : une par bande d'égaliseur (<b>freq + <b>gain), ou fréquence + résonance pour le filtre.
+    const pd = (id: string) => def.params.find(x => x.id === id);
+    const poignees = def.params.flatMap(x => {
+      const m = /^(.*)freq$/.exec(x.id);
+      if (m && pd(`${m[1]}gain`)) return [{ f: x, y: pd(`${m[1]}gain`) as ParamDef, q: pd(`${m[1]}q`), nom: (x.group ?? '').replace(/^Bande (\d+).*/, '$1') }];
+      if (x.id === 'frequence' && pd('resonance')) return [{ f: x, y: pd('resonance') as ParamDef, q: undefined, nom: '' }];
+      return [];
+    });
+    const xDeF = (f: number) => (Math.log10(Math.max(20, f) / 20) / 3) * LC;
+    const fDeX = (x: number) => 20 * Math.pow(1000, borner(x / LC, 0, 1));
+    const yDe = (d: ParamDef, v: number) => (d.unit === 'dB' ? HC / 2 - (v / 24) * (HC / 2 - 4) : HC - 6 - ((v - (d.min ?? 0)) / ((d.max ?? 1) - (d.min ?? 0))) * (HC - 12));
+    const vDeY = (d: ParamDef, y: number) => (d.unit === 'dB' ? ((HC / 2 - y) / (HC / 2 - 4)) * 24 : (d.min ?? 0) + ((HC - 6 - y) / (HC - 12)) * ((d.max ?? 1) - (d.min ?? 0)));
+    const valeur = (d: ParamDef) => Number(valeurReglage(d, lire()?.params ?? {}));
+    let prise: (typeof poignees)[number] | null = null;
+    const proche = (x: number, y: number) => poignees.map(q => ({ q, d: Math.hypot(xDeF(valeur(q.f)) - x, yDe(q.y, valeur(q.y)) - y) })).sort((a, b) => a.d - b.d)[0];
+    const arrondi = (d: ParamDef, v: number) => { const b = borner(v, d.min ?? -Infinity, d.max ?? Infinity); return d.step ? Math.round(b / d.step) * d.step : Math.round(b); };
+    c.addEventListener('pointerdown', e => {
+      const r = c.getBoundingClientRect();
+      const pr = proche(e.clientX - r.left, e.clientY - r.top);
+      if (!pr || pr.d > 16) return;
+      prise = pr.q;
+      c.setPointerCapture(e.pointerId);
+    });
+    c.addEventListener('pointermove', e => {
+      if (!prise) return;
+      const r = c.getBoundingClientRect();
+      const q = prise;
+      const f = arrondi(q.f, fDeX(e.clientX - r.left));
+      const g = arrondi(q.y, vDeY(q.y, e.clientY - r.top));
+      ecrire(`Régler ${q.nom ? `la bande ${q.nom}` : 'le filtre'}`, pa => { pa[q.f.id] = f; pa[q.y.id] = g; }, true);
+      aideTemporaire(`${formater(f, 'Hz')} · ${q.y.unit === 'dB' ? formater(g, 'dB') : `${q.y.label} ${String(g).replace('.', ',')}`}`);
+    });
+    const lacher = () => { if (prise) { prise = null; aideTemporaire(null); finGeste(store); } };
+    c.addEventListener('pointerup', lacher);
+    c.addEventListener('pointercancel', lacher);
+    c.addEventListener('wheel', e => {
+      const r = c.getBoundingClientRect();
+      const pr = proche(e.clientX - r.left, e.clientY - r.top);
+      const qd = pr && pr.d <= 16 ? pr.q.q : undefined;
+      if (!qd) return;
+      e.preventDefault();
+      const v = arrondi(qd, valeur(qd) * (e.deltaY < 0 ? 1.1 : 1 / 1.1));
+      ecrire('Régler la largeur', pa => { pa[qd.id] = v; }, true);
+      aideTemporaire(`Largeur (Q) : ${String(v).replace('.', ',')}`);
+    }, { passive: false });
     const N = 256;
     const freqs = new Float32Array(N); const mag = new Float32Array(N);
     for (let i = 0; i < N; i++) freqs[i] = 20 * Math.pow(1000, i / (N - 1));
     const spectre = new Float32Array(1024);
     const tracer = () => {
-      const L = 420; const H = 140;
+      const L = LC; const H = HC;
       const g = preparerCanvas(c, L, H);
       g.fillStyle = '#121419'; g.fillRect(0, 0, L, H);
       g.fillStyle = '#2E3340';
@@ -221,6 +267,14 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
       g.beginPath();
       for (let i = 0; i < N; i++) { const x = (i / (N - 1)) * L; const y = H / 2 - borner((mag[i] ?? 0) / 24, -1, 1) * (H / 2 - 4); if (i) g.lineTo(x, y); else g.moveTo(x, y); }
       g.strokeStyle = jeton('accent'); g.lineWidth = 2; g.stroke();
+      g.font = `10px ${getComputedStyle(document.body).fontFamily}`;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (const q of poignees) {
+        const x = xDeF(valeur(q.f)); const y = yDe(q.y, valeur(q.y));
+        g.beginPath(); g.arc(x, y, prise === q ? 8 : 7, 0, Math.PI * 2);
+        g.fillStyle = prise === q ? '#ffffff' : jeton('lecture'); g.fill();
+        if (q.nom) { g.fillStyle = '#121419'; g.fillText(q.nom, x, y + 0.5); }
+      }
       animation = requestAnimationFrame(tracer);
     };
     animation = requestAnimationFrame(tracer);

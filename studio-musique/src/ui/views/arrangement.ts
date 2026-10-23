@@ -48,6 +48,7 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
   let tete = 0;
   let sale = true;
   let presse: { clips: Clip[]; debut: number } | null = null;
+  const curseur = { tick: 0, piste: 0, visible: false };
 
   // ---------- Barre d'outils ----------
   const boutonsOutils = OUTILS.map(o => bouton({ icone: o.icone, libelle: o.nom, raccourci: o.touche, variante: 'outil', aide: `${o.nom} (${o.touche}) : ${o.aide}`, surClic: () => ui.set({ outilArrangement: o.id }) }));
@@ -77,9 +78,10 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
   const cPistes = h('canvas', { role: 'img', 'aria-label': 'Pistes de l\'arrangement' });
   const zoneRegle = h('div', { class: 'ar-zone-regle' }, cRegle);
   aide(zoneRegle, 'Règle : cliquer pour placer la tête de lecture, glisser pour créer une boucle.');
-  const zonePistes = h('div', { class: 'ar-zone-pistes', tabindex: 0, 'aria-label': 'Pistes : Suppr efface la sélection, Ctrl+D duplique, Ctrl+A sélectionne tout.' }, cPistes);
+  const zonePistes = h('div', { class: 'ar-zone-pistes', tabindex: 0, 'aria-label': 'Pistes. Flèches : déplacer le curseur ; Entrée : poser le pattern courant ; Suppr : effacer. Ctrl+D duplique la sélection, Échap la vide.' }, cPistes);
   aide(zonePistes, 'Molette : défiler les pistes. Maj+molette : défiler dans le temps. Ctrl+molette : zoom.');
-  const temps = h('div', { class: 'ar-temps' }, zoneRegle, zonePistes);
+  const annonce = h('p', { class: 'lecteur', 'aria-live': 'polite' });
+  const temps = h('div', { class: 'ar-temps' }, zoneRegle, zonePistes, annonce);
   const el = h('section', { class: 'vue vue-arrangement', id: 'vue-arrangement', role: 'tabpanel', 'aria-labelledby': 'onglet-arrangement' },
     barre, h('div', { class: 'ar-corps' }, h('div', { class: 'ar-gauche' }, h('h3', { class: 'ar-titre' }, 'Patterns'), listePatterns), colonneEntetes, temps));
 
@@ -181,6 +183,9 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
     const { x, y } = pos(e, zonePistes);
     zonePistes.focus({ preventScroll: true });
     zonePistes.setPointerCapture(e.pointerId);
+    curseur.visible = false;
+    curseur.tick = Math.max(0, aimanter(tickDeX(x), Math.max(96, grilleCourante(e)), 'bas'));
+    curseur.piste = pisteDeY(y);
     const outil = ui.get().outilArrangement;
     const sous = clipSous(x, y);
     const g = grilleCourante(e);
@@ -319,6 +324,26 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
     ouvrirMenu([{ texte: 'Supprimer la boucle', desactive: !store.get().arrangement.loop, action: () => store.update('Supprimer la boucle', d => { d.arrangement.loop = null; }) }], { x: e.clientX, y: e.clientY }, 'Boucle');
   });
 
+  // ---------- Curseur clavier ----------
+  const bougerCurseur = (dt: number, dp: number) => {
+    curseur.visible = true;
+    curseur.tick = Math.max(0, curseur.tick + dt);
+    curseur.piste = borner(curseur.piste + dp, 0, pistes().length - 1);
+    const x = xDeTick(curseur.tick);
+    if (x < 0 || x > largeur() - 60) defX = Math.max(0, curseur.tick * zoomX - largeur() / 3);
+    const y = yPiste(curseur.piste);
+    if (y < 0 || y > hauteur() - 40) defY += y - hauteur() / 3;
+    limiter();
+    sale = true;
+    annonce.textContent = `${pistes()[curseur.piste]?.name ?? ''}, mesure ${Math.floor(curseur.tick / MESURE) + 1}`;
+  };
+  const clipAuCurseur = () => {
+    const tr = pistes()[curseur.piste];
+    return store.get().arrangement.clips.find(c => c.trackId === tr?.id && curseur.tick >= c.start && curseur.tick < c.start + c.length);
+  };
+  zonePistes.addEventListener('focus', () => { if (zonePistes.matches(':focus-visible')) { curseur.visible = true; sale = true; } });
+  zonePistes.addEventListener('blur', () => { curseur.visible = false; sale = true; });
+
   // ---------- Raccourcis ----------
   ajouterRaccourcis(e => {
     if (ui.get().vue !== 'arrangement') return false;
@@ -330,8 +355,20 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
     else if (ctrl && k === 'v') coller();
     else if (ctrl && k === 'x') { copier(); supprimer(); }
     else if (ctrl) return false;
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && !selection.size && document.activeElement === zonePistes) {
+      const c = clipAuCurseur();
+      if (c) { modifierClips('Supprimer un clip', l => { const i = l.findIndex(x => x.id === c.id); if (i >= 0) l.splice(i, 1); }); annonce.textContent = 'Clip supprimé.'; }
+    }
     else if (e.key === 'Delete' || e.key === 'Backspace') supprimer();
     else if (e.key === 'Escape') selection.clear();
+    else if (document.activeElement === zonePistes && /^Arrow/.test(e.key)) {
+      const g = Math.max(96, ui.get().grilleArrangement);
+      bougerCurseur(e.key === 'ArrowRight' ? g : e.key === 'ArrowLeft' ? -g : 0, e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0);
+    }
+    else if (document.activeElement === zonePistes && (e.key === 'Enter' || e.key === 'Insert')) {
+      const c = poser(ui.get().patternId, curseur.piste, curseur.tick);
+      if (c) { annonce.textContent = `Clip posé, ${Math.round(c.length / MESURE)} mesure(s).`; bougerCurseur(c.length, 0); }
+    }
     else if (ui.get().clavier) return false;
     else if (e.code === 'KeyB' && !e.altKey) ui.set({ outilArrangement: 'crayon' });
     else if (e.code === 'KeyE' && !e.altKey) ui.set({ outilArrangement: 'gomme' });
@@ -386,6 +423,35 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
 
   // ---------- Dessin ----------
   let C: Record<string, string> | null = null;
+  const apercus = new WeakMap<Pattern, { l: number; h: number; c: HTMLCanvasElement | null }>();
+  /** Image des notes d'un pattern (toutes les notes de tous les canaux), mise en cache. */
+  const apercuPattern = (pt: Pattern, largeurPx: number, hauteurPx: number): HTMLCanvasElement | null => {
+    const l = Math.max(1, Math.round(largeurPx)); const hp = Math.max(1, Math.round(hauteurPx));
+    const deja = apercus.get(pt);
+    if (deja && deja.l === l && deja.h === hp) return deja.c;
+    const toutes = Object.values(pt.notes).flat();
+    let c: HTMLCanvasElement | null = null;
+    if (toutes.length && l <= 8192) {
+      c = document.createElement('canvas');
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      c.width = Math.ceil(l * dpr); c.height = Math.ceil(hp * dpr);
+      const g = c.getContext('2d');
+      if (g) {
+        g.scale(dpr, dpr);
+        let hMin = 127; let hMax = 0;
+        for (const n of toutes) { hMin = Math.min(hMin, n.pitch); hMax = Math.max(hMax, n.pitch); }
+        const etage = Math.max(1, hMax - hMin + 1);
+        const z = l / Math.max(1, pt.lengthTicks);
+        g.fillStyle = 'rgba(231,234,240,.75)';
+        for (const n of toutes) {
+          if (n.tick >= pt.lengthTicks) continue;
+          g.fillRect(n.tick * z, hp - ((n.pitch - hMin + 1) / etage) * hp, Math.max(1, Math.min(n.length, pt.lengthTicks - n.tick) * z - 0.5), Math.max(1.5, hp / etage - 1));
+        }
+      }
+    }
+    apercus.set(pt, { l, h: hp, c });
+    return c;
+  };
   const dessiner = () => {
     sale = false;
     const L = largeur(); const H = hauteur();
@@ -440,24 +506,17 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
       const l = Math.max(1, pt.lengthTicks);
       cx.fillStyle = 'rgba(0,0,0,.35)';
       for (let r = l - (c.offset % l); r < c.length; r += l) cx.fillRect(x + r * zoomX, y + 15, 1, hh - 15);
-      // Aperçu des notes
-      const toutes = Object.values(pt.notes).flat();
-      if (toutes.length && hh > 24) {
-        let hMin = 127; let hMax = 0;
-        for (const n of toutes) { hMin = Math.min(hMin, n.pitch); hMax = Math.max(hMax, n.pitch); }
-        const etage = Math.max(1, hMax - hMin + 1);
-        const zoneH = hh - 20;
-        cx.fillStyle = 'rgba(231,234,240,.75)';
+      // Aperçu des notes : dessiné une fois par pattern (et par zoom), puis recopié à chaque répétition.
+      const apercu = hh > 24 ? apercuPattern(pt, l * zoomX, hh - 20) : null;
+      if (apercu) {
+        cx.save();
+        cx.beginPath(); cx.rect(x, y, w, hh); cx.clip();
         for (let debut = -(c.offset % l); debut < c.length; debut += l) {
-          for (const n of toutes) {
-            const nt = debut + n.tick;
-            if (nt < 0 || nt >= c.length) continue;
-            const nx = x + nt * zoomX;
-            if (nx > L || nx < -10) continue;
-            const ny = y + 17 + zoneH - ((n.pitch - hMin + 1) / etage) * zoneH;
-            cx.fillRect(nx, ny, Math.max(1, Math.min(n.length, c.length - nt) * zoomX - 0.5), Math.max(1.5, zoneH / etage - 1));
-          }
+          const nx = x + debut * zoomX;
+          if (nx > L || nx + l * zoomX < 0) continue;
+          cx.drawImage(apercu, nx, y + 17, l * zoomX, hh - 20);
         }
+        cx.restore();
       }
       cx.fillStyle = '#0b0d11';
       if (w > 24) cx.fillText(pt.name, x + 4, y + 2, w - 8);
@@ -482,6 +541,11 @@ export function vueArrangement(ctx: Contexte): HTMLElement {
       const x = Math.min(geste.x0, geste.x1); const y = Math.min(geste.y0, geste.y1);
       cx.fillStyle = 'rgba(61,220,177,.08)'; cx.fillRect(x, y, Math.abs(geste.x1 - geste.x0), Math.abs(geste.y1 - geste.y0));
       cx.strokeStyle = C.accent ?? ''; cx.setLineDash([4, 3]); cx.strokeRect(x + 0.5, y + 0.5, Math.abs(geste.x1 - geste.x0), Math.abs(geste.y1 - geste.y0)); cx.setLineDash([]);
+    }
+    if (curseur.visible) {
+      const tr = ts[curseur.piste];
+      const pt = patternDe(p, ui.get().patternId);
+      if (tr) { cx.strokeStyle = C.lecture ?? ''; cx.lineWidth = 2; cx.strokeRect(xDeTick(curseur.tick) + 1, yPiste(curseur.piste) + 2, Math.max(8, (pt?.lengthTicks ?? MESURE) * zoomX - 2), hauteurPiste(tr) - 5); }
     }
     if (tete >= 0) { cx.fillStyle = C.lecture ?? ''; cx.fillRect(Math.round(xDeTick(tete)), 0, 1.5, H); }
 
