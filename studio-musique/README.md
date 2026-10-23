@@ -76,6 +76,9 @@ Fréquence échange avec n'importe quel logiciel de musique par deux formats sta
 - **MIDI** (Projet › Exporter en MIDI) : un fichier de type 1, une piste par canal, la batterie sur le
   canal 10 avec les numéros de notes General MIDI. **Projet › Importer un fichier MIDI…** fait l'inverse :
   chaque piste devient un canal, avec un kit Frappe pour la batterie.
+- **Dans claude.ai**, le lecteur d'artefacts n'accepte pas les extensions .wav, .mid et .frequence :
+  ces fichiers arrivent dans un `.zip` (par exemple `Mon morceau.wav.zip`) qu'il suffit de décompresser.
+  `Ctrl+O` et les imports acceptent aussi directement ces `.zip`.
 - **Sons** : Projet › Importer un son… (ou glisser un fichier sur le navigateur) crée un canal Échantillon.
   Jusqu'à 50 Mo et 2 minutes par son.
 

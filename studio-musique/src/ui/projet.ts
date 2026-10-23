@@ -69,12 +69,22 @@ export async function ouvrir(ctx: Contexte): Promise<void> {
   }
 }
 
+/** Propose le fichier à la personne et dit ce qui s'est passé (rien si elle a refusé). */
+export async function proposerFichier(blob: Blob, nom: string, quoi: string): Promise<void> {
+  try {
+    const r = await telecharger(blob, nom);
+    if (r.statut === 'enregistre') toast(r.nom === nom ? `${quoi} : « ${r.nom} ».` : `${quoi} : « ${r.nom} » (à décompresser).`, 'ok');
+    else if (r.statut === 'lien') toast(`${quoi} dans vos téléchargements.`, 'ok');
+  } catch (e) {
+    toast(message(e), 'alerte', 6000);
+  }
+}
+
 export function enregistrer(ctx: Contexte): void {
   const { saveFile } = ctx.services;
   if (!saveFile) return;
   const p = ctx.store.get();
-  telecharger(saveFile(structuredClone(p) as Project, ctx.echantillons.octets), nomFichier(p.name, 'frequence'));
-  toast('Projet enregistré dans vos téléchargements.', 'ok');
+  void proposerFichier(saveFile(structuredClone(p) as Project, ctx.echantillons.octets), nomFichier(p.name, 'frequence'), 'Projet enregistré');
 }
 
 export async function renommerProjet(ctx: Contexte): Promise<void> {
@@ -89,8 +99,7 @@ export function exporterMidi(ctx: Contexte): void {
   // En mode pattern, on exporte le pattern écouté ; en mode morceau, tout l'arrangement.
   const u = ctx.ui.get();
   const octets = exportMidi(structuredClone(p) as Project, u.mode === 'pattern' ? { patternId: u.patternId } : {});
-  telecharger(new Blob([octets.slice().buffer as ArrayBuffer], { type: 'audio/midi' }), nomFichier(p.name, 'mid'));
-  toast('Fichier MIDI exporté.', 'ok');
+  void proposerFichier(new Blob([octets.slice().buffer as ArrayBuffer], { type: 'audio/midi' }), nomFichier(p.name, 'mid'), 'Fichier MIDI exporté');
 }
 
 export async function importerMidi(ctx: Contexte): Promise<void> {
