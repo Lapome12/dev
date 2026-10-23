@@ -1,0 +1,87 @@
+/* Fréquence : mise en page de l'application et des vues. */
+
+.application { display: grid; grid-template-rows: var(--hauteur-transport) 1fr var(--hauteur-aide); height: 100vh; min-width: 0; }
+.corps { display: flex; min-height: 0; min-width: 0; }
+.centre { position: relative; flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.vue { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.vue[hidden] { display: none; }
+.vue-attente { align-items: center; justify-content: center; }
+.espace { flex: 1; }
+
+/* ---------- Transport ---------- */
+.transport {
+  display: flex; align-items: center; gap: 14px; padding: 0 10px;
+  background: var(--panneau); border-bottom: 1px solid var(--filet);
+  min-width: 0; overflow-x: auto; overflow-y: hidden;
+}
+.tr-groupe { display: flex; align-items: center; gap: 4px; flex: none; }
+.tr-fin { margin-left: auto; }
+.logo { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; background: var(--accent); color: var(--sur-accent); }
+.tr-nom { font-weight: 700; letter-spacing: .02em; margin: 0 6px 0 4px; }
+.tr-lecture { width: 34px; height: 30px; }
+.tr-lecture.en-cours { background: var(--accent-pale); border-color: var(--accent); color: var(--accent); }
+.segmente { display: inline-flex; border: 1px solid var(--filet); border-radius: var(--r); overflow: hidden; margin-left: 6px; }
+.segmente .seg { height: 26px; padding: 0 10px; border: 0; background: var(--releve); color: var(--texte-doux); font-size: var(--taille-petite); font-weight: 700; letter-spacing: .04em; }
+.segmente .seg + .seg { border-left: 1px solid var(--filet); }
+.segmente .seg[aria-checked="true"] { background: var(--accent-pale); color: var(--accent); }
+.segmente .seg:hover { color: var(--texte); }
+.tr-affichages { gap: 10px; }
+.tr-champ { display: flex; align-items: center; gap: 5px; }
+.tr-legende { font-size: 10px; font-weight: 600; color: var(--texte-doux); letter-spacing: .05em; }
+.tr-position {
+  display: inline-flex; align-items: center; height: 26px; padding: 0 10px; white-space: pre;
+  background: var(--fond); border: 1px solid var(--filet); border-radius: var(--r-petit); color: var(--lecture); font-size: 14px;
+}
+.transport .interrupteur { height: 26px; min-width: 28px; }
+.transport .bouton-rotatif.mini { width: 28px; padding: 0; }
+.onglets { display: flex; gap: 2px; padding: 3px; background: var(--fond); border-radius: var(--r); flex: none; }
+.onglet { height: 26px; padding: 0 12px; border: 0; border-radius: var(--r-petit); background: transparent; color: var(--texte-doux); font-weight: 500; }
+.onglet:hover { color: var(--texte); }
+.onglet[aria-selected="true"] { background: var(--releve-2); color: var(--texte); box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* ---------- Barre d'outils d'une vue ---------- */
+.barre-vue { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--panneau); border-bottom: 1px solid var(--filet); flex: none; flex-wrap: wrap; }
+
+/* ---------- Rack ---------- */
+.rk-patterns { display: flex; align-items: center; gap: 4px; }
+.rk-patterns .liste-select { min-width: 160px; }
+.rk-defilement { position: relative; flex: 1; overflow: auto; padding: 8px 10px 24px; }
+.rk-lignes { display: flex; flex-direction: column; gap: 4px; width: max-content; min-width: 100%; }
+.rk-ligne {
+  --couleur: var(--accent);
+  display: flex; align-items: center; gap: 4px; height: 34px; padding: 0 6px 0 2px;
+  background: var(--panneau); border: 1px solid var(--filet); border-radius: var(--r);
+}
+.rk-ligne.selection { border-color: var(--filet-fort); background: var(--releve); }
+.rk-ligne.muet .rk-pas, .rk-ligne.muet .rk-nom { opacity: .45; }
+.rk-poignee { display: inline-grid; grid-template-columns: repeat(2, 3px); gap: 2px; place-content: center; width: 18px; height: 28px; padding: 0; border: 0; background: transparent; cursor: grab; }
+.rk-poignee i { width: 3px; height: 3px; border-radius: 50%; background: var(--texte-faible); }
+.rk-poignee i:nth-child(n) { box-shadow: 5px 0 0 var(--texte-faible); }
+.rk-poignee:hover i { background: var(--texte-doux); }
+.rk-ligne .bouton-rotatif.mini { width: 28px; padding: 0; }
+.rk-ligne .champ-nombre.etroit { min-width: 30px; height: 24px; padding: 0 4px; }
+.rk-nom {
+  position: relative; width: 140px; height: 26px; margin: 0 6px 0 2px; padding: 0 8px 0 12px; overflow: hidden;
+  border: 1px solid var(--filet); border-radius: var(--r-petit); background: var(--releve-2); text-align: left;
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.rk-nom::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--couleur); }
+.rk-nom:hover { border-color: var(--filet-fort); }
+.rk-nom[aria-current="true"] { border-color: var(--couleur); box-shadow: 0 0 0 1px var(--couleur) inset; }
+.rk-nom-texte { overflow: hidden; text-overflow: ellipsis; }
+.rk-pas { display: flex; gap: 3px; }
+.rk-pas-btn {
+  --vel: 0;
+  position: relative; width: 22px; height: 26px; padding: 0; overflow: hidden;
+  border: 1px solid #353b4a; border-radius: 3px; background: #2b303d; touch-action: none;
+}
+.rk-pas-btn.alt { background: #22262f; }
+.rk-pas-btn:nth-child(4n+1) { margin-left: 3px; }
+.rk-pas-btn:first-child { margin-left: 0; }
+.rk-pas-btn:hover { border-color: var(--texte-faible); }
+.rk-pas-btn[aria-pressed="true"] { background: color-mix(in srgb, var(--couleur) 30%, #1d2028); border-color: var(--couleur); }
+.rk-vel { position: absolute; left: 2px; right: 2px; bottom: 2px; height: calc((100% - 4px) * var(--vel)); border-radius: 2px; background: var(--couleur); opacity: .9; pointer-events: none; }
+.rk-pas-btn.tete { box-shadow: 0 0 0 1px var(--lecture), 0 -2px 0 var(--lecture) inset; }
+.rk-pas-btn.tete:not([aria-pressed="true"]) { background: var(--lecture-pale); }
+.rk-indicateur { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; }
+.rk-vide { padding: 32px; text-align: center; }
