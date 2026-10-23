@@ -9,7 +9,8 @@ import { toast } from '../components/toast';
 import { interrupteur } from '../components/toggle';
 import type { Contexte } from '../contexte';
 import { h } from '../dom';
-import { nomFichier, telecharger, type OptionsRendu } from '../services';
+import { proposerFichier } from '../projet';
+import { nomFichier, type OptionsRendu } from '../services';
 
 export function ouvrirExport(ctx: Contexte): void {
   const { renderWav } = ctx.services;
@@ -58,8 +59,8 @@ export function ouvrirExport(ctx: Contexte): void {
           });
           if (annule) { toast('Export annulé.'); return true; }
           const nom = o.mode.kind === 'pattern' ? `${p.name} - ${pattern?.name ?? 'pattern'}` : p.name;
-          telecharger(blob, nomFichier(nom, 'wav'));
-          toast(`WAV exporté en ${((performance.now() - t0) / 1000).toFixed(1).replace('.', ',')} s.`, 'ok');
+          const duree = ((performance.now() - t0) / 1000).toFixed(1).replace('.', ',');
+          void proposerFichier(blob, nomFichier(nom, 'wav'), `WAV exporté en ${duree} s`);
           return true;
         } catch (e) {
           etat.textContent = `L'export a échoué : ${e instanceof Error ? e.message : String(e)}`;

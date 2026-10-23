@@ -236,3 +236,50 @@ test('ouvrir un fichier .frequence piégé affiche un message propre', async ({ 
   expect(requetes).toEqual([]);
   expect(erreurs).toEqual([]);
 });
+
+// Dans le lecteur d'artefacts de claude.ai, les fichiers passent par la capacité « downloads »
+// (simulée ici) : .frequence, .mid et .wav y partent dans un .zip, que Ctrl+O sait rouvrir.
+test('dans claude.ai : enregistrer et exporter passent par « downloads », en .zip', async ({ page }) => {
+  await page.addInitScript(() => {
+    const recus: { filename: string; data: Blob }[] = [];
+    Object.assign(window, {
+      recus,
+      claude: { use: async (nom: string) => (nom === 'downloads' ? { save: async (r: { filename: string; data: Blob }) => { recus.push(r); return { status: 'saved' }; } } : null) },
+    });
+  });
+  const requetes = surveillerReseau(page);
+  const erreurs: string[] = [];
+  page.on('pageerror', e => erreurs.push(e.message));
+  let telechargementsDirects = 0;
+  page.on('download', () => { telechargementsDirects++; });
+  await demarrer(page);
+  await page.getByRole('gridcell', { name: 'Grosse caisse, pas 3', exact: true }).click();
+
+  const recus = () => page.evaluate(async () => Promise.all((window as unknown as { recus: { filename: string; data: Blob }[] }).recus
+    .map(async r => ({ nom: r.filename, octets: Array.from(new Uint8Array(await r.data.arrayBuffer())) }))));
+  await page.keyboard.press('Control+s');
+  await expect(page.getByText(/Projet enregistré : « .+\.frequence\.zip »/)).toBeVisible();
+  await page.getByRole('button', { name: 'Projet' }).click();
+  await page.getByRole('menuitem', { name: 'Exporter en MIDI' }).click();
+  await expect(page.getByText(/Fichier MIDI exporté : « .+\.mid\.zip »/)).toBeVisible();
+  await page.keyboard.press('Control+e');
+  await page.getByRole('dialog').getByRole('button', { name: 'Exporter', exact: true }).click();
+  await expect(page.getByText(/WAV exporté en .+ : « .+\.wav\.zip »/)).toBeVisible();
+  const fichiers = await recus();
+  expect(fichiers.map(f => f.nom.replace(/^.*\./, ''))).toEqual(['zip', 'zip', 'zip']);
+  expect(fichiers.map(f => f.nom)).toEqual([expect.stringMatching(/\.frequence\.zip$/), expect.stringMatching(/\.mid\.zip$/), expect.stringMatching(/\.wav\.zip$/)]);
+  expect(telechargementsDirects).toBe(0);
+
+  // Le .zip du projet se rouvre tel quel, avec le pas ajouté.
+  const projet = fichiers[0]!;
+  await page.getByRole('gridcell', { name: 'Grosse caisse, pas 3', exact: true }).click();   // on l'enlève
+  await expect(page.getByRole('gridcell', { name: 'Grosse caisse, pas 3', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  const choix = page.waitForEvent('filechooser');
+  await page.keyboard.press('Control+o');
+  await (await choix).setFiles({ name: projet.nom, mimeType: 'application/zip', buffer: Buffer.from(projet.octets) });
+  await expect(page.getByText(/ouvert\./)).toBeVisible();
+  await expect(page.getByRole('gridcell', { name: 'Grosse caisse, pas 3', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  expect(requetes).toEqual([]);
+  expect(erreurs).toEqual([]);
+});
