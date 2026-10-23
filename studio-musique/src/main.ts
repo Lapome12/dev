@@ -14,6 +14,7 @@ import type { Contexte } from './ui/contexte';
 import { installerRaccourcis } from './ui/shortcuts';
 import { creerEtatUi, etatInitial } from './ui/ui-state';
 import { monterApplication } from './ui/views/app';
+import { ouvrirPlugin } from './ui/views/plugin-window';
 
 const racine = document.getElementById('app');
 if (!racine) throw new Error('#app introuvable');
@@ -29,8 +30,8 @@ store.subscribe(p => ui.reparer(p));
 const ctx: Contexte = {
   store, moteur, ui,
   actions: {
-    ouvrirInstrument: () => toast('Fenêtres d\'instrument : bientôt (étape 2.6).'),
-    ouvrirEffet: () => toast('Fenêtres d\'effet : bientôt (étape 2.6).'),
+    ouvrirInstrument: canalId => ouvrirPlugin(ctx, { kind: 'instrument', canalId }),
+    ouvrirEffet: (piste, slotId) => ouvrirPlugin(ctx, { kind: 'effet', piste, slotId }),
   },
 };
 

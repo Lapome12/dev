@@ -7,6 +7,7 @@ import { h } from '../dom';
 import type { Vue } from '../ui-state';
 import { barreAide } from './help-bar';
 import { vueArrangement } from './arrangement';
+import { vueConsole } from './console';
 import { vuePianoRoll } from './piano-roll';
 import { vueRack } from './rack';
 import { barreTransport, VUES } from './transport';
@@ -29,7 +30,7 @@ export function monterApplication(racine: HTMLElement, ctx: Contexte, o: Options
     rack: vueRack,
     piano: o.vues?.piano ?? vuePianoRoll,
     arrangement: o.vues?.arrangement ?? vueArrangement,
-    console: o.vues?.console ?? (() => bientot('console')),
+    console: o.vues?.console ?? vueConsole,
   };
   // Chaque vue est construite à sa première ouverture, puis gardée (son état d'édition survit).
   const construites = new Map<Vue, HTMLElement>();
