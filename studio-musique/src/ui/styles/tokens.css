@@ -1,0 +1,60 @@
+/* Fréquence : jetons de couleur, de typographie et de forme (PLAN §F, « la nuit au studio »).
+   Thème sombre unique. Les 12 couleurs de canaux sont reprises par Dev 3 dans defaults.ts :
+   ne pas changer leur ordre sans le prévenir. */
+
+:root {
+  --fond: #121419;
+  --panneau: #1A1D24;
+  --releve: #232733;
+  --releve-2: #2A2F3D;
+  --filet: #2E3340;
+  --filet-fort: #3A4050;
+  --texte: #E7EAF0;
+  --texte-doux: #8C93A3;
+  --texte-faible: #5E6575;
+
+  --accent: #3DDCB1;           /* lecture, sélection, boutons actifs */
+  --accent-fonce: #1F8F72;
+  --accent-pale: rgba(61, 220, 177, .14);
+  --sur-accent: #06231B;
+  --lecture: #F5B841;          /* tête de lecture, enregistrement */
+  --lecture-pale: rgba(245, 184, 65, .16);
+  --alerte: #FF5D6C;           /* alerte, saturation */
+  --alerte-pale: rgba(255, 93, 108, .16);
+
+  /* 12 couleurs de canaux, choisies dans l'ordre à la création. */
+  --canal-1: #5FB4F5;
+  --canal-2: #F27E9B;
+  --canal-3: #F5C46B;
+  --canal-4: #7ED67F;
+  --canal-5: #B28BF5;
+  --canal-6: #F59E6B;
+  --canal-7: #5ED6D6;
+  --canal-8: #E58BE0;
+  --canal-9: #C3D66B;
+  --canal-10: #8B9DF5;
+  --canal-11: #F5876B;
+  --canal-12: #6BD6A8;
+
+  --voile: rgba(5, 6, 9, .62);
+  --ombre: 0 12px 36px rgba(0, 0, 0, .55);
+  --ombre-douce: 0 2px 8px rgba(0, 0, 0, .35);
+
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+  --taille: 13px;
+  --taille-petite: 11px;
+  --interligne: 1.4;
+  --r: 6px;
+  --r-petit: 4px;
+  --duree: 120ms;
+  --hauteur-transport: 48px;
+  --hauteur-aide: 26px;
+  --largeur-navigateur: 240px;
+
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duree: 0ms; }
+}
