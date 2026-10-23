@@ -1,0 +1,81 @@
+# CI de Fréquence (studio-musique/) : typecheck, tests, mots interdits, artefact en un seul fichier,
+# tests de bout en bout sur cet artefact. Actions épinglées par SHA, comme pour Cadenas.
+name: Fréquence
+
+on:
+  pull_request:
+    paths: ['studio-musique/**', '.github/workflows/studio-musique.yml']
+  push:
+    branches: [main]
+    paths: ['studio-musique/**', '.github/workflows/studio-musique.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frequence-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: studio-musique
+
+jobs:
+  verifier:
+    name: Typecheck, tests, artefact, bout en bout
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: studio-musique/package-lock.json
+
+      - run: npm ci
+      - name: Mots interdits (§A.1)
+        run: node scripts/mots-interdits.mjs
+      - name: Aucun fichier audio dans le dépôt
+        run: |
+          if git ls-files | grep -iE '\.(wav|mp3|ogg|flac|aiff?|m4a|opus)$'; then
+            echo "Fichier audio interdit dans le dépôt (§A.1)."; exit 1
+          fi
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests unitaires (Vitest)
+        run: npm test
+      - name: Build
+        run: npm run build
+      - name: Artefact en un seul fichier
+        run: |
+          npm run build:artefact
+          node scripts/mots-interdits.mjs dist/artefact/frequence.html
+          taille=$(stat -c %s dist/artefact/frequence.html)
+          echo "Taille de l'artefact : $taille octets"
+          [ "$taille" -lt 3145728 ] || { echo "Artefact au-delà de 3 Mo (§4.2)."; exit 1; }
+      - name: Téléverser frequence.html
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: frequence-artefact
+          path: studio-musique/dist/artefact/frequence.html
+          retention-days: 30
+
+      - name: Chromium pour Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Tests de bout en bout (sur l'artefact)
+        run: npm run e2e
+        env:
+          CI: 'true'
+      - name: Rapports Playwright en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: rapports-playwright-frequence
+          path: |
+            studio-musique/playwright-report/
+            studio-musique/test-results/
+          retention-days: 7
