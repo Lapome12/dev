@@ -5,11 +5,12 @@ import './ui/styles/tokens.css';
 import './ui/styles/base.css';
 import './ui/styles/components.css';
 import './ui/styles/views.css';
-import { createEngine } from './engine/index';
+import { createEngine, renderWav } from './engine/index';
 import { newProject } from './project/defaults';
 import { openFile, saveFile } from './project/serialize';
 import { autosave, autosaveSample, flushAutosave, restoreAutosave } from './project/storage';
 import { createStore } from './project/store';
+import { brancherClaviers } from './ui/claviers';
 import { installerBulles } from './ui/components/bulle';
 import type { Contexte } from './ui/contexte';
 import { enregistrer, menuProjet, ouvrir } from './ui/projet';
@@ -35,9 +36,9 @@ store.subscribe(p => moteur.sync(p));
 const ui = creerEtatUi(etatInitial(store.get()));
 store.subscribe(p => ui.reparer(p));
 
-// Services branchés au fur et à mesure des livraisons (MIDI, modèles, démo : Dev 3 ; rendu WAV : Dev 1).
+// Services branchés au fur et à mesure des livraisons (MIDI, modèles et démo de Dev 3 à venir).
 const services: ServicesProjet = {
-  saveFile, openFile, autosave, restoreAutosave, autosaveSample,
+  saveFile, openFile, autosave, restoreAutosave, autosaveSample, renderWav,
   decodeSample: data => moteur.decodeSample(data),
   setSampleAudio: (id, audio) => moteur.setSampleAudio(id, audio),
   modeles: [{ id: 'vide', nom: 'Vide', description: '4 canaux (grosse caisse, caisse claire, charley, Trio), 130 BPM.', creer: newProject }],
@@ -62,6 +63,7 @@ document.addEventListener('pointerdown', reveil, { once: true, capture: true });
 document.addEventListener('keydown', reveil, { once: true, capture: true });
 
 installerBulles();
+brancherClaviers(ctx);
 installerRaccourcis(ctx, {
   enregistrer: () => enregistrer(ctx),
   ouvrir: () => void ouvrir(ctx),

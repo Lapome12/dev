@@ -2,7 +2,7 @@
 // Le vrai moteur le satisfait tel quel ; en attendant, moteurFactice() fait avancer le temps
 // sans produire de son, pour développer et tester l'écran.
 
-import { PPQ, type Id, type Project } from '../project/types';
+import { PPQ, type Id, type InstrumentType, type ParamValue, type Project } from '../project/types';
 
 export type PlayMode = { kind: 'pattern'; patternId: Id } | { kind: 'morceau' };
 
@@ -22,6 +22,8 @@ export interface MoteurUi {
   spectrum?(track: number, out: Float32Array): void;
   frequencyResponse?(track: number, slotId: Id, freqs: Float32Array, magDb: Float32Array): void;
   gainReduction?(track: number, slotId: Id): number;
+  /** Écoute d'un preset hors projet (navigateur). */
+  preview?(type: InstrumentType, params: Record<string, ParamValue>, pitch: number, velocity: number, durationSec: number): void;
 }
 
 /** Fin du morceau en ticks : boucle si définie, sinon fin du dernier clip (au moins une mesure). */

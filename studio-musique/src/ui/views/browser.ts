@@ -26,10 +26,22 @@ export function navigateur(ctx: Contexte): HTMLElement {
     recherche, arbre);
   const ouverts = new Set<string>(['Instruments']);
 
+  // Écoute au survol d'un preset d'instrument, après un court arrêt du pointeur.
+  let minuterie = 0;
+  const ecouter = (g: Glisse) => {
+    const { preview } = ctx.moteur;
+    if (!preview || g.kind !== 'instrument') return;
+    const type = g.type as InstrumentType;
+    preview.call(ctx.moteur, type, reglages(type, g.presetId).params, type === 'frappe' ? 36 : 60, 0.8, 0.6);
+  };
   const item = (texte: string, sous: string | null, g: Glisse | null, action: () => void, aideTexte: string) => {
     const b = h('button', { type: 'button', class: 'nv-item', draggable: g ? 'true' : 'false' }, h('span', { class: 'nv-texte' }, texte), sous ? h('span', { class: 'nv-sous doux' }, sous) : null);
     aide(b, aideTexte);
     b.addEventListener('click', action);
+    if (g?.kind === 'instrument' && ctx.moteur.preview) {
+      b.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { clearTimeout(minuterie); minuterie = window.setTimeout(() => ecouter(g), 250); } });
+      b.addEventListener('pointerleave', () => clearTimeout(minuterie));
+    }
     if (g) b.addEventListener('dragstart', e => { e.dataTransfer?.setData(TYPE_GLISSE, JSON.stringify(g)); if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy'; });
     return h('li', null, b);
   };
@@ -54,7 +66,7 @@ export function navigateur(ctx: Contexte): HTMLElement {
       const ajouter = (presetId?: string) => (kind === 'instrument'
         ? () => { ajouterCanal(ctx, p.type as InstrumentType, presetId); toast(`Canal ${reglages(p.type, presetId).nom ?? p.name} ajouté au Rack.`, 'ok'); }
         : () => { const c = store.get().channels.find(x => x.id === ui.get().canalId); ajouterEffetPreset(ctx, c?.mixerTrack ?? 0, { kind, type: p.type, ...(presetId ? { presetId } : {}) }); });
-      const aideClic = kind === 'instrument' ? 'Clic : ajouter un canal. Glisser sur une ligne du Rack : changer son instrument.' : 'Clic : ajouter à la tranche du canal sélectionné. Glisser sur une tranche de la console.';
+      const aideClic = kind === 'instrument' ? 'Survol : écouter. Clic : ajouter un canal. Glisser sur une ligne du Rack : changer son instrument.' : 'Clic : ajouter à la tranche du canal sélectionné. Glisser sur une tranche de la console.';
       if (garde(p.name, 'réglage de base')) enfants.push(item('Réglage de base', null, { kind, type: p.type }, ajouter(), aideClic));
       for (const [cat, liste] of categories) {
         const d = dossier(cat, `${p.type}/${cat}`, liste.map(pr => item(pr.name, null, { kind, type: p.type, presetId: pr.id }, ajouter(pr.id), aideClic)), filtre);
