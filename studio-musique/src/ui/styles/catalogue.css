@@ -1,0 +1,15 @@
+/* Mise en page du catalogue des composants uniquement. */
+body.catalogue { overflow: auto; }
+#catalogue { display: flex; flex-direction: column; min-height: 100vh; }
+.cat-entete { padding: 24px 32px 8px; display: flex; flex-direction: column; gap: 4px; }
+.cat-corps { flex: 1; padding: 8px 32px 32px; display: flex; flex-direction: column; gap: 14px; }
+.cat-section { background: var(--panneau); border: 1px solid var(--filet); border-radius: 10px; padding: 14px 18px 18px; }
+.cat-section > h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--texte-doux); margin-bottom: 14px; }
+.cat-rangee { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-end; padding-top: 6px; }
+.cat-fig { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; color: var(--texte-doux); }
+.cat-nuance { width: 64px; height: 40px; border-radius: 6px; border: 1px solid var(--filet-fort); }
+.cat-nuance.petite { width: 32px; height: 24px; }
+.cat-tranche { display: flex; gap: 8px; align-items: flex-end; padding: 10px; background: var(--releve); border-radius: var(--r); }
+.cat-contexte { display: grid; place-items: center; width: 160px; height: 60px; border: 1px dashed var(--filet-fort); border-radius: var(--r); color: var(--texte-doux); }
+.cat-icone { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: var(--r-petit); background: var(--releve); color: var(--texte); }
+.catalogue .barre-aide { position: sticky; bottom: 0; }
