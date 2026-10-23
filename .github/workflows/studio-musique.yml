@@ -79,3 +79,10 @@ jobs:
             studio-musique/playwright-report/
             studio-musique/test-results/
           retention-days: 7
+      - name: Captures d'écran (1440, 1024 et 390 px)
+        if: success()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: captures-frequence
+          path: studio-musique/test-results/captures/
+          retention-days: 14
