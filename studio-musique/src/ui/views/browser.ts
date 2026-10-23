@@ -11,7 +11,7 @@ import { confirmer } from '../components/dialog';
 import { toast } from '../components/toast';
 import type { Contexte } from '../contexte';
 import { h } from '../dom';
-import { chargerProjet, importerSon } from '../projet';
+import { chargerMorceau, importerSon } from '../projet';
 import { ajouterEffetPreset, reglages, TYPE_GLISSE, type Glisse } from '../presets-glisses';
 import { ajouterCanal } from './rack';
 
@@ -77,8 +77,7 @@ export function navigateur(ctx: Contexte): HTMLElement {
 
     const modeles = (ctx.services.modeles ?? []).filter(m => garde(m.nom, m.description)).map(m => item(m.nom, m.description, null, async () => {
       if (await confirmer(`Nouveau projet « ${m.nom} » ?`, 'Le projet actuel sera remplacé. Enregistrez-le d\'abord si vous voulez le garder.', 'Créer')) {
-        chargerProjet(ctx, m.creer());
-        void ctx.echantillons.remplacerTout(new Map());
+        void chargerMorceau(ctx, m.creer());
       }
     }, 'Clic : commencer un nouveau projet à partir de ce modèle.'));
 
