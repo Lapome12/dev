@@ -59,3 +59,13 @@ export function setNow(param: AudioParam, value: number): void {
 export function clamp(v: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, v));
 }
+
+/**
+ * Gain de rattrapage automatique ajouté par DynamicsCompressorNode (Chromium et Firefox) :
+ * ils remontent le son de 0,6 × la réduction subie à 0 dBFS. On l'annule pour que le réglage
+ * « gain » du compresseur soit le seul rattrapage. Renvoie le gain linéaire à appliquer après le nœud.
+ */
+export function compressorMakeupCompensation(thresholdDb: number, ratio: number): number {
+  const atFullScale = thresholdDb + (0 - thresholdDb) / Math.max(1, ratio);
+  return dbToGain(0.6 * Math.min(0, atFullScale));
+}
