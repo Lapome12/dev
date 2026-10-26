@@ -9,6 +9,7 @@ export interface NoteRequest {
   velocity: number;    // 0..1
   time: number;        // instant de départ (horloge du contexte)
   glideFrom?: number;  // hauteur de la voix précédente (portamento en mode mono)
+  legato?: boolean;    // mono : la note précédente est encore tenue (les deux notes se chevauchent)
 }
 
 export interface InstrumentHost {
