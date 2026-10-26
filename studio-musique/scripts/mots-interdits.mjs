@@ -6,7 +6,9 @@ import { fileURLToPath } from 'node:url';
 
 const racine = fileURLToPath(new URL('..', import.meta.url));
 const ici = fileURLToPath(import.meta.url);
-const motif = /fl[\s_-]*studio|fruity|image[\s_-]*line|sytrus|3x[\s_-]*osc|\bfpc\b|gross[\s_-]*beat|harmor|slicex/i;
+// Les numéros de boîtes à rythmes et de basses célèbres aussi (étape 6), isolés : pas dans un
+// nombre, un décimal ou une empreinte base64.
+const motif = /fl[\s_-]*studio|fruity|image[\s_-]*line|sytrus|3x[\s_-]*osc|\bfpc\b|gross[\s_-]*beat|harmor|slicex|(?<![A-Za-z0-9+/.=])(?:303|808|909)(?![A-Za-z0-9+/=])/i;
 const ignores = new Set(['node_modules', 'dist', 'playwright-report', 'test-results', '.git']);
 const cibles = process.argv.slice(2).length ? process.argv.slice(2) : [racine];
 

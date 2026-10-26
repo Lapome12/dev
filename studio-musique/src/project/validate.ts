@@ -23,8 +23,11 @@ export const LIMITS = {
   sampleSec: 120,
 } as const;
 
-export const INSTRUMENT_TYPES: readonly InstrumentType[] = ['trio', 'prisme', 'frappe', 'corde', 'echantillon'];
-export const EFFECT_TYPES: readonly EffectType[] = ['eq', 'reverbe', 'delai', 'compresseur', 'distorsion', 'filtre', 'chorus', 'limiteur', 'pompe', 'bitcrusher'];
+export const INSTRUMENT_TYPES: readonly InstrumentType[] = ['trio', 'prisme', 'frappe', 'corde', 'echantillon', 'acide', 'accord'];
+export const EFFECT_TYPES: readonly EffectType[] = [
+  'eq', 'reverbe', 'delai', 'compresseur', 'distorsion', 'filtre', 'chorus', 'limiteur', 'pompe', 'bitcrusher',
+  'sidechain', 'phaser', 'autofiltre', 'saturation', 'porte',
+];
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 type Obj = Record<string, unknown>;

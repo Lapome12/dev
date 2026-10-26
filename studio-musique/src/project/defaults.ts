@@ -17,9 +17,9 @@ export const DEFAULT_PATTERN_TICKS = 1536;    // 4 mesures
 export const STEP_TICKS = 24;                 // double-croche
 
 // Hauteurs des voix de Frappe, façon General MIDI (contrat validé, PLAN.md avant §D.3).
-export const DRUM = { grosseCaisse: 36, rimshot: 37, caisseClaire: 38, clap: 39, tomGrave: 41, charleyFerme: 42, tomMedium: 45, charleyOuvert: 46, crash: 49, cloche: 56 } as const;
+export const DRUM = { grosseCaisse: 36, rimshot: 37, caisseClaire: 38, clap: 39, tomGrave: 41, charleyFerme: 42, tomMedium: 45, charleyOuvert: 46, percu: 47, crash: 49, ride: 51, cloche: 56 } as const;
 
-const NAMES: Record<InstrumentType, string> = { trio: 'Trio', prisme: 'Prisme', frappe: 'Frappe', corde: 'Corde', echantillon: 'Échantillon' };
+const NAMES: Record<InstrumentType, string> = { trio: 'Trio', prisme: 'Prisme', frappe: 'Frappe', corde: 'Corde', echantillon: 'Échantillon', acide: 'Acide', accord: 'Accord' };
 
 function presetParams(type: InstrumentType | EffectType, presetId?: string) {
   const params = defaultParams(type);
