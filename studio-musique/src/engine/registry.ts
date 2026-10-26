@@ -13,13 +13,16 @@ import { distorsion } from './effects/distorsion';
 import { eq } from './effects/eq';
 import { filtre } from './effects/filtre';
 import { reverbe } from './effects/reverbe';
+import { acide } from './instruments/acide';
 import { corde } from './instruments/corde';
 import { echantillon } from './instruments/echantillon';
 import { frappe } from './instruments/frappe';
 import { prisme } from './instruments/prisme';
 import { trio } from './instruments/trio';
 
-export const INSTRUMENTS: Partial<Record<InstrumentType, InstrumentModule>> = { trio, prisme, frappe, corde, echantillon };
+export const INSTRUMENTS: Partial<Record<InstrumentType, InstrumentModule>> = {
+  trio, prisme, frappe, corde, echantillon, acide,
+};
 
 export const EFFECTS: Partial<Record<EffectType, EffectModule>> = {
   eq, reverbe, delai, compresseur, distorsion, filtre, chorus, limiteur, pompe, bitcrusher,

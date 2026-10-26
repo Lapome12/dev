@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { pluck } from '../../src/engine/instruments/corde';
+import { acidCurve } from '../../src/engine/instruments/acide';
 import { drumFor, DRUMS } from '../../src/engine/instruments/frappe';
 import { ALGORITHMS, feedbackHarmonics } from '../../src/engine/instruments/prisme';
 import { defaultParams, listPlugins } from '../../src/engine/params';
 
-describe('les 5 instruments', () => {
+describe('les 6 instruments', () => {
   it('sont tous déclarés avec leurs réglages', () => {
     const types = listPlugins().filter((p) => p.kind === 'instrument').map((p) => p.type);
-    expect(types.sort()).toEqual(['corde', 'echantillon', 'frappe', 'prisme', 'trio']);
+    expect(types.sort()).toEqual(['acide', 'corde', 'echantillon', 'frappe', 'prisme', 'trio']);
     expect(Object.keys(defaultParams('frappe')).length).toBe(51);
   });
 });
@@ -76,5 +77,16 @@ describe('Prisme (FM)', () => {
     const { real, imag } = feedbackHarmonics(1.2);
     const h3 = Math.hypot(real[3] ?? 0, imag[3] ?? 0);
     expect(h3).toBeGreaterThan(0.05);
+  });
+});
+
+describe('Acide', () => {
+  it('sature sans dépasser ±1, de façon croissante', () => {
+    for (const amount of [0, 0.5, 1]) {
+      const c = acidCurve(amount, 257);
+      expect(c[0]).toBeCloseTo(-1, 5);
+      expect(c[256]).toBeCloseTo(1, 5);
+      for (let i = 1; i < c.length; i++) expect(c[i]!).toBeGreaterThanOrEqual(c[i - 1]!);
+    }
   });
 });

@@ -50,6 +50,8 @@ interface ChannelRuntime {
   paramsKey: string;
   live: Map<number, Voice>;
   lastPitch?: number;
+  /** Fin (note-off) de la dernière note : une note qui commence avant est jouée legato (mono). */
+  lastOff: number;
 }
 
 /** Options internes (rendu hors ligne). */
@@ -137,7 +139,7 @@ export class AudioEngine implements Engine {
     const instrument = mod.create(host);
     const strip = new ChannelStrip(this.context);
     instrument.output.connect(strip.input);
-    return { type, instrument, strip, pool: new VoicePool(instrument.polyphony()), paramsKey: '', live: new Map() };
+    return { type, instrument, strip, pool: new VoicePool(instrument.polyphony()), paramsKey: '', live: new Map(), lastOff: -Infinity };
   }
 
   private disposeChannel(id: Id, rt: ChannelRuntime): void {
@@ -163,22 +165,29 @@ export class AudioEngine implements Engine {
 
   // ---------- Notes ----------
 
-  private startVoice(channelId: Id, pitch: number, velocity: number, time: number): Voice | undefined {
+  /** `off` : instant du note-off (Infinity pour une note tenue au clavier). */
+  private startVoice(channelId: Id, pitch: number, velocity: number, time: number, off: number): Voice | undefined {
     const rt = this.channels.get(channelId);
     if (!rt || !this.project) return undefined;
-    const glideFrom = rt.pool.max === 1 ? rt.pool.latest(time)?.pitch ?? rt.lastPitch : undefined;
+    const mono = rt.pool.max === 1;
+    const glideFrom = mono ? rt.pool.latest(time)?.pitch ?? rt.lastPitch : undefined;
+    // Legato : la note précédente est encore tenue (notes qui se chevauchent).
+    const legato = mono && rt.lastOff > time + 1e-6;
     const voice = rt.instrument.noteOn({
       pitch, velocity: Math.min(1, Math.max(0, velocity)), time, transpose: this.project.masterPitch,
       ...(glideFrom !== undefined ? { glideFrom } : {}),
+      ...(legato ? { legato } : {}),
     });
     rt.pool.add(voice, time);
     rt.lastPitch = pitch;
+    rt.lastOff = off;
     return voice;
   }
 
   private scheduleNote(ev: NoteEvent, time: number, duration: number): void {
-    const voice = this.startVoice(ev.channelId, ev.pitch, ev.velocity, time);
-    voice?.release(time + Math.max(0.005, duration));
+    const off = time + Math.max(0.005, duration);
+    const voice = this.startVoice(ev.channelId, ev.pitch, ev.velocity, time, off);
+    voice?.release(off);
   }
 
   noteOn(channelId: Id, pitch: number, velocity: number): void {
@@ -186,7 +195,7 @@ export class AudioEngine implements Engine {
     if (!rt) return;
     const now = this.context.currentTime;
     rt.live.get(pitch)?.release(now);
-    const v = this.startVoice(channelId, pitch, velocity, now);
+    const v = this.startVoice(channelId, pitch, velocity, now, Infinity);
     if (v) rt.live.set(pitch, v);
     rt.pool.prune(now);
   }
@@ -195,8 +204,10 @@ export class AudioEngine implements Engine {
     const rt = this.channels.get(channelId);
     const v = rt?.live.get(pitch);
     if (!rt || !v) return;
-    v.release(this.context.currentTime);
+    const now = this.context.currentTime;
+    v.release(now);
     rt.live.delete(pitch);
+    if (rt.live.size === 0) rt.lastOff = now;
   }
 
   // ---------- Métronome ----------
@@ -249,6 +260,7 @@ export class AudioEngine implements Engine {
     for (const rt of this.channels.values()) {
       rt.pool.killAll(now, STOP_FADE_SEC);
       rt.live.clear();
+      rt.lastOff = -Infinity;
     }
   }
 

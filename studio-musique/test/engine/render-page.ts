@@ -1,7 +1,7 @@
 // Page de test du rendu hors ligne (chargée dans Chromium par render.spec.ts).
-import { renderWav } from '../../src/engine/render';
+import { renderBuffer, renderWav } from '../../src/engine/render';
 import { defaultParams } from '../../src/engine/params';
-import type { EffectSlot, EffectType, InstrumentType } from '../../src/project/types';
+import type { EffectSlot, EffectType, InstrumentType, Project } from '../../src/project/types';
 import { channel, note, project } from './helpers';
 
 function fx(id: string, type: EffectType, mix = 1, params = {}): EffectSlot {
@@ -58,7 +58,10 @@ async function analyse(blob: Blob) {
 }
 
 declare global {
-  interface Window { frequenceRender: (o: { mode: 'pattern' | 'morceau'; bitDepth: 16 | 24; sampleRate: 44100 | 48000; normalize: boolean }) => Promise<unknown> }
+  interface Window {
+    frequenceRender: (o: { mode: 'pattern' | 'morceau'; bitDepth: 16 | 24; sampleRate: 44100 | 48000; normalize: boolean }) => Promise<unknown>;
+    frequenceBuffer: (p: Project, tailSec: number) => Promise<number[][]>;
+  }
 }
 
 window.frequenceRender = async (o) => {
@@ -75,4 +78,12 @@ window.frequenceRender = async (o) => {
   for (let i = 0; sameLength && i < a.samples.length; i++) maxDiff = Math.max(maxDiff, Math.abs((a.samples[i] ?? 0) - (b.samples[i] ?? 0)));
   const { samples: _ignored, ...rest } = a;
   return { ...rest, progress, sameLength, maxDiff };
+};
+
+/** Rendu brut (sans limiteur de sécurité) du pattern p1 d'un projet construit côté test. */
+window.frequenceBuffer = async (p, tailSec) => {
+  const b = await renderBuffer(p, new Map(), {
+    mode: { kind: 'pattern', patternId: 'p1' }, sampleRate: 44100, bitDepth: 16, tailSec, normalize: true,
+  });
+  return [Array.from(b.getChannelData(0)), Array.from(b.getChannelData(1))];
 };
