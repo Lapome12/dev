@@ -9,7 +9,8 @@ export interface RenderOptions { mode: PlayMode; sampleRate: 44100 | 48000; bitD
 
 /** Crête visée par la normalisation : -0,3 dBFS. */
 export const NORMALIZE_PEAK = Math.pow(10, -0.3 / 20);
-const PROGRESS_STEPS = 20;
+/** Blocs de 128 échantillons par tranche de programmation du rendu hors ligne (environ 1 s). */
+const CHUNK_BLOCKS = 344;
 
 /** Longueur musicale exportée, en ticks : le pattern une fois, ou le morceau jusqu'à la fin du dernier clip. */
 export function renderTicks(project: Readonly<Project>, mode: PlayMode): number {
@@ -30,17 +31,20 @@ export async function renderBuffer(
   for (const [id, buf] of samples) engine.setSampleAudio(id, buf);
   engine.sync(p);
   engine.play(o.mode, 0);
-  // Tout est programmé d'avance, en s'arrêtant juste avant la fin : pas de deuxième tour de boucle.
-  engine.scheduleUntil(musicSec - 1e-6);
-
-  if (onProgress) {
-    for (let k = 1; k < PROGRESS_STEPS; k++) {
-      const t = (totalSec * k) / PROGRESS_STEPS;
-      ctx.suspend(t).then(() => {
-        onProgress(k / PROGRESS_STEPS);
-        void ctx.resume();
-      }, () => undefined);
-    }
+  // Programmation par tranches, en s'arrêtant juste avant la fin (pas de deuxième tour de boucle).
+  // Tout programmer d'avance garderait branchées les voix de tout le morceau : le coût de chaque
+  // bloc grandirait avec la longueur, et l'export d'un morceau d'une minute prendrait des minutes.
+  const lastNote = musicSec - 1e-6;
+  const chunkSec = (CHUNK_BLOCKS * 128) / o.sampleRate;     // suspend() exige une frontière de bloc
+  engine.scheduleUntil(Math.min(lastNote, 2 * chunkSec));
+  for (let k = 1; k * chunkSec < totalSec; k++) {
+    const t = k * chunkSec;
+    ctx.suspend(t).then(() => {
+      engine.releaseEndedVoices(t);
+      engine.scheduleUntil(Math.min(lastNote, t + 2 * chunkSec));
+      onProgress?.(t / totalSec);
+      void ctx.resume();
+    }, () => undefined);
   }
   const out = await ctx.startRendering();
   engine.dispose();

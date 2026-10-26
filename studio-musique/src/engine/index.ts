@@ -252,6 +252,11 @@ export class AudioEngine implements Engine {
     this.transport.schedule(untilTime);
   }
 
+  /** Libère les voix terminées avant `now` (rendu hors ligne : pas de minuteur pour le faire). */
+  releaseEndedVoices(now: number): void {
+    for (const rt of this.channels.values()) rt.pool.prune(now);
+  }
+
   private notifyTransport(): void {
     const a = this.transport.anchor;
     this.mixer.onTransport({ playing: this.transport.playing, bpm: a.bpm, anchorTime: a.time, anchorTick: a.tick });

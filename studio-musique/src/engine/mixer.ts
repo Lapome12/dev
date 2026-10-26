@@ -194,6 +194,16 @@ export class TrackStrip {
 }
 
 /** Courbe de sécurité : transparente jusqu'à 0,9, puis arrondie vers 0,99 (-0,1 dBFS) au plus. */
+/** Fréquence de coupure du bloqueur de continu du maître. */
+export const DC_BLOCK_HZ = 10;
+
+/** Passe-haut d'ordre 1 y[n] = g·(x[n] - x[n-1]) + R·y[n-1], gain 1 à Nyquist. */
+export function dcBlocker(ctx: BaseAudioContext): IIRFilterNode {
+  const r = Math.exp((-2 * Math.PI * DC_BLOCK_HZ) / ctx.sampleRate);
+  const g = (1 + r) / 2;
+  return ctx.createIIRFilter([g, -g], [1, -r]);
+}
+
 function safetyCurve(): Float32Array<ArrayBuffer> {
   const n = 8193;
   const curve = new Float32Array(n);
@@ -249,6 +259,7 @@ export class ChannelStrip {
 export class Mixer {
   private tracks: TrackStrip[] = [];
   private limiter: DynamicsCompressorNode;
+  private dcBlock: IIRFilterNode;
   private clipper: WaveShaperNode;
   private bypassNode: GainNode;
   /** Point d'entrée après le maître (métronome, aperçus) : passe par la sécurité. */
@@ -267,7 +278,11 @@ export class Mixer {
       }), (slotId) => this.sidechains.delete(slotId)));
     }
     const master = this.track(0);
-    for (let i = 1; i < TRACK_COUNT; i++) this.track(i).out.connect(master.input);
+    // Bloqueur de continu (passe-haut d'ordre 1 vers 10 Hz) à l'entrée du maître : les saturations
+    // asymétriques et les grondements laissent un décalage qui mange la marge et claque aux bords.
+    this.dcBlock = dcBlocker(ctx);
+    this.dcBlock.connect(master.input);
+    for (let i = 1; i < TRACK_COUNT; i++) this.track(i).out.connect(this.dcBlock);
 
     this.post = ctx.createGain();
     this.output = ctx.createGain();
@@ -350,6 +365,7 @@ export class Mixer {
 
   dispose(): void {
     for (const t of this.tracks) t.dispose();
+    this.dcBlock.disconnect();
     this.post.disconnect();
     this.limiter.disconnect();
     this.clipper.disconnect();

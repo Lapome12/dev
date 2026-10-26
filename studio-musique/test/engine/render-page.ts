@@ -1,6 +1,7 @@
 // Page de test du rendu hors ligne (chargée dans Chromium par render.spec.ts).
 import { renderBuffer, renderWav } from '../../src/engine/render';
 import { defaultParams } from '../../src/engine/params';
+import { findTemplate } from '../../src/project/templates';
 import type { EffectSlot, EffectType, InstrumentType, Project } from '../../src/project/types';
 import { channel, note, project } from './helpers';
 
@@ -61,6 +62,7 @@ declare global {
   interface Window {
     frequenceRender: (o: { mode: 'pattern' | 'morceau'; bitDepth: 16 | 24; sampleRate: 44100 | 48000; normalize: boolean }) => Promise<unknown>;
     frequenceBuffer: (p: Project, tailSec: number) => Promise<number[][]>;
+    frequenceTemplate: (id: string) => Promise<{ mean: number[]; peak: number; seconds: number }>;
   }
 }
 
@@ -86,4 +88,30 @@ window.frequenceBuffer = async (p, tailSec) => {
     mode: { kind: 'pattern', patternId: 'p1' }, sampleRate: 44100, bitDepth: 16, tailSec, normalize: true,
   });
   return [Array.from(b.getChannelData(0)), Array.from(b.getChannelData(1))];
+};
+
+/** Rendu d'un modèle de projet en entier (morceau, sons compris) : moyenne par canal et crête. */
+window.frequenceTemplate = async (id) => {
+  // Les modèles créent des identifiants avec crypto.randomUUID, absent d'une page about:blank.
+  if (typeof crypto.randomUUID !== 'function') {
+    let n = 0;
+    crypto.randomUUID = () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}` as ReturnType<Crypto['randomUUID']>;
+  }
+  const song = findTemplate(id)!.create();
+  const decoder = new OfflineAudioContext(1, 1, 44100);
+  const samples = new Map<string, AudioBuffer>();
+  for (const [sid, data] of song.samples) samples.set(sid, await decoder.decodeAudioData(data.slice(0)));
+  const b = await renderBuffer(song.project, samples, { mode: { kind: 'morceau' }, sampleRate: 44100, bitDepth: 16, tailSec: 2, normalize: false });
+  const mean: number[] = [];
+  let peak = 0;
+  for (let c = 0; c < b.numberOfChannels; c++) {
+    const d = b.getChannelData(c);
+    let sum = 0;
+    for (let i = 0; i < d.length; i++) {
+      sum += d[i]!;
+      peak = Math.max(peak, Math.abs(d[i]!));
+    }
+    mean.push(sum / d.length);
+  }
+  return { mean, peak, seconds: b.length / b.sampleRate };
 };
