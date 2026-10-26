@@ -1,5 +1,6 @@
 // Opérations pures sur les notes et les pas (Rack, piano roll). Testées dans test/ui/notes.test.ts.
 
+import { ACCENT_VELOCITY } from '../engine/instruments/acide';
 import type { Id, Note, Pattern } from '../project/types';
 
 export const TICKS_PAS = 24;
@@ -68,8 +69,8 @@ export const VOIX_FRAPPE: Record<number, string> = {
   42: 'Charley fermé', 45: 'Tom medium', 46: 'Charley ouvert', 47: 'Percu', 49: 'Crash', 51: 'Ride', 56: 'Cloche',
 };
 
-/** Acide (§6) : une note accentuée a une vélocité d'au moins 0,8. */
-export const SEUIL_ACCENT = 0.8;
+/** Acide (§6) : une note accentuée a une vélocité d'au moins 0,8 (seuil du moteur). */
+export const SEUIL_ACCENT = ACCENT_VELOCITY;
 export const estAccent = (n: Pick<Note, 'velocity'>): boolean => n.velocity >= SEUIL_ACCENT;
 
 /** Acide, monophonique : paires de notes consécutives qui se chevauchent, donc jouées en glissé. */
