@@ -2,6 +2,7 @@
 // Chaque preset est complet : valeurs par défaut du plugin, puis ses propres réglages.
 import { defaultParams } from '../plugin-params';
 import type { EffectType, InstrumentType, ParamValue } from '../types';
+import { ACIDE } from './acide';
 import { CORDE } from './corde';
 import { ECHANTILLON } from './echantillon';
 import { EFFETS } from './effets';
@@ -14,7 +15,7 @@ import { TRIO } from './trio';
 export interface Preset { id: string; name: string; type: InstrumentType | EffectType; category: string; params: Record<string, ParamValue> }
 
 const SOURCES: [InstrumentType | EffectType, PresetSpec[]][] = [
-  ['trio', TRIO], ['prisme', PRISME], ['frappe', FRAPPE], ['corde', CORDE], ['echantillon', ECHANTILLON],
+  ['trio', TRIO], ['prisme', PRISME], ['frappe', FRAPPE], ['corde', CORDE], ['echantillon', ECHANTILLON], ['acide', ACIDE],
   ...EFFETS, ...EFFETS_TECHNO,
 ];
 

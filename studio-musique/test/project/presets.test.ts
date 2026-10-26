@@ -11,6 +11,7 @@ describe('presets', () => {
     expect(count('frappe')).toBeGreaterThanOrEqual(3);
     expect(count('corde')).toBeGreaterThanOrEqual(6);
     expect(count('echantillon')).toBeGreaterThanOrEqual(2);
+    expect(count('acide')).toBeGreaterThanOrEqual(12);
     // Étape 6 : effets techno et house.
     for (const t of ['porte', 'phaser', 'autofiltre', 'saturation'] as const) expect(count(t), t).toBeGreaterThanOrEqual(3);
   });
