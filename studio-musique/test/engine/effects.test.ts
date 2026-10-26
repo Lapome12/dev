@@ -48,8 +48,9 @@ describe('effets', () => {
 
 describe('effets de l’étape 3.1', () => {
   it('les 10 effets sont déclarés', async () => {
-    const types = listPlugins().filter((p) => p.kind === 'effet').map((p) => p.type).sort();
-    expect(types).toEqual(['bitcrusher', 'chorus', 'compresseur', 'delai', 'distorsion', 'eq', 'filtre', 'limiteur', 'pompe', 'reverbe']);
+    const types = listPlugins().filter((p) => p.kind === 'effet').map((p) => p.type);
+    // L'étape 6 en ajoute d'autres : on vérifie seulement la présence des 10 premiers.
+    expect(types).toEqual(expect.arrayContaining(['bitcrusher', 'chorus', 'compresseur', 'delai', 'distorsion', 'eq', 'filtre', 'limiteur', 'pompe', 'reverbe']));
   });
 
   it('limiteur : la courbe ne dépasse jamais le plafond et reste transparente en dessous', async () => {

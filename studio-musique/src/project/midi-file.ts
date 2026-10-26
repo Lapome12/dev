@@ -8,6 +8,17 @@ import { LIMITS } from './validate';
 
 export const MAX_MIDI_BYTES = 10 * 1024 * 1024;
 const DRUM_CHANNEL = 9;   // canal 10 en numérotation humaine
+
+/**
+ * Batterie General MIDI vers les 12 voix de Frappe (36 à 56, déjà aux numéros GM) : chaque son GM
+ * sans voix à lui va vers la plus proche (pédale de charley vers le charley fermé, congas vers la
+ * percu, ride 2 vers la ride…). Les autres notes passent telles quelles.
+ */
+const GM_VERS_FRAPPE: Record<number, number> = {
+  35: 36, 40: 38, 43: 41, 44: 42, 48: 45, 50: 45, 52: 49, 55: 49, 57: 49, 53: 51, 59: 51,
+  54: 56, 58: 56, 67: 56, 68: 56, 60: 47, 61: 47, 62: 47, 63: 47, 64: 47, 65: 47, 66: 47,
+  69: 42, 70: 42, 75: 37, 76: 37, 77: 37,
+};
 const BAR = PPQ * 4;
 
 // ---------------------------------------------------------------- export
@@ -252,7 +263,8 @@ export function importMidi(data: ArrayBuffer): MidiImport {
       .sort((x, y) => x.tick - y.tick || x.pitch - y.pitch)
       .map(n => {
         maxEnd = Math.max(maxEnd, n.tick + n.length);
-        return { id: newId(), tick: n.tick, length: n.length, pitch: n.pitch, velocity: n.velocity };
+        const pitch = drums ? GM_VERS_FRAPPE[n.pitch] ?? n.pitch : n.pitch;
+        return { id: newId(), tick: n.tick, length: n.length, pitch, velocity: n.velocity };
       });
   });
   pattern.lengthTicks = Math.min(LIMITS.maxTick, Math.max(DEFAULT_PATTERN_TICKS, Math.ceil(maxEnd / BAR) * BAR));
