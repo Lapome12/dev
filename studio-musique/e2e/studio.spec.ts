@@ -283,3 +283,54 @@ test('dans claude.ai : enregistrer et exporter passent par « downloads », en .
   expect(requetes).toEqual([]);
   expect(erreurs).toEqual([]);
 });
+
+// Étape 6 : chaque modèle de club s'ouvre, joue et s'exporte (le premier pattern, pour rester rapide).
+for (const { nom, canaux } of [
+  { nom: 'Techno 132 BPM', canaux: ['Grosse caisse', 'Grondement', 'Acide', 'Nappe', 'Ride'] },
+  { nom: 'House 124 BPM', canaux: ['Grosse caisse', 'Stabs', 'Piano', 'Percu'] },
+]) {
+  test(`modèle « ${nom} » : ouvrir, jouer, exporter`, async ({ page }) => {
+    test.setTimeout(120_000);
+    const erreurs: string[] = [];
+    page.on('pageerror', e => erreurs.push(e.message));
+    page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()); });
+    const requetes = surveillerReseau(page);
+    await demarrer(page);
+
+    await page.getByRole('button', { name: 'Projet' }).click();
+    await page.getByRole('menuitem', { name: /Nouveau…/ }).click();
+    await page.getByRole('radio', { name: new RegExp(nom) }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Créer', exact: true }).click();
+    await expect(page.getByText(`Nouveau projet : ${nom}.`)).toBeVisible();
+
+    const s = await enregistrer(page);
+    const p = s.fichier.project;
+    for (const c of canaux) expect(p.channels.map(x => x.name), c).toContain(c);
+    expect(p.patterns.length).toBeGreaterThanOrEqual(4);
+    expect(Math.max(...p.arrangement.clips.map(c => c.start + (c as { length?: number }).length!)) / 384).toBeGreaterThanOrEqual(32);
+    expect(p.mixer.flatMap(t => t.effects).some(e => e.type === 'sidechain')).toBe(true);
+
+    // Jouer : la position avance.
+    const position = page.locator('.tr-position');
+    const depart = await position.textContent();
+    await page.keyboard.press('Space');
+    await expect(position).not.toHaveText(depart ?? '', { timeout: 5000 });
+    await page.waitForTimeout(1500);
+    await page.keyboard.press('Space');
+
+    // Exporter le premier pattern en WAV : un vrai signal, sans saturation.
+    await page.keyboard.press('Control+e');
+    const dialogue = page.getByRole('dialog');
+    await dialogue.getByRole('combobox', { name: 'À exporter' }).selectOption('pattern');
+    const export_ = page.waitForEvent('download', { timeout: 100_000 });
+    await dialogue.getByRole('button', { name: 'Exporter', exact: true }).click();
+    const wav = analyserWav(await lireTelechargement(await export_));
+    expect(wav.secondes).toBeGreaterThan(6);
+    expect(wav.crete).toBeGreaterThan(0.1);
+    expect(wav.crete).toBeLessThan(1);
+    expect(wav.rms).toBeGreaterThan(0.01);
+
+    expect(requetes).toEqual([]);
+    expect(erreurs).toEqual([]);
+  });
+}

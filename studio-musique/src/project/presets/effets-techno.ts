@@ -31,8 +31,7 @@ const SATURATION: PresetSpec[] = [
   { id: 'saturation-grondement', name: 'Grondement techno', category: 'Couleur', params: { mode: 'lampe', drive: 24, tonalite: 2500, mix: 1, compensation: true } },
 ];
 
-/** Sidechain : ajouté à EFFETS_TECHNO quand l'effet de Dev 1 est dans main. */
-export const SIDECHAIN: PresetSpec[] = [
+const SIDECHAIN: PresetSpec[] = [
   { id: 'sidechain-classique', name: 'Sidechain classique', category: 'Dynamique', params: { source: 1, seuil: -24, ratio: 6, attaque: 1, relachement: 180, profondeur: 0.7 } },
   { id: 'sidechain-extreme', name: 'Sidechain extrême', category: 'Dynamique', params: { source: 1, seuil: -36, ratio: 20, attaque: 0.1, relachement: 260, profondeur: 1 } },
   { id: 'sidechain-discret', name: 'Respiration discrète', category: 'Dynamique', params: { source: 1, seuil: -18, ratio: 3, attaque: 5, relachement: 120, profondeur: 0.4 } },
@@ -45,5 +44,5 @@ const REVERBE_TECHNO: PresetSpec[] = [
 
 export const EFFETS_TECHNO: [EffectType, PresetSpec[]][] = [
   ['porte', PORTE], ['phaser', PHASER], ['autofiltre', AUTOFILTRE], ['saturation', SATURATION],
-  ['reverbe', REVERBE_TECHNO],
+  ['sidechain', SIDECHAIN], ['reverbe', REVERBE_TECHNO],
 ];
