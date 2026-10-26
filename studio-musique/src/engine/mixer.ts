@@ -76,7 +76,9 @@ export class TrackStrip {
   private analyser: AnalyserNode | null = null;
   private initialised = false;
 
-  constructor(private ctx: BaseAudioContext, readonly index: number, private host: EffectHost) {
+  private tap: GainNode | null = null;
+
+  constructor(private ctx: BaseAudioContext, readonly index: number, private hostFor: (slotId: Id) => EffectHost, private release: (slotId: Id) => void) {
     this.input = ctx.createGain();
     this.fader = ctx.createGain();
     this.panner = ctx.createStereoPanner();
@@ -112,13 +114,14 @@ export class TrackStrip {
       if (!e || e.type !== rt.type) {
         rt.dispose();
         this.slots.delete(id);
+        this.release(id);
       }
     }
     const created = new Set<Id>();
     for (const e of effects) {
       if (this.slots.has(e.id)) continue;
       const mod = EFFECTS[e.type];
-      const effect = mod ? mod.create(this.host) : passThrough(this.ctx);
+      const effect = mod ? mod.create(this.hostFor(e.id)) : passThrough(this.ctx);
       this.slots.set(e.id, new SlotRuntime(this.ctx, e.id, e.type, effect));
       created.add(e.id);
     }
@@ -138,6 +141,15 @@ export class TrackStrip {
     }
     prev.connect(this.fader);
     this.order = ids;
+  }
+
+  /** Copie de la sortie post-fader, pour les sidechains des autres tranches. */
+  sidechainTap(): GainNode {
+    if (!this.tap) {
+      this.tap = this.ctx.createGain();
+      this.out.connect(this.tap);
+    }
+    return this.tap;
   }
 
   effect(slotId: Id): Effect | undefined {
@@ -165,8 +177,12 @@ export class TrackStrip {
   }
 
   dispose(): void {
-    for (const rt of this.slots.values()) rt.dispose();
+    for (const [id, rt] of this.slots) {
+      rt.dispose();
+      this.release(id);
+    }
     this.slots.clear();
+    this.tap?.disconnect();
     this.input.disconnect();
     this.fader.disconnect();
     this.panner.disconnect();
@@ -239,8 +255,17 @@ export class Mixer {
   readonly post: GainNode;
   readonly output: GainNode;
 
+  /** Sidechains en place : emplacement d'effet → (tranche de l'effet, tranche source). */
+  private sidechains = new Map<Id, { owner: number; source: number }>();
+
   constructor(ctx: BaseAudioContext, host: EffectHost, safety = true) {
-    for (let i = 0; i < TRACK_COUNT; i++) this.tracks.push(new TrackStrip(ctx, i, host));
+    for (let i = 0; i < TRACK_COUNT; i++) {
+      this.tracks.push(new TrackStrip(ctx, i, (slotId) => ({
+        ctx: host.ctx,
+        bpm: host.bpm,
+        sidechain: (source) => this.sidechainFor(i, slotId, source),
+      }), (slotId) => this.sidechains.delete(slotId)));
+    }
     const master = this.track(0);
     for (let i = 1; i < TRACK_COUNT; i++) this.track(i).out.connect(master.input);
 
@@ -277,6 +302,33 @@ export class Mixer {
       const audible = strip.index === 0 ? !tr?.mute : !tr?.mute && (!anySolo || !!tr?.solo);
       strip.sync(tr, audible);
     }
+  }
+
+  /**
+   * Source de sidechain demandée par l'effet `slotId` de la tranche `owner`. Refusée (null) si la
+   * source n'est pas une tranche 1 à 12, si c'est la tranche elle-même, ou si elle dépend déjà,
+   * par d'autres sidechains, de la tranche `owner` : une boucle sans retard rendrait le son muet.
+   */
+  sidechainFor(owner: number, slotId: Id, source: number): AudioNode | null {
+    this.sidechains.delete(slotId);
+    if (!Number.isInteger(source) || source < 1 || source >= TRACK_COUNT || source === owner) return null;
+    if (this.dependsOn(source, owner)) return null;
+    this.sidechains.set(slotId, { owner, source });
+    return this.track(source).sidechainTap();
+  }
+
+  /** La tranche `from` est-elle pilotée, directement ou non, par la tranche `target` ? */
+  private dependsOn(from: number, target: number): boolean {
+    const seen = new Set<number>();
+    const stack = [from];
+    while (stack.length > 0) {
+      const t = stack.pop() as number;
+      if (t === target) return true;
+      if (seen.has(t)) continue;
+      seen.add(t);
+      for (const e of this.sidechains.values()) if (e.owner === t) stack.push(e.source);
+    }
+    return false;
   }
 
   setTempo(bpm: number): void {

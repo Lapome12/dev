@@ -17,6 +17,7 @@ import { autofiltre } from './effects/autofiltre';
 import { phaser } from './effects/phaser';
 import { porte } from './effects/porte';
 import { saturation } from './effects/saturation';
+import { sidechain } from './effects/sidechain';
 import { accord } from './instruments/accord';
 import { acide } from './instruments/acide';
 import { corde } from './instruments/corde';
@@ -32,6 +33,7 @@ export const INSTRUMENTS: Partial<Record<InstrumentType, InstrumentModule>> = {
 export const EFFECTS: Partial<Record<EffectType, EffectModule>> = {
   eq, reverbe, delai, compresseur, distorsion, filtre, chorus, limiteur, pompe, bitcrusher,
   phaser, autofiltre, saturation, porte,
+  sidechain,
 };
 
 export const PLUGINS: PluginDef[] = [

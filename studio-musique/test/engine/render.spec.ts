@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
 import { build } from 'vite';
 import { defaultParams } from '../../src/engine/params';
-import type { InstrumentType, Note, ParamValue, Project } from '../../src/project/types';
+import type { EffectSlot, InstrumentType, Note, ParamValue, Project } from '../../src/project/types';
 import { channel, note, project } from './helpers';
 
 let bundle = '';
@@ -169,4 +169,47 @@ test('Frappe : les 12 voix sonnent, le caractère épaissit le son', async ({ pa
   expect(c.nan + d.nan).toBe(0);
   expect(d.peak).toBeLessThan(1);
   expect(d.rms).toBeGreaterThan(c.rms * 1.5);
+});
+
+/** Nappe tenue sur la tranche 2 ; grosse caisse à la noire sur la tranche 1 (éventuellement muette). */
+function sidechainProject(withEffect: boolean, sourceMuted: boolean, withPad = true): Project {
+  const p = project({
+    channels: [
+      channel('kick', { instrument: { type: 'frappe', params: defaultParams('frappe') }, mixerTrack: 1, volume: 1, mute: sourceMuted }),
+      channel('pad', { instrument: { type: 'trio', params: defaultParams('trio') }, mixerTrack: 2, volume: 0.8 }),
+    ],
+  });
+  p.patterns[0]!.notes = { kick: [0, 96, 192, 288].map((t) => note(t, 36, 24, 1)), pad: withPad ? [note(0, 48, 384), note(0, 55, 384), note(0, 60, 384)] : [] };
+  const slot: EffectSlot = { id: 'sc', type: 'sidechain', bypass: !withEffect, mix: 1, params: { ...defaultParams('sidechain'), source: 1 } };
+  p.mixer[2]!.effects = [slot];
+  return p;
+}
+
+test('Sidechain : la nappe baisse quand la source joue, rien ne change quand elle est muette', async ({ page }) => {
+  test.setTimeout(120_000);
+  const minus = (a: { L: number[] }, b: { L: number[] }) => a.L.map((v, i) => v - b.L[i]!);
+  const on = await renderProject(page, sidechainProject(true, false));
+  const off = await renderProject(page, sidechainProject(false, false));
+  const kick = await renderProject(page, sidechainProject(false, false, false));
+  const quietOn = await renderProject(page, sidechainProject(true, true));
+  const quietOff = await renderProject(page, sidechainProject(false, true));
+  expect(stats([on.L, on.R]).nan).toBe(0);
+  // La grosse caisse est la même partout : en la retranchant, il reste la nappe seule.
+  const padOn = minus(on, kick);
+  const padOff = minus(off, kick);
+  // Juste après le deuxième coup (0,5 s), la nappe est nettement plus basse, puis elle remonte.
+  const beat = 96 * SEC_PER_TICK;
+  expect(stats([padOn], beat + 0.01, beat + 0.06).rms).toBeLessThan(stats([padOff], beat + 0.01, beat + 0.06).rms * 0.6);
+  expect(stats([padOn], beat + 0.4, beat + 0.48).rms).toBeGreaterThan(stats([padOff], beat + 0.4, beat + 0.48).rms * 0.9);
+  // Source muette : aucune réduction de gain, dès le début.
+  expect(stats([minus(quietOff, quietOn)]).peak).toBeLessThan(1e-3);
+});
+
+test('Sidechain : une tranche qui se pilote elle-même est ignorée, sans boucle', async ({ page }) => {
+  const p = sidechainProject(true, false);
+  p.mixer[2]!.effects[0]!.params = { ...defaultParams('sidechain'), source: 2 };
+  const self = await renderProject(page, p);
+  const ref = await renderProject(page, sidechainProject(false, false));
+  expect(stats([self.L, self.R]).nan).toBe(0);
+  expect(stats([self.L.map((v, i) => v - ref.L[i]!)]).peak).toBeLessThan(1e-3);
 });

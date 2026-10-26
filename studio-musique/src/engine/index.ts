@@ -74,7 +74,8 @@ export class AudioEngine implements Engine {
   constructor(context?: BaseAudioContext, opts: EngineOptions = {}) {
     this.context = context ?? createAudioContext();
     this.realtime = opts.realtime ?? !(typeof OfflineAudioContext !== 'undefined' && this.context instanceof OfflineAudioContext);
-    const host: EffectHost = { ctx: this.context, bpm: () => this.project?.bpm ?? 120 };
+    // La console donne à chaque effet son propre accès au sidechain (voir Mixer.hostFor).
+    const host: EffectHost = { ctx: this.context, bpm: () => this.project?.bpm ?? 120, sidechain: () => null };
     this.startDelay = opts.startDelay ?? START_DELAY_SEC;
     this.mixer = new Mixer(this.context, host, opts.safetyLimiter ?? true);
     this.transport = new Transport({

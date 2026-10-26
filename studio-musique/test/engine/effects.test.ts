@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { compressorMakeupCompensation, dbToGain } from '../../src/engine/context';
 import { distortionCurve } from '../../src/engine/effects/distorsion';
 import { impulseData } from '../../src/engine/impulse';
-import { listPlugins } from '../../src/engine/params';
+import { defaultParams, listPlugins } from '../../src/engine/params';
 
 describe('effets', () => {
   it('les effets de l’étape 2.2 sont déclarés', () => {
@@ -74,5 +74,14 @@ describe('effets de l’étape 3.1', () => {
     expect(shape.at(-1)).toBeGreaterThan(-0.01);
     expect(mean).toBeLessThan(0);
     for (let i = 1; i < shape.length; i++) expect(Math.abs((shape[i] ?? 0) - (shape[i - 1] ?? 0))).toBeLessThan(0.06);
+  });
+});
+
+describe('Sidechain (étape 6.1d)', () => {
+  it('est déclaré avec ses réglages', () => {
+    const d = defaultParams('sidechain');
+    expect(Object.keys(d).sort()).toEqual(['attaque', 'profondeur', 'ratio', 'relachement', 'seuil', 'source']);
+    expect(d.source).toBe(1);
+    expect(d.profondeur).toBe(1);
   });
 });
