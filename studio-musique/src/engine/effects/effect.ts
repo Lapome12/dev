@@ -8,6 +8,12 @@ export interface TransportInfo { playing: boolean; bpm: number; anchorTime: numb
 export interface EffectHost {
   readonly ctx: BaseAudioContext;
   bpm(): number;
+  /**
+   * Sortie post-fader de la tranche `track` (1 à 12), à brancher sur un détecteur (sidechain).
+   * null si la source est la tranche de l'effet lui-même ou si elle créerait une boucle.
+   * Chaque appel remplace la source précédemment demandée par cet effet.
+   */
+  sidechain(track: number): AudioNode | null;
 }
 
 export interface Effect {
