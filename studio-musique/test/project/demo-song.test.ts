@@ -48,10 +48,10 @@ describe('morceau de démo « Premier jet »', () => {
 });
 
 describe('modèles de projet', () => {
-  it('quatre modèles valides, aux tempos annoncés', async () => {
+  it('cinq modèles valides, aux tempos annoncés', async () => {
     const { TEMPLATES } = await import('../../src/project/templates');
-    expect(TEMPLATES.map(t => t.id)).toEqual(['vide', 'hiphop-90', 'house-124', 'lofi-75']);
-    const bpm: Record<string, number> = { vide: 130, 'hiphop-90': 90, 'house-124': 124, 'lofi-75': 75 };
+    expect(TEMPLATES.map(t => t.id)).toEqual(['vide', 'hiphop-90', 'house-124', 'techno-132', 'lofi-75']);
+    const bpm: Record<string, number> = { vide: 130, 'hiphop-90': 90, 'house-124': 124, 'techno-132': 132, 'lofi-75': 75 };
     for (const t of TEMPLATES) {
       const { project } = t.create();
       expect(project.bpm, t.id).toBe(bpm[t.id]);
@@ -60,6 +60,30 @@ describe('modèles de projet', () => {
         const flat = flattenNotes(project);
         for (const c of project.channels) expect(flat.get(c.id)!.length, `${t.id} ${c.name}`).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe('modèles techno et house (étape 6)', () => {
+  it('au moins 4 patterns, 32 mesures, et les instruments et effets de l’étape 6', async () => {
+    const { findTemplate } = await import('../../src/project/templates');
+    const attendus: Record<string, { instruments: string[]; effets: string[] }> = {
+      'techno-132': { instruments: ['frappe', 'acide', 'accord'], effets: ['sidechain', 'porte', 'reverbe'] },
+      'house-124': { instruments: ['frappe', 'accord'], effets: ['sidechain'] },
+    };
+    for (const [id, a] of Object.entries(attendus)) {
+      const { project } = findTemplate(id)!.create();
+      expect(project.patterns.length, id).toBeGreaterThanOrEqual(4);
+      const fin = Math.max(...project.arrangement.clips.map(c => c.start + c.length));
+      expect(fin / (96 * 4), id).toBeGreaterThanOrEqual(32);
+      const instruments = new Set(project.channels.map(c => c.instrument.type));
+      for (const t of a.instruments) expect(instruments.has(t as never), `${id} ${t}`).toBe(true);
+      const effets = new Set(project.mixer.flatMap(t => t.effects.map(e => e.type)));
+      for (const t of a.effets) expect(effets.has(t as never), `${id} ${t}`).toBe(true);
+      // Le sidechain écoute la grosse caisse, sur la tranche 1.
+      const kick = project.channels.find(c => c.name === 'Grosse caisse')!;
+      expect(kick.mixerTrack, id).toBe(1);
+      for (const e of project.mixer.flatMap(t => t.effects)) if (e.type === 'sidechain') expect(e.params.source, id).toBe(1);
     }
   });
 });

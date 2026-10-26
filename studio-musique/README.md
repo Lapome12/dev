@@ -1,8 +1,8 @@
 # Fréquence
 
 Un studio de musique complet dans le navigateur, écrit par nous de bout en bout : séquenceur pas à pas,
-piano roll, arrangement, console de mixage, 5 instruments et 10 effets maison, 77 presets, un morceau de
-démo et des modèles de projet. Tout tient dans **un seul fichier HTML**, fonctionne hors ligne et ne fait
+piano roll, arrangement, console de mixage, 7 instruments et 15 effets maison, 124 presets, un morceau de
+démo et des modèles de projet, dont Techno 132 BPM et House 124 BPM. Tout tient dans **un seul fichier HTML**, fonctionne hors ligne et ne fait
 aucune requête réseau. Il n'y a aucun fichier audio : chaque son est synthétisé en direct par Web Audio.
 
 ## Ce qu'il y a dedans
@@ -19,13 +19,20 @@ aucune requête réseau. Il n'y a aucun fichier audio : chaque son est synthéti
 
 - **Trio** : synthé soustractif à 3 oscillateurs (basses, leads, nappes, cuivres). 25 presets.
 - **Prisme** : synthé FM à 4 opérateurs (cloches, pianos électriques, basses métalliques). 12 presets.
-- **Frappe** : boîte à rythmes synthétisée à 10 voix (grosse caisse, caisse claire, clap, charleys, toms,
-  crash, cloche). 3 kits.
+- **Frappe** : boîte à rythmes synthétisée à 12 voix (grosse caisse, rimshot, caisse claire, clap, charleys,
+  toms, percu, crash, ride, cloche) et un réglage « Caractère » plus ou moins brut. 6 kits, dont Entrepôt
+  (techno), Garage et Minimal.
 - **Corde** : corde pincée par modèle physique (guitare, harpe, pizzicato). 6 presets.
 - **Échantillon** : joue vos propres sons (.wav, .mp3, .ogg, .flac) à toutes les hauteurs. 2 presets.
+- **Acide** : basse monophonique qui couine, filtre très résonant, accents (vélocité ≥ 80 %) et glissés
+  (notes qui se chevauchent). 12 presets.
+- **Accord** : une note joue tout un accord (majeur, mineur, m7, m9, sus…) en orgue, nappe large ou piano
+  house. Stabs, orgues garage, nappes Detroit. 12 presets.
 
 **Effets** : Réverbe, Délai, Compresseur, Égaliseur 7 bandes, Distorsion, Filtre, Limiteur, Chorus,
-Pompe, Bitcrusher. 29 presets d'effets.
+Pompe, Bitcrusher, et pour la techno et la house : Sidechain (le volume plonge à chaque coup de la
+grosse caisse d'une autre tranche), Porte (hachage rythmé sur 16 pas), Phaser, Autofiltre (filtre
+qui monte sur 8 mesures ou suit le volume) et Saturation (bande, lampe, repli). 49 presets d'effets.
 
 ## Prise en main en 5 minutes
 
@@ -48,8 +55,14 @@ geste), ou sur **Écouter la démo** pour entendre « Premier jet » joué enti�
    projet dans un fichier `.frequence` que `Ctrl+O` rouvre. Le travail en cours est aussi sauvegardé
    automatiquement dans le navigateur et proposé au prochain démarrage.
 
-Pour partir d'une base : **Projet › Nouveau…** propose Vide, Beat hip-hop 90 BPM, House 124 BPM et
-Lo-fi 75 BPM.
+Pour partir d'une base : **Projet › Nouveau…** propose Vide, Beat hip-hop 90 BPM, House 124 BPM,
+Techno 132 BPM et Lo-fi 75 BPM. Les deux modèles de club sont des morceaux de 36 mesures (intro,
+groove, montée, pause, final) :
+
+- **Techno 132** : grosse caisse roulante doublée d'un « grondement » (réverbe sombre pompée par le
+  sidechain), ligne d'Acide, charley ouvert, ride, nappe hachée par la Porte.
+- **House 124** : stabs d'Accord pompés par le sidechain, charley ouvert à contretemps, percu, pont au
+  piano house.
 
 ## Raccourcis
 

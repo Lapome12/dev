@@ -15,6 +15,7 @@ describe('presets', () => {
     expect(count('accord')).toBeGreaterThanOrEqual(12);
     // Étape 6 : effets techno et house.
     for (const t of ['porte', 'phaser', 'autofiltre', 'saturation'] as const) expect(count(t), t).toBeGreaterThanOrEqual(3);
+    expect(count('sidechain')).toBeGreaterThanOrEqual(3);
   });
 
   it('ids uniques, noms français non vides, catégories (les noms interdits sont vérifiés par scripts/mots-interdits.mjs)', () => {
