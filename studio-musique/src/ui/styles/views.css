@@ -285,3 +285,17 @@
 .telephone .rk-defilement { padding: 6px; }
 .telephone .barre-aide::after { content: "Piano roll, arrangement et console : sur ordinateur."; margin-left: auto; color: var(--texte-faible); }
 .telephone .barre-aide .ba-texte { display: none; }
+
+/* ---------- Étape 6 : Porte (motif de 16 pas), source du sidechain ---------- */
+.pw-motif { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.pw-motif-pas-liste { display: grid; grid-template-columns: repeat(16, minmax(14px, 32px)); gap: 3px; }
+.pw-motif-pas { height: 30px; padding: 0; border: 1px solid #353b4a; border-radius: 3px; background: #2b303d; }
+.pw-motif-pas.alt { background: #22262f; }
+.pw-motif-pas:nth-child(4n+1):not(:first-child) { margin-left: 4px; }
+.pw-motif-pas:hover { border-color: var(--texte-faible); }
+.pw-motif-pas[aria-pressed="true"] { background: var(--accent-pale); border-color: var(--accent); box-shadow: 0 -10px 0 var(--accent) inset; }
+.pw-motif-outils { display: flex; flex-wrap: wrap; gap: 4px; }
+.pw-source .liste-select { min-width: 200px; }
+.pw-groupes .groupe-reglages:has(.pw-motif) { grid-column: 1 / -1; }
+.rangee-reglages > .pw-motif { flex: 1 1 100%; }
+.pw-motif-outils .btn { height: 26px; padding: 0 8px; font-size: 12px; }

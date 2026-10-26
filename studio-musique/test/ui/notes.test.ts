@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Pattern } from '../../src/project/types';
-import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, pasAllume } from '../../src/ui/notes';
+import { copierPattern, definirPas, estAccent, liaisonsGlisse, nombrePas, nomLibre, notesDuPas, pasAllume } from '../../src/ui/notes';
 import { formaterPosition } from '../../src/ui/lecture';
 
 const pattern = (): Pattern => ({ id: 'p', name: 'Pattern 1', color: '#fff', lengthTicks: 384, notes: {} });
@@ -96,5 +96,17 @@ describe('vélocités par pas', () => {
     expect(v[0]).toBeCloseTo(0.9);
     expect(v[1]).toBe(0);
     expect(v.length).toBe(16);
+  });
+});
+
+describe('Acide : accent et glissé', () => {
+  it('accent à partir de 0,8', () => {
+    expect(estAccent({ velocity: 0.8 })).toBe(true);
+    expect(estAccent({ velocity: 0.79 })).toBe(false);
+  });
+  it('glissé : seules les notes consécutives qui se chevauchent', () => {
+    const a = { tick: 0, length: 30 }, b = { tick: 24, length: 24 }, c = { tick: 48, length: 24 }, d = { tick: 96, length: 24 };
+    expect(liaisonsGlisse([c, a, d, b])).toEqual([[a, b]]);
+    expect(liaisonsGlisse([{ tick: 0, length: 48 }, { tick: 0, length: 24 }])).toEqual([]);
   });
 });

@@ -16,7 +16,8 @@ import type { Reglage } from '../components/glisser';
 import type { Contexte } from '../contexte';
 import { borner, h, jeton, preparerCanvas } from '../dom';
 import { finGeste } from '../geste';
-import { nomNote } from '../notes';
+import { nomNote, VOIX_FRAPPE } from '../notes';
+import { ecrireMotif, lireMotif, PAS_PORTE } from '../../engine/effects/porte';
 
 type Cible = { kind: 'instrument'; canalId: Id } | { kind: 'effet'; piste: number; slotId: Id };
 
@@ -87,6 +88,17 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
   const synchros: (() => void)[] = [];
   const controle = (p: ParamDef): HTMLElement => {
     const val = () => valeurReglage(p, lire()?.params ?? {});
+    // Sidechain : la tranche source, désignée par son nom.
+    if (def.type === 'sidechain' && p.id === 'source' && p.kind === 'number') {
+      const options = () => Array.from({ length: 12 }, (_, i) => {
+        const n = i + 1;
+        const nom = store.get().mixer[n]?.name ?? `Tranche ${n}`;
+        return { value: String(n), label: cible.kind === 'effet' && n === cible.piste ? `${n} · ${nom} (cette tranche, sans effet)` : `${n} · ${nom}` };
+      });
+      const l: Liste = liste({ libelle: p.label, etiquetteVisible: true, options: options(), valeur: String(val()), aide: p.help, surChange: v => ecrire('Choisir la source du sidechain', x => { x[p.id] = Number(v); }) });
+      synchros.push(() => { l.options(options()); l.definir(String(val())); });
+      return h('div', { class: 'pw-source' }, l.el);
+    }
     if (p.kind === 'number') {
       const unite = p.unit as Unite | undefined;
       const r: Reglage = boutonRotatif({
@@ -105,12 +117,45 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
       synchros.push(() => t.definir(Boolean(val())));
       return h('div', { class: 'pw-toggle' }, t.el);
     }
+    // Porte : motif de 16 pas cliquables (format 'x.' convenu avec Dev 3).
+    if (def.type === 'porte' && p.id === 'motif') return editeurMotif(p, val);
     // Choix : la liste des sons d'Échantillon vient du projet.
     const options = () => (p.options && p.options.length ? p.options : [{ value: '', label: 'Aucun son' }, ...store.get().samples.map(s => ({ value: s.id, label: s.name }))]);
     const l: Liste = liste({ libelle: p.label, etiquetteVisible: true, options: options(), valeur: String(val()), aide: p.help, surChange: v => ecrire(`Choisir ${p.label.toLowerCase()}`, x => { x[p.id] = v; }) });
     synchros.push(() => { if (!p.options?.length) l.options(options()); l.definir(String(val())); });
     return l.el;
   };
+
+  function editeurMotif(p: ParamDef, val: () => ParamValue): HTMLElement {
+    const boutons = Array.from({ length: PAS_PORTE }, (_, i) => {
+      const b = h('button', { type: 'button', class: `pw-motif-pas${Math.floor(i / 4) % 2 ? ' alt' : ''}`, 'aria-label': `Pas ${i + 1}`, 'aria-pressed': 'false' });
+      b.addEventListener('click', () => {
+        const m = lireMotif(val());
+        m[i] = !m[i];
+        ecrire(m[i] ? 'Ouvrir un pas de la porte' : 'Fermer un pas de la porte', x => { x[p.id] = ecrireMotif(m); });
+      });
+      b.addEventListener('keydown', e => {
+        const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (d) { e.preventDefault(); boutons[(i + d + PAS_PORTE) % PAS_PORTE]?.focus(); }
+      });
+      return b;
+    });
+    const maj = () => { const m = lireMotif(val()); for (const [i, b] of boutons.entries()) b.setAttribute('aria-pressed', String(m[i])); };
+    maj();
+    synchros.push(maj);
+    const outil = (texte: string, f: (m: boolean[]) => boolean[]) => h('button', {
+      type: 'button', class: 'btn discret',
+      onclick: () => ecrire(`Motif de la porte : ${texte.toLowerCase()}`, x => { x[p.id] = ecrireMotif(f(lireMotif(val()))); }),
+    }, texte);
+    return h('div', { class: 'pw-motif', 'data-aide': p.help },
+      h('div', { class: 'pw-motif-pas-liste', role: 'group', 'aria-label': 'Motif de la porte (16 pas)' }, ...boutons),
+      h('div', { class: 'pw-motif-outils' },
+        outil('Tout ouvrir', m => m.map(() => true)),
+        outil('Croches', m => m.map((_, i) => i % 2 === 0)),
+        outil('Inverser', m => m.map(x => !x)),
+        outil('Décaler', m => [m[PAS_PORTE - 1] ?? false, ...m.slice(0, -1)]),
+        outil('Effacer', m => m.map(() => false))));
+  }
 
   const groupes = grouper(def.params).map(g => {
     const pre = prefixeAdsr(g.params);
@@ -279,7 +324,7 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
     };
     animation = requestAnimationFrame(tracer);
   }
-  if (cible.kind === 'effet' && def.view === 'compresseur') {
+  if (cible.kind === 'effet' && (def.view === 'compresseur' || def.type === 'sidechain')) {
     const barre = h('span', { class: 'pw-gr-barre' });
     const texte = h('span', { class: 'pw-gr-texte mono' }, '0,0 dB');
     vuesEffet.push(h('div', { class: 'pw-vue pw-gr', 'data-aide': 'Réduction de gain : combien le compresseur baisse le son en ce moment.' }, h('span', { class: 'doux' }, 'Réduction'), h('span', { class: 'pw-gr-piste' }, barre), texte));
@@ -316,7 +361,7 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
   let reglagesCanal: HTMLElement | null = null;
   if (cible.kind === 'instrument') {
     const majCanal = (label: string, f: (c: Channel) => void, merge = false) => store.update(label, d => { const c = d.channels.find(x => x.id === cible.canalId); if (c) f(c); }, merge ? { merge: true } : undefined);
-    const hauteur = champNombre({ libelle: 'Hauteur des pas', min: 0, max: 127, step: 1, defaut: 60, valeur: etat.canal?.rootPitch ?? 60, format: v => nomNote(v), aide: 'note jouée par les pas du Rack.',
+    const hauteur = champNombre({ libelle: 'Hauteur des pas', min: 0, max: 127, step: 1, defaut: 60, valeur: etat.canal?.rootPitch ?? 60, format: v => (def.type === 'frappe' ? VOIX_FRAPPE[v] ?? nomNote(v) : nomNote(v)), aide: def.type === 'frappe' ? 'voix jouée par les pas du Rack (36 grosse caisse … 56 cloche).' : 'note jouée par les pas du Rack.',
       surEntree: v => majCanal('Changer la hauteur des pas', c => { c.rootPitch = v; }, true), surFin: () => finGeste(store) });
     synchros.push(() => { const c = lire()?.canal; if (c) hauteur.definir(c.rootPitch); });
     reglagesCanal = h('div', { class: 'pw-canal' }, h('span', { class: 'doux' }, 'Hauteur des pas'), hauteur.el,
