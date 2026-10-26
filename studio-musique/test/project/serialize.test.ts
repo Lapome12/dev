@@ -79,6 +79,18 @@ describe('fichier .frequence', () => {
     expect(s.mixer[2]!.effects).toHaveLength(8);
   });
 
+  it('accepte les instruments et effets de l’étape 6 (techno et house)', () => {
+    const p = richProject() as unknown as Record<string, any>;
+    p.channels[0].instrument = { type: 'acide', params: { coupure: 800, __proto__x: 1 } };
+    p.channels[1].instrument = { type: 'accord', params: {} };
+    p.mixer[2].effects = ['sidechain', 'phaser', 'autofiltre', 'saturation', 'porte']
+      .map((type, i) => ({ id: `e${i}`, type, bypass: false, mix: 1, params: type === 'porte' ? { motif: 'xx.xx.x.xx.xx.x.' } : {} }));
+    const s = sanitizeProject(p);
+    expect(s.channels.slice(0, 2).map(c => c.instrument.type)).toEqual(['acide', 'accord']);
+    expect(s.mixer[2]!.effects.map(e => e.type)).toEqual(['sidechain', 'phaser', 'autofiltre', 'saturation', 'porte']);
+    expect(s.mixer[2]!.effects[4]!.params['motif']).toBe('xx.xx.x.xx.xx.x.');
+  });
+
   it('refuse les structures piégées', () => {
     const base = () => richProject() as unknown as Record<string, any>;
     const cas: [string, (p: Record<string, any>) => void][] = [

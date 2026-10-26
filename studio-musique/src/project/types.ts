@@ -12,7 +12,7 @@ export interface Pattern {
   lengthTicks: number;                         // 1536 par défaut (4 mesures) ; le Rack en montre 16 à 64 pas
   notes: Record<Id, Note[]>;                   // clé = id de canal. Un « pas » allumé = une note de 24 ticks à la hauteur de base du canal
 }
-export type InstrumentType = 'trio' | 'prisme' | 'frappe' | 'corde' | 'echantillon';
+export type InstrumentType = 'trio' | 'prisme' | 'frappe' | 'corde' | 'echantillon' | 'acide' | 'accord';
 export interface Channel {
   id: Id; name: string; color: string;
   instrument: { type: InstrumentType; params: Record<string, ParamValue> };
@@ -22,7 +22,8 @@ export interface Channel {
   mute: boolean; solo: boolean;
 }
 export type EffectType = 'eq' | 'reverbe' | 'delai' | 'compresseur' | 'distorsion'
-  | 'filtre' | 'chorus' | 'limiteur' | 'pompe' | 'bitcrusher';
+  | 'filtre' | 'chorus' | 'limiteur' | 'pompe' | 'bitcrusher'
+  | 'sidechain' | 'phaser' | 'autofiltre' | 'saturation' | 'porte';
 export interface EffectSlot { id: Id; type: EffectType; bypass: boolean; mix: number; params: Record<string, ParamValue> }
 export interface MixerTrack {
   index: number; name: string; color: string;   // 0 = maître
