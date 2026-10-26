@@ -75,6 +75,10 @@ async function renderNotes(page: import('@playwright/test').Page, type: Instrume
   const p: Project = project({ channels: [channel('a', { instrument: { type, params: { ...defaultParams(type), ...params } }, mixerTrack: 1, volume: 1 })] });
   p.patterns[0]!.lengthTicks = lengthTicks;
   p.patterns[0]!.notes = { a: notes };
+  return renderProject(page, p);
+}
+
+async function renderProject(page: import('@playwright/test').Page, p: Project) {
   await page.setContent('<!doctype html><title>Rendu</title>');
   await page.addScriptTag({ content: bundle });
   const [L, R] = await page.evaluate((o) => window.frequenceBuffer(o as never, 0.5), p);
@@ -127,4 +131,42 @@ test('Acide : glissé seulement quand les notes se chevauchent', async ({ page }
   expect(zTied).toBeLessThan(zDetached * 0.8);
   // Après le glissé, les deux rendus jouent la même hauteur.
   expect(Math.abs(crossings(tied.L, start + 0.35, start + 0.45) - crossings(detached.L, start + 0.35, start + 0.45))).toBeLessThanOrEqual(1);
+});
+
+test('Accord : les 3 timbres sonnent, sans NaN ni saturation, et s’élargissent en stéréo', async ({ page }) => {
+  test.setTimeout(120_000);
+  const notes = [note(0, 60, 90, 0.9), note(96, 65, 90, 0.9), note(192, 67, 90, 0.9), note(288, 57, 90, 0.9)];
+  for (const timbre of ['orgue', 'nappe', 'piano']) {
+    for (const accord of ['majeur', 'm9']) {
+      const r = await renderNotes(page, 'accord', { timbre, accord, largeur: 1 }, notes);
+      const st = stats([r.L, r.R]);
+      expect(st.nan, `${timbre} ${accord}`).toBe(0);
+      expect(st.rms, `${timbre} ${accord}`).toBeGreaterThan(0.01);
+      expect(st.peak, `${timbre} ${accord}`).toBeLessThan(1);
+      // Largeur à 1 : gauche et droite diffèrent nettement.
+      const side = stats([r.L.map((v, i) => (v - r.R[i]!) / 2)]);
+      expect(side.rms / st.rms, `${timbre} ${accord}`).toBeGreaterThan(0.1);
+    }
+  }
+  // Largeur à 0 : mono, à des écarts d'arrondi près (côté sous -40 dB).
+  const mono = await renderNotes(page, 'accord', { timbre: 'nappe', largeur: 0 }, notes);
+  const monoSide = stats([mono.L.map((v, i) => (v - mono.R[i]!) / 2)]).rms;
+  expect(monoSide / stats([mono.L, mono.R]).rms).toBeLessThan(0.01);
+});
+
+test('Frappe : les 12 voix sonnent, le caractère épaissit le son', async ({ page }) => {
+  test.setTimeout(120_000);
+  const pitches = [36, 38, 39, 37, 42, 46, 49, 45, 50, 56, 47, 51];
+  const kit = pitches.map((pitch, i) => note(i * 32, pitch, 24, 0.9));
+  const clean = await renderNotes(page, 'frappe', {}, kit);
+  const dirty = await renderNotes(page, 'frappe', { caractere: 1 }, kit);
+  for (let i = 0; i < pitches.length; i++) {
+    const t = i * 32 * SEC_PER_TICK;
+    expect(stats([clean.L], t, t + 32 * SEC_PER_TICK).rms, `voix ${pitches[i]}`).toBeGreaterThan(0.002);
+  }
+  const c = stats([clean.L, clean.R]);
+  const d = stats([dirty.L, dirty.R]);
+  expect(c.nan + d.nan).toBe(0);
+  expect(d.peak).toBeLessThan(1);
+  expect(d.rms).toBeGreaterThan(c.rms * 1.5);
 });
