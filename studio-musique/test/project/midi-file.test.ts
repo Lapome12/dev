@@ -76,6 +76,24 @@ describe('export MIDI', () => {
     expect(r.pattern.notes[r.channels[0]!.id]!.map(n => n.tick)).toEqual([0, 96, 192, 288]);
   });
 
+  it('batterie : les 12 voix de Frappe font l’aller-retour, les sons GM voisins sont rapprochés, l’accent passe par la vélocité', () => {
+    const p = newProject();
+    const kick = p.channels[0]!;
+    const voix = [36, 37, 38, 39, 41, 42, 45, 46, 47, 49, 51, 56];
+    p.patterns[0]!.notes[kick.id] = voix.map((pitch, i) => ({ id: `v${i}`, tick: i * 24, length: 24, pitch, velocity: i % 2 ? 0.5 : 1 }));
+    const r = importMidi(exportMidi(p).buffer as ArrayBuffer);
+    const relues = r.pattern.notes[r.channels[0]!.id]!;
+    expect(relues.map(n => n.pitch)).toEqual(voix);
+    expect(relues.map(n => n.velocity >= 0.8)).toEqual(voix.map((_, i) => i % 2 === 0));   // accents
+
+    // Un fichier GM venu d'ailleurs : grosse caisse 35, pédale 44, conga 63, ride 2 (59), crash 2 (57).
+    const gm = [35, 44, 63, 59, 57];
+    const p2 = newProject();
+    p2.patterns[0]!.notes[p2.channels[0]!.id] = gm.map((pitch, i) => ({ id: `g${i}`, tick: i * 24, length: 24, pitch, velocity: 0.9 }));
+    const r2 = importMidi(exportMidi(p2).buffer as ArrayBuffer);
+    expect(r2.pattern.notes[r2.channels[0]!.id]!.map(n => n.pitch)).toEqual([36, 42, 47, 51, 49]);
+  });
+
   it('aplatit l’arrangement : répétition, décalage, coupure en fin de clip, piste muette', () => {
     const p = newProject();
     const pat = p.patterns[0]!;
