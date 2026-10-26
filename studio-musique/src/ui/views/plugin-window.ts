@@ -18,6 +18,7 @@ import { borner, h, jeton, preparerCanvas } from '../dom';
 import { finGeste } from '../geste';
 import { nomNote, VOIX_FRAPPE } from '../notes';
 import { ecrireMotif, lireMotif, PAS_PORTE } from '../../engine/effects/porte';
+import { chordPitches } from '../../engine/instruments/accord';
 
 type Cible = { kind: 'instrument'; canalId: Id } | { kind: 'effet'; piste: number; slotId: Id };
 
@@ -159,9 +160,53 @@ export function ouvrirPlugin(ctx: Contexte, cible: Cible): void {
 
   const groupes = grouper(def.params).map(g => {
     const pre = prefixeAdsr(g.params);
-    const vue = pre !== null && def.view === 'adsr' ? vueAdsr(g.params, pre) : null;
+    const vue = pre !== null && def.view === 'adsr' ? vueAdsr(g.params, pre) : def.type === 'accord' && g.nom === 'Accord' ? vueAccord(def.params) : null;
     return h('div', { class: 'groupe-reglages' }, h('h3', null, g.nom), vue, h('div', { class: 'rangee-reglages' }, ...g.params.map(controle)));
   });
+
+  // ---------- Accord : mini clavier des notes jouées par la hauteur des pas ----------
+  function vueAccord(defs: readonly ParamDef[]): HTMLElement {
+    const reglage = (id: string, p: Record<string, ParamValue>) => { const d = defs.find(x => x.id === id); return d ? valeurReglage(d, p) : undefined; };
+    const BLANCHES = [0, 2, 4, 5, 7, 9, 11];
+    const touches = h('div', { class: 'pw-accord-clavier', 'aria-hidden': 'true' });
+    const texte = h('p', { class: 'pw-accord-texte mono' });
+    const boite = h('div', { class: 'pw-vue pw-accord', 'data-aide': 'Notes de l\'accord joué par la hauteur des pas du canal (Do4 par défaut).' }, touches, texte);
+    let cle = '';
+    const maj = () => {
+      const e = lire();
+      if (!e) return;
+      const p = e.params;
+      const racine = (e.canal?.rootPitch ?? 60) + Math.round(Number(reglage('octave', p) ?? 0)) * 12;
+      const accord = String(reglage('accord', p) ?? 'm7');
+      const renv = Math.round(Number(reglage('renversement', p) ?? 0));
+      const notes = chordPitches(racine, accord, renv);
+      const k = notes.join(',');
+      if (k === cle) return;
+      cle = k;
+      // Deux octaves (trois si l'accord déborde), à partir du do sous la note la plus grave.
+      const debut = Math.floor(Math.min(...notes) / 12) * 12;
+      const octaves = Math.max(2, Math.ceil((Math.max(...notes) + 1 - debut) / 12));
+      const enfants: HTMLElement[] = [];
+      for (let o = 0; o < octaves; o++) {
+        for (let d = 0; d < 12; d++) {
+          const hauteur = debut + o * 12 + d;
+          const blanche = BLANCHES.includes(d);
+          const t = h('span', { class: `pw-touche ${blanche ? 'blanche' : 'noire'}${notes.includes(hauteur) ? ' jouee' : ''}${hauteur === racine ? ' racine' : ''}` });
+          if (!blanche) t.style.setProperty('--x', String(o * 7 + BLANCHES.filter(b => b < d).length));
+          enfants.push(t);
+        }
+      }
+      touches.style.setProperty('--blanches', String(octaves * 7));
+      touches.replaceChildren(...enfants);
+      const triees = [...notes].sort((a, b) => a - b);
+      texte.textContent = triees.map(nomNote).join(' · ');
+      boite.setAttribute('aria-label', `Notes jouées : ${triees.map(nomNote).join(', ')}`);
+    };
+    boite.setAttribute('role', 'img');
+    maj();
+    synchros.push(maj);
+    return boite;
+  }
 
   // ---------- Vue ADSR déplaçable ----------
   function vueAdsr(params: ParamDef[], pre: string): HTMLElement {

@@ -299,3 +299,13 @@
 .pw-groupes .groupe-reglages:has(.pw-motif) { grid-column: 1 / -1; }
 .rangee-reglages > .pw-motif { flex: 1 1 100%; }
 .pw-motif-outils .btn { height: 26px; padding: 0 8px; font-size: 12px; }
+
+/* Accord : mini clavier */
+.pw-accord { display: flex; flex-direction: column; gap: 6px; padding: 8px; width: 100%; }
+.pw-accord-clavier { position: relative; display: grid; grid-template-columns: repeat(var(--blanches, 14), 1fr); height: 56px; gap: 1px; }
+.pw-touche.blanche { background: #d9dde5; border-radius: 0 0 3px 3px; }
+.pw-touche.noire { position: absolute; top: 0; width: calc(100% / var(--blanches, 14) * 0.6); height: 60%; left: calc(100% / var(--blanches, 14) * (var(--x) + 0.7)); background: #1b1e26; border-radius: 0 0 2px 2px; z-index: 1; }
+.pw-touche.jouee { background: var(--accent); }
+.pw-touche.noire.jouee { background: var(--accent-fonce); box-shadow: 0 0 0 1px var(--accent) inset; }
+.pw-touche.racine { box-shadow: 0 -4px 0 #0b0d11 inset; }
+.pw-accord-texte { font-size: 12px; color: var(--texte-doux); }
