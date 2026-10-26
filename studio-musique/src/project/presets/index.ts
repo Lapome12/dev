@@ -1,10 +1,11 @@
-// Presets maison (§D.4, étape 2.8). Tous créés par nous et nommés en français.
+// Presets maison (§D.4, étapes 2.8 et 6.3b). Tous créés par nous et nommés en français.
 // Chaque preset est complet : valeurs par défaut du plugin, puis ses propres réglages.
 import { defaultParams } from '../plugin-params';
 import type { EffectType, InstrumentType, ParamValue } from '../types';
 import { CORDE } from './corde';
 import { ECHANTILLON } from './echantillon';
 import { EFFETS } from './effets';
+import { EFFETS_TECHNO } from './effets-techno';
 import { FRAPPE } from './frappe';
 import { PRISME } from './prisme';
 import type { PresetSpec } from './spec';
@@ -14,7 +15,7 @@ export interface Preset { id: string; name: string; type: InstrumentType | Effec
 
 const SOURCES: [InstrumentType | EffectType, PresetSpec[]][] = [
   ['trio', TRIO], ['prisme', PRISME], ['frappe', FRAPPE], ['corde', CORDE], ['echantillon', ECHANTILLON],
-  ...EFFETS,
+  ...EFFETS, ...EFFETS_TECHNO,
 ];
 
 let all: Preset[] | null = null;

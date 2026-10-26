@@ -11,6 +11,8 @@ describe('presets', () => {
     expect(count('frappe')).toBeGreaterThanOrEqual(3);
     expect(count('corde')).toBeGreaterThanOrEqual(6);
     expect(count('echantillon')).toBeGreaterThanOrEqual(2);
+    // Étape 6 : effets techno et house.
+    for (const t of ['porte', 'phaser', 'autofiltre', 'saturation'] as const) expect(count(t), t).toBeGreaterThanOrEqual(3);
   });
 
   it('ids uniques, noms français non vides, catégories (les noms interdits sont vérifiés par scripts/mots-interdits.mjs)', () => {
@@ -36,8 +38,11 @@ describe('presets', () => {
             expect(v as number, `${s.id}.${k}`).toBeLessThanOrEqual(d!.max ?? Infinity);
           } else if (d!.kind === 'toggle') {
             expect(typeof v, `${s.id}.${k}`).toBe('boolean');
+          } else if (d!.options) {
+            expect(d!.options.map(o => o.value), `${s.id}.${k}`).toContain(v);
           } else {
-            expect(d!.options!.map(o => o.value), `${s.id}.${k}`).toContain(v);
+            expect(typeof v, `${s.id}.${k}`).toBe('string');     // choix libre (son, motif de la Porte)
+            if (type === 'porte' && k === 'motif') expect(v, s.id).toMatch(/^[x.]{16}$/);
           }
         }
       }
