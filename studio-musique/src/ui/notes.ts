@@ -65,8 +65,24 @@ export function nomLibre(base: string, existants: readonly string[]): string {
 /** Voix de Frappe selon la hauteur (§D.2, précision du Manager). */
 export const VOIX_FRAPPE: Record<number, string> = {
   36: 'Grosse caisse', 37: 'Rimshot', 38: 'Caisse claire', 39: 'Clap', 41: 'Tom grave',
-  42: 'Charley fermé', 45: 'Tom medium', 46: 'Charley ouvert', 49: 'Crash', 56: 'Cloche',
+  42: 'Charley fermé', 45: 'Tom medium', 46: 'Charley ouvert', 47: 'Percu', 49: 'Crash', 51: 'Ride', 56: 'Cloche',
 };
+
+/** Acide (§6) : une note accentuée a une vélocité d'au moins 0,8. */
+export const SEUIL_ACCENT = 0.8;
+export const estAccent = (n: Pick<Note, 'velocity'>): boolean => n.velocity >= SEUIL_ACCENT;
+
+/** Acide, monophonique : paires de notes consécutives qui se chevauchent, donc jouées en glissé. */
+export function liaisonsGlisse<T extends Pick<Note, 'tick' | 'length'>>(notes: readonly T[]): [T, T][] {
+  const tri = [...notes].sort((a, b) => a.tick - b.tick);
+  const out: [T, T][] = [];
+  for (let i = 1; i < tri.length; i++) {
+    const a = tri[i - 1]!;
+    const b = tri[i]!;
+    if (b.tick > a.tick && a.tick + a.length > b.tick) out.push([a, b]);
+  }
+  return out;
+}
 
 const NOMS_NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 /** 60 -> « C4 », 69 -> « A4 ». */

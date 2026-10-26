@@ -13,7 +13,7 @@ import type { Contexte } from '../contexte';
 import { borner, h, jeton, preparerCanvas } from '../dom';
 import { finGeste } from '../geste';
 import {
-  aimanter, copierNotes, decouper, estNoire, etendue, longueurCouvrante, nomNote, nouvelId, quantifier, VOIX_FRAPPE,
+  aimanter, copierNotes, decouper, estAccent, estNoire, etendue, liaisonsGlisse, longueurCouvrante, nomNote, nouvelId, quantifier, VOIX_FRAPPE,
 } from '../notes';
 import { ajouterRaccourcis } from '../shortcuts';
 import type { OutilPiano } from '../ui-state';
@@ -33,6 +33,7 @@ const LARGEUR_CLAVIER = 64;
 const HAUTEUR_REGLE = 22;
 const HAUTEUR_VELOCITES = 84;
 const BORD = 6;          // px de la poignée d'étirement
+const ACCENT = '#F5C46B'; // Acide : notes accentuées
 const MESURE = 384;
 
 type Geste =
@@ -532,6 +533,7 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     const hHaut = hauteurDeY(0);
     const hBas = hauteurDeY(H);
     const frappe = canal.instrument.type === 'frappe';
+    const acide = canal.instrument.type === 'acide';
 
     // Grille de notes
     const cx = preparerCanvas(cNotes, L, H);
@@ -581,7 +583,30 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
       cx.globalAlpha = 1;
       if (sel) { cx.strokeStyle = '#ffffff'; cx.lineWidth = 1.5; cx.strokeRect(x + 0.75, y + 1.75, w - 1.5, rangee - 3.5); }
       else { cx.fillStyle = 'rgba(0,0,0,.35)'; cx.fillRect(x, y + rangee - 2, w, 1); }
-      if (w > 30 && rangee >= 12) { cx.fillStyle = '#0b0d11'; cx.fillText(frappe ? (VOIX_FRAPPE[n.pitch] ?? nomNote(n.pitch)) : nomNote(n.pitch), x + 4, y + rangee / 2 + 0.5, w - 6); }
+      // Acide : l'accent se voit (liseré clair en haut et marque « > »).
+      if (acide && estAccent(n)) {
+        cx.fillStyle = ACCENT;
+        cx.fillRect(x, y + 1, w, Math.max(2, Math.round(rangee / 5)));
+        if (w > 12 && rangee >= 10) { cx.fillStyle = '#0b0d11'; cx.fillText('>', x + w - 9, y + rangee / 2 + 0.5); }
+      }
+      if (w > 30 && rangee >= 12) { cx.fillStyle = '#0b0d11'; cx.fillText(frappe ? (VOIX_FRAPPE[n.pitch] ?? nomNote(n.pitch)) : nomNote(n.pitch), x + 4, y + rangee / 2 + 0.5, w - (acide && estAccent(n) ? 16 : 6)); }
+    }
+    // Acide : liaison dessinée entre deux notes qui se chevauchent (glissé).
+    if (acide) {
+      cx.strokeStyle = '#ffffff';
+      cx.lineWidth = 2;
+      cx.lineCap = 'round';
+      for (const [a, b] of liaisonsGlisse(notes)) {
+        if (b.tick > t1 || a.tick + a.length < t0) continue;
+        const xb = xDeTick(b.tick);
+        const ya = yDeHauteur(a.pitch) + rangee / 2;
+        const yb = yDeHauteur(b.pitch) + rangee / 2;
+        cx.beginPath();
+        cx.moveTo(xb - Math.min(18, 6 * zoomX), ya);
+        cx.bezierCurveTo(xb, ya, xb - 4, yb, xb + 4, yb);
+        cx.stroke();
+      }
+      cx.lineCap = 'butt';
     }
     // Survol (crayon) : fantôme de la note qui serait posée
     if (survol && !geste && ui.get().outilPiano === 'crayon' && !noteSous(survol.x, survol.y)) {
@@ -654,11 +679,21 @@ export function vuePianoRoll(ctx: Contexte): HTMLElement {
     cv.fillRect(0, 0, L, HV);
     cv.fillStyle = C.filet ?? '';
     cv.fillRect(0, 0, L, 1);
+    // Acide : seuil de l'accent (vélocité 0,8) en pointillés.
+    if (acide) {
+      const ya = Math.round(HV - 6 - (HV - 12) * 0.8) + 0.5;
+      cv.strokeStyle = ACCENT;
+      cv.globalAlpha = 0.5;
+      cv.setLineDash([4, 4]);
+      cv.beginPath(); cv.moveTo(0, ya); cv.lineTo(L, ya); cv.stroke();
+      cv.setLineDash([]);
+      cv.globalAlpha = 1;
+    }
     for (const n of notes) {
       if (n.tick > t1 || n.tick < t0 - 20) continue;
       const x = Math.round(xDeTick(n.tick));
       const hv = (HV - 12) * n.velocity;
-      cv.fillStyle = selection.has(n.id) ? '#ffffff' : canal.color;
+      cv.fillStyle = selection.has(n.id) ? '#ffffff' : acide && estAccent(n) ? ACCENT : canal.color;
       cv.fillRect(x, HV - 6 - hv, 2, hv);
       cv.beginPath(); cv.arc(x + 1, HV - 6 - hv, 3, 0, Math.PI * 2); cv.fill();
     }

@@ -8,7 +8,7 @@ import { aide, aideTemporaire } from '../aide';
 import { bouton } from '../components/button';
 import { confirmer, demanderTexte } from '../components/dialog';
 import { boutonRotatif } from '../components/knob';
-import { boutonMenu, ouvrirMenu } from '../components/menu';
+import { boutonMenu, ouvrirMenu, type ElementMenu } from '../components/menu';
 import { champNombre } from '../components/number';
 import { liste } from '../components/select';
 import { interrupteur } from '../components/toggle';
@@ -18,15 +18,24 @@ import { borner, h } from '../dom';
 import { finGeste } from '../geste';
 import { suivrePattern } from '../lecture';
 import { ajouterEffetPreset, changerInstrument, glisseEnCours, lireGlisse } from '../presets-glisses';
-import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, nouvelId, TICKS_PAS, velocitesParPas } from '../notes';
+import { copierPattern, definirPas, nombrePas, nomLibre, notesDuPas, nouvelId, TICKS_PAS, velocitesParPas, VOIX_FRAPPE } from '../notes';
+import { listPlugins } from '../../engine/params';
 
 export const INSTRUMENTS: { type: InstrumentType; nom: string; description: string }[] = [
   { type: 'trio', nom: 'Trio', description: 'Synthé à 3 oscillateurs : basses, leads, nappes.' },
   { type: 'prisme', nom: 'Prisme', description: 'Synthé FM à 4 opérateurs : cloches, pianos électriques.' },
-  { type: 'frappe', nom: 'Frappe', description: 'Boîte à rythmes synthétisée, 10 voix.' },
+  { type: 'frappe', nom: 'Frappe', description: 'Boîte à rythmes synthétisée, 12 voix.' },
+  { type: 'acide', nom: 'Acide', description: 'Basse mono qui couine : accent et glissé.' },
+  { type: 'accord', nom: 'Accord', description: 'Une note, un accord : stabs house, orgue, nappes.' },
   { type: 'corde', nom: 'Corde', description: 'Cordes pincées : guitare, harpe, pizzicato.' },
   { type: 'echantillon', nom: 'Échantillon', description: 'Joue vos propres sons (.wav, .mp3).' },
 ];
+
+/** Les instruments que le moteur connaît (ceux de l'étape 6 n'apparaissent qu'une fois livrés). */
+export const instrumentsDisponibles = () => INSTRUMENTS.filter(i => listPlugins().some(p => p.type === i.type));
+
+/** Voix de Frappe triées par note, pour les menus. */
+export const voixFrappe = (): [number, string][] => Object.entries(VOIX_FRAPPE).map(([k, v]) => [Number(k), v] as [number, string]).sort((a, b) => a[0] - b[0]);
 
 const pattern = (p: Readonly<Project>, id: Id): Pattern | undefined => p.patterns.find(pt => pt.id === id);
 
@@ -37,8 +46,9 @@ export function trancheLibre(p: Readonly<Project>): number {
 }
 
 /** Ajoute un canal (avec preset éventuel) et le sélectionne. */
-export function ajouterCanal(ctx: Contexte, type: InstrumentType, presetId?: string): Id {
+export function ajouterCanal(ctx: Contexte, type: InstrumentType, presetId?: string, regler?: (c: Channel) => void): Id {
   const c = newChannel(type, presetId);
+  regler?.(c);
   ctx.store.update('Ajouter un canal', d => {
     c.color = colorAt(d.channels.length);
     c.mixerTrack = trancheLibre(d);
@@ -48,6 +58,11 @@ export function ajouterCanal(ctx: Contexte, type: InstrumentType, presetId?: str
   });
   ctx.ui.set({ canalId: c.id });
   return c.id;
+}
+
+/** Ajoute un canal Frappe qui joue une seule voix (hauteur des pas = la voix). */
+export function ajouterVoixFrappe(ctx: Contexte, hauteur: number, nom: string): Id {
+  return ajouterCanal(ctx, 'frappe', undefined, c => { c.rootPitch = hauteur; c.name = nom; });
 }
 
 interface Ligne {
@@ -114,7 +129,10 @@ export function vueRack(ctx: Contexte): HTMLElement {
     surChange: v => store.update('Changer la longueur du pattern', d => { const pt = pattern(d, ui.get().patternId); if (pt) pt.lengthTicks = Number(v) * TICKS_PAS; }),
   });
   const btnAjouter = boutonMenu(bouton({ texte: 'Canal', icone: 'plus', aide: 'Ajoute un canal avec l\'instrument de votre choix.' }),
-    () => [{ titre: 'Instrument' }, ...INSTRUMENTS.map(i => ({ texte: `${i.nom} : ${i.description}`, action: () => { ajouterCanal(ctx, i.type); } }))], 'Ajouter un canal');
+    () => [
+      { titre: 'Instrument' }, ...instrumentsDisponibles().map(i => ({ texte: `${i.nom} : ${i.description}`, action: () => { ajouterCanal(ctx, i.type); } })),
+      { titre: 'Une voix de Frappe' }, ...voixFrappe().map(([hauteur, nom]) => ({ texte: nom, action: () => { ajouterVoixFrappe(ctx, hauteur, nom); } })),
+    ], 'Ajouter un canal');
 
   // Sur téléphone, 16 pas à la fois : une page par mesure (la tête de lecture tourne les pages).
   const PAS_PAGE = 16;
@@ -316,6 +334,23 @@ export function vueRack(ctx: Contexte): HTMLElement {
       for (const pt of d.patterns) delete pt.notes[id];
     });
   };
+  // Frappe : choisir la voix que jouent les pas (les 12 voix, nom du canal suivi s'il portait l'ancienne voix).
+  const menuVoix = (id: Id): ElementMenu[] => {
+    const c = store.get().channels.find(x => x.id === id);
+    if (c?.instrument.type !== 'frappe') return [];
+    return [{ separateur: true }, { titre: 'Voix jouée par les pas' }, ...voixFrappe().map(([hauteur, nom]) => ({
+      texte: nom, coche: c.rootPitch === hauteur,
+      action: () => store.update('Changer de voix', d => {
+        const x = d.channels.find(y => y.id === id);
+        if (!x) return;
+        const avant = x.rootPitch;
+        if (x.name === VOIX_FRAPPE[avant]) x.name = nom;
+        x.rootPitch = hauteur;
+        // Les pas déjà posés suivent la voix ; les autres notes (piano roll) ne bougent pas.
+        for (const pt of d.patterns) for (const n of pt.notes[id] ?? []) if (n.pitch === avant) n.pitch = hauteur;
+      }),
+    }))];
+  };
   const menuCanal = (id: Id, pos: { x: number; y: number } | HTMLElement) => ouvrirMenu([
     { texte: 'Ouvrir l\'instrument', action: () => ctx.actions.ouvrirInstrument(id) },
     { texte: 'Ouvrir le piano roll', raccourci: 'Alt+2', action: () => ui.set({ canalId: id, vue: 'piano' }) },
@@ -323,6 +358,7 @@ export function vueRack(ctx: Contexte): HTMLElement {
     { texte: 'Renommer…', action: () => void renommerCanal(id) },
     { texte: 'Dupliquer', action: () => dupliquerCanal(id) },
     { texte: 'Effacer les pas du pattern', action: () => store.update('Effacer les pas', d => { const pt = pattern(d, ui.get().patternId); if (pt) pt.notes[id] = []; }) },
+    ...menuVoix(id),
     { separateur: true },
     { texte: 'Supprimer le canal', danger: true, action: () => void supprimerCanal(id) },
   ], pos, 'Canal');
