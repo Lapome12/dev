@@ -17,6 +17,7 @@ import { autofiltre } from './effects/autofiltre';
 import { phaser } from './effects/phaser';
 import { porte } from './effects/porte';
 import { saturation } from './effects/saturation';
+import { accord } from './instruments/accord';
 import { acide } from './instruments/acide';
 import { corde } from './instruments/corde';
 import { echantillon } from './instruments/echantillon';
@@ -25,7 +26,7 @@ import { prisme } from './instruments/prisme';
 import { trio } from './instruments/trio';
 
 export const INSTRUMENTS: Partial<Record<InstrumentType, InstrumentModule>> = {
-  trio, prisme, frappe, corde, echantillon, acide,
+  trio, prisme, frappe, corde, echantillon, acide, accord,
 };
 
 export const EFFECTS: Partial<Record<EffectType, EffectModule>> = {

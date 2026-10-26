@@ -1,21 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { pluck } from '../../src/engine/instruments/corde';
+import { chordPitches, intervallesAccord } from '../../src/engine/instruments/accord';
 import { acidCurve } from '../../src/engine/instruments/acide';
-import { drumFor, DRUMS } from '../../src/engine/instruments/frappe';
+import { characterCurve, drumFor, DRUMS } from '../../src/engine/instruments/frappe';
 import { ALGORITHMS, feedbackHarmonics } from '../../src/engine/instruments/prisme';
 import { defaultParams, listPlugins } from '../../src/engine/params';
 
-describe('les 6 instruments', () => {
+describe('les 7 instruments', () => {
   it('sont tous déclarés avec leurs réglages', () => {
     const types = listPlugins().filter((p) => p.kind === 'instrument').map((p) => p.type);
-    expect(types.sort()).toEqual(['acide', 'corde', 'echantillon', 'frappe', 'prisme', 'trio']);
-    expect(Object.keys(defaultParams('frappe')).length).toBe(51);
+    expect(types.sort()).toEqual(['accord', 'acide', 'corde', 'echantillon', 'frappe', 'prisme', 'trio']);
+    expect(Object.keys(defaultParams('frappe')).length).toBe(62);
   });
 });
 
 describe('Frappe', () => {
-  it('associe les hauteurs General MIDI aux 10 voix', () => {
-    expect(DRUMS.length).toBe(10);
+  it('associe les hauteurs General MIDI aux 12 voix', () => {
+    expect(DRUMS.length).toBe(12);
+    expect(drumFor(47)).toBe('percu');
+    expect(drumFor(51)).toBe('ride');
     expect(drumFor(36)).toBe('gc');
     expect(drumFor(38)).toBe('cc');
     expect(drumFor(42)).toBe('chf');
@@ -87,6 +90,32 @@ describe('Acide', () => {
       expect(c[0]).toBeCloseTo(-1, 5);
       expect(c[256]).toBeCloseTo(1, 5);
       for (let i = 1; i < c.length; i++) expect(c[i]!).toBeGreaterThanOrEqual(c[i - 1]!);
+    }
+  });
+});
+
+describe('Accord', () => {
+  it('donne les intervalles de chaque accord, m7 par défaut', () => {
+    expect(intervallesAccord('majeur')).toEqual([0, 4, 7]);
+    expect(intervallesAccord('m9')).toEqual([0, 3, 7, 10, 14]);
+    expect(intervallesAccord('inconnu')).toEqual([0, 3, 7, 10]);
+  });
+
+  it('renverse l’accord en montant les notes graves d’une octave', () => {
+    expect(chordPitches(60, 'majeur', 0)).toEqual([60, 64, 67]);
+    expect(chordPitches(60, 'majeur', 1)).toEqual([64, 67, 72]);
+    expect(chordPitches(60, 'majeur', 2)).toEqual([67, 72, 76]);
+    // Pas plus de renversements que de notes moins une.
+    expect(chordPitches(60, 'quinte', 3)).toEqual([67, 72]);
+  });
+});
+
+describe('Frappe : caractère', () => {
+  it('laisse le silence à 0 et reste borné à ±1 (à 0, la courbe est retirée)', () => {
+    for (const amount of [0.1, 0.5, 1]) {
+      const c = characterCurve(amount, 257);
+      expect(c[128]).toBeCloseTo(0, 9);
+      for (const v of c) expect(Math.abs(v)).toBeLessThanOrEqual(1 + 1e-6);
     }
   });
 });
