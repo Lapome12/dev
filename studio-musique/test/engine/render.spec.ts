@@ -213,3 +213,16 @@ test('Sidechain : une tranche qui se pilote elle-même est ignorée, sans boucle
   expect(stats([self.L, self.R]).nan).toBe(0);
   expect(stats([self.L.map((v, i) => v - ref.L[i]!)]).peak).toBeLessThan(1e-3);
 });
+
+test('modèle Techno : pas de décalage continu à l’export', async ({ page }) => {
+  // Morceau entier (~67 s) : une minute de rendu environ depuis la programmation par tranches.
+  test.setTimeout(300_000);
+  for (const id of ['techno-132']) {
+    await page.setContent('<!doctype html><title>Rendu</title>');
+    await page.addScriptTag({ content: bundle });
+    const r = await page.evaluate((t) => window.frequenceTemplate(t), id);
+    expect(r.seconds, id).toBeGreaterThan(5);
+    expect(r.peak, id).toBeLessThanOrEqual(1);
+    for (const m of r.mean) expect(Math.abs(m), id).toBeLessThan(1e-3);
+  }
+});
