@@ -8,10 +8,11 @@ describe('presets', () => {
     const count = (t: Parameters<typeof listPresets>[0]) => listPresets(t).length;
     expect(count('trio')).toBeGreaterThanOrEqual(25);
     expect(count('prisme')).toBeGreaterThanOrEqual(12);
-    expect(count('frappe')).toBeGreaterThanOrEqual(3);
+    expect(count('frappe')).toBeGreaterThanOrEqual(6);
     expect(count('corde')).toBeGreaterThanOrEqual(6);
     expect(count('echantillon')).toBeGreaterThanOrEqual(2);
     expect(count('acide')).toBeGreaterThanOrEqual(12);
+    expect(count('accord')).toBeGreaterThanOrEqual(12);
     // Étape 6 : effets techno et house.
     for (const t of ['porte', 'phaser', 'autofiltre', 'saturation'] as const) expect(count(t), t).toBeGreaterThanOrEqual(3);
   });
